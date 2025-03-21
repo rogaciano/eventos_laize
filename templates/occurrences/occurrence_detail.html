@@ -1,0 +1,190 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Ocorrência - Gerenciador de Eventos{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="flex justify-between items-center px-4 py-5 sm:px-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">Ocorrência</h1>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                {% if occurrence.status == 'pending' %}bg-yellow-100 text-yellow-800
+                {% elif occurrence.status == 'in_progress' %}bg-blue-100 text-blue-800
+                {% elif occurrence.status == 'resolved' %}bg-green-100 text-green-800
+                {% elif occurrence.status == 'cancelled' %}bg-red-100 text-red-800
+                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {{ occurrence.get_status_display }}
+                </span>
+                <span class="ml-2">Registrada em {{ occurrence.created_at|date:"d/m/Y H:i" }}</span>
+            </p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="{% url 'occurrences:update' occurrence.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-edit mr-2"></i>Editar
+            </a>
+            <a href="{% url 'occurrences:delete' occurrence.id %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-trash mr-2"></i>Excluir
+            </a>
+            <a href="{% url 'occurrences:list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-arrow-left mr-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+    
+    <div class="border-t border-gray-200">
+        <dl>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Relacionado a</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {% if occurrence.event %}
+                    <a href="{% url 'events:detail' occurrence.event.id %}" class="text-indigo-600 hover:text-indigo-900">
+                        Evento: {{ occurrence.event.title }}
+                    </a>
+                    {% elif occurrence.client %}
+                    <a href="{% url 'clients:detail' occurrence.client.id %}" class="text-indigo-600 hover:text-indigo-900">
+                        Cliente: {{ occurrence.client.name }}
+                    </a>
+                    {% elif occurrence.person %}
+                    <a href="{% url 'people:detail' occurrence.person.id %}" class="text-indigo-600 hover:text-indigo-900">
+                        Pessoa: {{ occurrence.person.name }}
+                    </a>
+                    {% else %}
+                    <span class="text-gray-500">Outro / Geral</span>
+                    {% endif %}
+                </dd>
+            </div>
+            
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Status</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full 
+                    {% if occurrence.status == 'pending' %}bg-yellow-100 text-yellow-800
+                    {% elif occurrence.status == 'in_progress' %}bg-blue-100 text-blue-800
+                    {% elif occurrence.status == 'resolved' %}bg-green-100 text-green-800
+                    {% elif occurrence.status == 'cancelled' %}bg-red-100 text-red-800
+                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ occurrence.get_status_display }}
+                    </span>
+                </dd>
+            </div>
+            
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Data de Criação</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ occurrence.created_at|date:"d/m/Y H:i" }}</dd>
+            </div>
+            
+            {% if occurrence.updated_at and occurrence.updated_at != occurrence.created_at %}
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Última Atualização</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ occurrence.updated_at|date:"d/m/Y H:i" }}</dd>
+            </div>
+            {% endif %}
+            
+            <div class="bg-gray-50 px-4 py-5 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500 mb-2">Descrição</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 whitespace-pre-wrap rounded-md bg-white p-4 border border-gray-200">{{ occurrence.description }}</dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+<!-- Ações rápidas -->
+{% if occurrence.status != 'resolved' and occurrence.status != 'cancelled' %}
+<div class="mt-6 flex justify-end space-x-3">
+    {% if occurrence.status == 'pending' %}
+    <form method="post" action="{% url 'occurrences:update_status' occurrence.id 'in_progress' %}">
+        {% csrf_token %}
+        <button type="submit" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-play-circle mr-2"></i>Iniciar Tratamento
+        </button>
+    </form>
+    {% elif occurrence.status == 'in_progress' %}
+    <form method="post" action="{% url 'occurrences:update_status' occurrence.id 'resolved' %}">
+        {% csrf_token %}
+        <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-check-circle mr-2"></i>Marcar como Resolvida
+        </button>
+    </form>
+    {% endif %}
+    
+    <form method="post" action="{% url 'occurrences:update_status' occurrence.id 'cancelled' %}">
+        {% csrf_token %}
+        <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-times-circle mr-2"></i>Cancelar Ocorrência
+        </button>
+    </form>
+</div>
+{% endif %}
+
+<!-- Novas ocorrências relacionadas -->
+<div class="mt-8">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-900">Ocorrências Relacionadas</h2>
+        <div>
+            {% if occurrence.event %}
+            <a href="{% url 'occurrences:create' %}?related_to=event&event={{ occurrence.event.id }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-plus-circle mr-2"></i>Nova Ocorrência para este Evento
+            </a>
+            {% elif occurrence.client %}
+            <a href="{% url 'occurrences:create' %}?related_to=client&client={{ occurrence.client.id }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-plus-circle mr-2"></i>Nova Ocorrência para este Cliente
+            </a>
+            {% elif occurrence.person %}
+            <a href="{% url 'occurrences:create' %}?related_to=person&person={{ occurrence.person.id }}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-plus-circle mr-2"></i>Nova Ocorrência para esta Pessoa
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        {% if related_occurrences %}
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for related in related_occurrences %}
+                {% if related.id != occurrence.id %}
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ related.created_at|date:"d/m/Y" }}</div>
+                        <div class="text-sm text-gray-500">{{ related.created_at|time:"H:i" }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                        {% if related.status == 'pending' %}bg-yellow-100 text-yellow-800
+                        {% elif related.status == 'in_progress' %}bg-blue-100 text-blue-800
+                        {% elif related.status == 'resolved' %}bg-green-100 text-green-800
+                        {% elif related.status == 'cancelled' %}bg-red-100 text-red-800
+                        {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {{ related.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">{{ related.description|truncatechars:100 }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="{% url 'occurrences:detail' related.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3" title="Ver detalhes">
+                            <i class="fas fa-eye"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endif %}
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="p-6 text-center text-gray-500">
+            Nenhuma ocorrência relacionada encontrada
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

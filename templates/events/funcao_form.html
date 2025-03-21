@@ -1,0 +1,66 @@
+{% extends 'base/modal_base.html' %}
+
+{% block modal_title %}Nova Função{% endblock %}
+{% block modal_header %}Nova Função{% endblock %}
+
+{% block modal_body %}
+<form id="funcao-form" method="post" action="{% url 'events:funcao_create' %}">
+    {% csrf_token %}
+    
+    <div class="mb-4">
+        <label for="{{ form.nome.id_for_label }}" class="block text-sm font-medium text-gray-700">Nome da Função</label>
+        {{ form.nome }}
+        <div class="text-red-500 text-sm mt-1 error-message" id="nome-error"></div>
+    </div>
+    
+    <div class="mt-6 flex justify-end">
+        <button type="button" class="bg-gray-200 py-2 px-4 rounded-md text-gray-700 mr-2" onclick="closeModal()">Cancelar</button>
+        <button type="submit" class="bg-blue-600 py-2 px-4 rounded-md text-white">Salvar</button>
+    </div>
+</form>
+{% endblock %}
+
+{% block modal_footer %}
+<script>
+    document.getElementById('funcao-form').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        // Limpar mensagens de erro anteriores
+        document.querySelectorAll('.error-message').forEach(el => el.textContent = '');
+        
+        // Enviar formulário via AJAX
+        fetch(this.action, {
+            method: 'POST',
+            body: new FormData(this),
+            headers: {
+                'X-Requested-With': 'XMLHttpRequest'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Adicionar a nova função ao select
+                const roleSelect = window.opener.document.getElementById('id_role');
+                const option = new Option(data.nome, data.id, true, true);
+                roleSelect.appendChild(option);
+                
+                // Fechar o modal
+                window.opener.postMessage({ type: 'funcao_added', message: data.message }, '*');
+                window.close();
+            } else {
+                // Exibir erros
+                if (data.errors.nome) {
+                    document.getElementById('nome-error').textContent = data.errors.nome.join(' ');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+        });
+    });
+    
+    function closeModal() {
+        window.close();
+    }
+</script>
+{% endblock %}

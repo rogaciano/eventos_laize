@@ -1,0 +1,71 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Excluir Função{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50">
+        <h1 class="text-2xl font-bold text-gray-900">Excluir Função</h1>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Confirme a exclusão da função
+        </p>
+    </div>
+    
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+        {% if error_message %}
+        <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-circle text-red-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-red-700">
+                        {{ error_message }}
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="flex justify-end">
+            <a href="{% url 'events:funcao_list' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-arrow-left mr-2"></i>Voltar para a lista
+            </a>
+        </div>
+        {% else %}
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-yellow-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-yellow-700">
+                        Você está prestes a excluir a função <strong>{{ funcao.nome }}</strong>. Esta ação não pode ser desfeita.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Detalhes da função:</h3>
+            <div class="bg-gray-50 p-4 rounded-md border border-gray-200">
+                <p class="mb-2"><span class="font-semibold">Nome:</span> {{ funcao.nome }}</p>
+                <p class="mb-2"><span class="font-semibold">Valor Padrão:</span> R$ {{ funcao.valor_padrao|default:"Não definido" }}</p>
+                <p><span class="font-semibold">Data de Criação:</span> {{ funcao.created_at|date:"d/m/Y H:i" }}</p>
+            </div>
+        </div>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'events:funcao_list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-times mr-2"></i>Cancelar
+                </a>
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-trash mr-2"></i>Confirmar Exclusão
+                </button>
+            </div>
+        </form>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

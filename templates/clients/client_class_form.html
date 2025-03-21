@@ -1,0 +1,69 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ title }} - Gerenciador de Eventos{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+        <h1 class="text-2xl font-bold text-gray-900">{{ title }}</h1>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            {% if form.instance.pk %}Edite as informações da classe de cliente{% else %}Preencha as informações para cadastrar uma nova classe de cliente{% endif %}
+        </p>
+    </div>
+    
+    <div class="border-t border-gray-200">
+        <form method="post" class="p-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="mb-4 p-4 bg-red-100 text-red-700 border border-red-400 rounded">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+            
+            <div class="mb-6">
+                <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    Nome da Classe*
+                </label>
+                {{ form.name }}
+                {% if form.name.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.name.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="mb-6">
+                <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700 mb-1">
+                    Descrição
+                </label>
+                {{ form.description }}
+                {% if form.description.errors %}
+                <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                {% endif %}
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'clients:class_list' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md shadow-sm">
+                    Cancelar
+                </a>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    {% if form.instance.pk %}Atualizar Classe{% else %}Cadastrar Classe{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Adiciona classes do Tailwind aos campos do formulário
+        const formFields = document.querySelectorAll('input, select, textarea');
+        formFields.forEach(field => {
+            if (field.type !== 'hidden' && field.type !== 'checkbox' && field.type !== 'radio') {
+                field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50');
+            }
+        });
+    });
+</script>
+{% endblock %}

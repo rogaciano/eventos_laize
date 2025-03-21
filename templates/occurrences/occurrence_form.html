@@ -1,0 +1,165 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ title }} - Gerenciador de Eventos{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50">
+        <h1 class="text-2xl font-bold text-gray-900">{{ title }}</h1>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            {% if form.instance.pk %}Edite as informações da ocorrência{% else %}Registre uma nova ocorrência{% endif %}
+        </p>
+    </div>
+    
+    <div class="border-t border-gray-200">
+        <form method="post" class="p-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="mb-4 p-4 bg-red-100 text-red-700 border border-red-400 rounded">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="mb-4">
+                    <label for="{{ form.status.id_for_label }}" class="block text-sm font-bold text-gray-800 mb-2">
+                        Status*
+                    </label>
+                    <div class="mt-1">
+                        {{ form.status }}
+                    </div>
+                    {% if form.status.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Campo "Relacionado a" - escondido quando vindo da tela de pessoa/cliente -->
+                {% if related_to %}
+                    <!-- Campo oculto para manter o valor -->
+                    <input type="hidden" name="related_to" value="{{ related_to }}">
+                {% else %}
+                <div class="mb-4">
+                    <label for="{{ form.related_to.id_for_label }}" class="block text-sm font-bold text-gray-800 mb-2">
+                        Relacionado a*
+                    </label>
+                    <div class="mt-1">
+                        {{ form.related_to }}
+                    </div>
+                    {% if form.related_to.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.related_to.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+                
+                <!-- Campos condicionais baseados no related_to -->
+                <div id="person-select" class="mb-4 {% if related_to != 'person' and form.related_to.value != 'person' %}hidden{% endif %}">
+                    <label for="{{ form.person.id_for_label }}" class="block text-sm font-bold text-gray-800 mb-2">
+                        Pessoa
+                    </label>
+                    <div class="mt-1">
+                        {{ form.person }}
+                    </div>
+                    {% if form.person.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.person.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div id="client-select" class="mb-4 {% if related_to != 'client' and form.related_to.value != 'client' %}hidden{% endif %}">
+                    <label for="{{ form.client.id_for_label }}" class="block text-sm font-bold text-gray-800 mb-2">
+                        Cliente
+                    </label>
+                    <div class="mt-1">
+                        {{ form.client }}
+                    </div>
+                    {% if form.client.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.client.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="col-span-1 md:col-span-2 mb-4">
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-bold text-gray-800 mb-2">
+                        Descrição*
+                    </label>
+                    <div class="mt-1">
+                        {{ form.description }}
+                    </div>
+                    {% if form.description.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">Descreva detalhadamente a ocorrência</p>
+                </div>
+            </div>
+            
+            <div class="mt-8 flex justify-end space-x-3">
+                {% if related_to == 'person' and form.person.value %}
+                    <a href="{% url 'people:detail' form.person.value %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md shadow-sm">
+                        Cancelar
+                    </a>
+                {% elif related_to == 'client' and form.client.value %}
+                    <a href="{% url 'clients:detail' form.client.value %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md shadow-sm">
+                        Cancelar
+                    </a>
+                {% else %}
+                    <a href="{% url 'occurrences:list' %}" class="bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md shadow-sm">
+                        Cancelar
+                    </a>
+                {% endif %}
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    {% if form.instance.pk %}Atualizar Ocorrência{% else %}Registrar Ocorrência{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Adiciona classes do Tailwind aos campos do formulário
+        const formFields = document.querySelectorAll('input, select, textarea');
+        formFields.forEach(field => {
+            if (field.type !== 'hidden' && field.type !== 'checkbox' && field.type !== 'radio') {
+                if (field.tagName === 'SELECT') {
+                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'bg-white');
+                } else if (field.tagName === 'TEXTAREA') {
+                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'h-32', 'bg-white');
+                } else {
+                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'bg-white');
+                }
+            }
+        });
+        
+        // Função para atualizar os campos relacionados
+        function updateRelatedFields() {
+            const relatedToSelect = document.getElementById('id_related_to');
+            // Se o campo não existir (porque está escondido), não faz nada
+            if (!relatedToSelect) return;
+            
+            const personSelect = document.getElementById('person-select');
+            const clientSelect = document.getElementById('client-select');
+            
+            // Esconde todos os campos relacionados
+            personSelect.classList.add('hidden');
+            clientSelect.classList.add('hidden');
+            
+            // Mostra o campo apropriado baseado na seleção
+            if (relatedToSelect.value === 'person') {
+                personSelect.classList.remove('hidden');
+            } else if (relatedToSelect.value === 'client') {
+                clientSelect.classList.remove('hidden');
+            }
+        }
+        
+        // Configurar o estado inicial
+        updateRelatedFields();
+        
+        // Adicionar listener para alterações no select
+        const relatedToSelect = document.getElementById('id_related_to');
+        if (relatedToSelect) {
+            relatedToSelect.addEventListener('change', updateRelatedFields);
+        }
+    });
+</script>
+{% endblock %}

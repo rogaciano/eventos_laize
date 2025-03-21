@@ -1,0 +1,12 @@
+{% if widget.is_initial %}
+<div class="hidden">{{ widget.initial_text }}: {{ widget.input_text }}</div>
+{% endif %}
+<div class="flex items-center">
+  <input type="{{ widget.type }}" name="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
+</div>
+{% if widget.is_initial %}
+<div class="hidden">
+  {{ widget.clear_checkbox_label }}:
+  <input type="checkbox" name="{{ widget.checkbox_name }}" id="{{ widget.checkbox_id }}"{% if widget.attrs.disabled %} disabled{% endif %}>
+</div>
+{% endif %}

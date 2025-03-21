@@ -1,0 +1,155 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Ocorrências - Gerenciador de Eventos{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Ocorrências</h1>
+    <div class="flex space-x-2">
+        <a href="{% url 'occurrences:create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-plus-circle mr-2"></i>Nova Ocorrência
+        </a>
+    </div>
+</div>
+
+<!-- Filtros -->
+<div class="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+    <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar nas descrições</label>
+            <input type="text" name="search" id="search" value="{{ request.GET.search|default:'' }}" 
+                   class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+        </div>
+        <div>
+            <label for="status" class="block text-sm font-medium text-gray-700 mb-1">Status</label>
+            <select name="status" id="status" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <option value="">Todos</option>
+                <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pendente</option>
+                <option value="in_progress" {% if request.GET.status == 'in_progress' %}selected{% endif %}>Em Andamento</option>
+                <option value="resolved" {% if request.GET.status == 'resolved' %}selected{% endif %}>Resolvida</option>
+                <option value="cancelled" {% if request.GET.status == 'cancelled' %}selected{% endif %}>Cancelada</option>
+            </select>
+        </div>
+        <div>
+            <label for="related_to" class="block text-sm font-medium text-gray-700 mb-1">Relacionado a</label>
+            <select name="related_to" id="related_to" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                <option value="">Todos</option>
+                <option value="event" {% if request.GET.related_to == 'event' %}selected{% endif %}>Evento</option>
+                <option value="client" {% if request.GET.related_to == 'client' %}selected{% endif %}>Cliente</option>
+                <option value="person" {% if request.GET.related_to == 'person' %}selected{% endif %}>Pessoa</option>
+                <option value="other" {% if request.GET.related_to == 'other' %}selected{% endif %}>Outro</option>
+            </select>
+        </div>
+        <div class="flex items-end md:col-span-3">
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-search mr-2"></i>Filtrar
+            </button>
+            {% if request.GET %}
+                <a href="{% url 'occurrences:list' %}" class="ml-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-times mr-2"></i>Limpar
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Listagem de ocorrências -->
+<div class="overflow-x-auto bg-white rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Relacionado a</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for occurrence in occurrences %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="text-sm text-gray-900">{{ occurrence.created_at|date:"d/m/Y" }}</div>
+                    <div class="text-sm text-gray-500">{{ occurrence.created_at|time:"H:i" }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                    {% if occurrence.status == 'pending' %}bg-yellow-100 text-yellow-800
+                    {% elif occurrence.status == 'in_progress' %}bg-blue-100 text-blue-800
+                    {% elif occurrence.status == 'resolved' %}bg-green-100 text-green-800
+                    {% elif occurrence.status == 'cancelled' %}bg-red-100 text-red-800
+                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                        {{ occurrence.get_status_display }}
+                    </span>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap">
+                    {% if occurrence.event %}
+                    <a href="{% url 'events:detail' occurrence.event.id %}" class="text-indigo-600 hover:text-indigo-900">
+                        <div class="text-sm font-medium">Evento</div>
+                        <div class="text-xs text-gray-500">{{ occurrence.event.title|truncatechars:20 }}</div>
+                    </a>
+                    {% elif occurrence.client %}
+                    <a href="{% url 'clients:detail' occurrence.client.id %}" class="text-indigo-600 hover:text-indigo-900">
+                        <div class="text-sm font-medium">Cliente</div>
+                        <div class="text-xs text-gray-500">{{ occurrence.client.name|truncatechars:20 }}</div>
+                    </a>
+                    {% elif occurrence.person %}
+                    <a href="{% url 'people:detail' occurrence.person.id %}" class="text-indigo-600 hover:text-indigo-900">
+                        <div class="text-sm font-medium">Pessoa</div>
+                        <div class="text-xs text-gray-500">{{ occurrence.person.name|truncatechars:20 }}</div>
+                    </a>
+                    {% else %}
+                    <div class="text-sm text-gray-500">Outro / Geral</div>
+                    {% endif %}
+                </td>
+                <td class="px-6 py-4">
+                    <div class="text-sm text-gray-900">{{ occurrence.description|truncatechars:100 }}</div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <a href="{% url 'occurrences:detail' occurrence.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3" title="Ver detalhes">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="{% url 'occurrences:update' occurrence.id %}" class="text-blue-600 hover:text-blue-900 mr-3" title="Editar">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'occurrences:delete' occurrence.id %}" class="text-red-600 hover:text-red-900" title="Excluir">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="px-6 py-4 text-center text-gray-500">
+                    Nenhuma ocorrência encontrada
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Paginação -->
+{% if is_paginated %}
+<div class="flex justify-center mt-6">
+    <nav class="inline-flex rounded-md shadow">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        {% endif %}
+        
+        {% for i in paginator.page_range %}
+        <a href="?page={{ i }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium {% if page_obj.number == i %}text-indigo-600 bg-indigo-50{% else %}text-gray-700 hover:bg-gray-50{% endif %}">
+            {{ i }}
+        </a>
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% for key, value in request.GET.items %}{% if key != 'page' %}&{{ key }}={{ value }}{% endif %}{% endfor %}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </nav>
+</div>
+{% endif %}
+{% endblock %}

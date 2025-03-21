@@ -1,0 +1,150 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Pessoas - Gerenciador de Eventos{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold">Pessoas</h1>
+    <a href="{% url 'people:create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+        <i class="fas fa-plus-circle mr-2"></i>Nova Pessoa
+    </a>
+</div>
+
+<!-- Filtros -->
+<div class="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
+    <form method="get" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+            <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar por nome</label>
+            <input type="text" name="search" id="search" value="{{ request.GET.search|default:'' }}" 
+                   class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+        </div>
+        <div class="flex items-end">
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm w-full md:w-auto">
+                <i class="fas fa-search mr-2"></i>Filtrar
+            </button>
+            {% if request.GET %}
+                <a href="{% url 'people:list' %}" class="ml-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-times mr-2"></i>Limpar
+                </a>
+            {% endif %}
+        </div>
+    </form>
+</div>
+
+<!-- Listagem de pessoas -->
+<div class="overflow-x-auto bg-white rounded-lg shadow">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cidade</th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefone</th>
+                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Avaliação</th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for person in persons %}
+            <tr class="hover:bg-gray-50">
+                <td class="px-6 py-4 whitespace-nowrap">
+                    <div class="flex items-center">
+                        {% if person.photo %}
+                        <img class="h-10 w-10 rounded-full object-cover mr-3" src="{{ person.photo.url }}" alt="{{ person.name }}">
+                        {% else %}
+                        <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center mr-3">
+                            <span class="text-gray-500">{{ person.name|slice:":1" }}</span>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <a href="{% url 'people:detail' person.id %}" class="text-sm font-medium text-gray-900 hover:text-indigo-600">{{ person.name }}</a>
+                        </div>
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ person.city|default:"--" }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {% with phone_contacts=person.contacts.all|dictsort:"type" %}
+                        {% for contact in phone_contacts %}
+                            {% if contact.type == 'phone' and forloop.first %}
+                                {{ contact.value }}
+                            {% endif %}
+                        {% empty %}
+                            --
+                        {% endfor %}
+                    {% endwith %}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                    <div class="flex justify-center">
+                        {% if person.rating %}
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= person.rating|floatformat:"0"|add:"0" %}
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                {% else %}
+                                    <i class="far fa-star text-gray-300"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ml-2 text-sm text-gray-600">({{ person.rating|floatformat:"1" }})</span>
+                        {% else %}
+                            <span class="text-gray-400">Não avaliado</span>
+                        {% endif %}
+                    </div>
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <a href="{% url 'people:detail' person.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                        <i class="fas fa-eye"></i>
+                    </a>
+                    <a href="{% url 'people:update' person.id %}" class="text-blue-600 hover:text-blue-900 mr-3">
+                        <i class="fas fa-edit"></i>
+                    </a>
+                    <a href="{% url 'people:delete' person.id %}" class="text-red-600 hover:text-red-900">
+                        <i class="fas fa-trash"></i>
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="5" class="px-6 py-10 text-center text-gray-500">
+                    <div class="flex flex-col items-center">
+                        <i class="fas fa-users text-gray-300 text-5xl mb-4"></i>
+                        <p class="text-lg">Nenhuma pessoa cadastrada</p>
+                        <p class="text-sm mt-1">Clique em "Nova Pessoa" para adicionar</p>
+                    </div>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- Paginação -->
+{% if is_paginated %}
+<div class="flex justify-center mt-6">
+    <nav class="inline-flex rounded-md shadow">
+        {% if page_obj.has_previous %}
+        <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <i class="fas fa-chevron-left"></i>
+        </a>
+        {% endif %}
+        
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <span class="relative inline-flex items-center px-4 py-2 border border-indigo-500 bg-indigo-50 text-sm font-medium text-indigo-600">
+                {{ num }}
+            </span>
+            {% else %}
+            <a href="?page={{ num }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="relative inline-flex items-center px-4 py-2 border border-gray-300 bg-white text-sm font-medium text-gray-700 hover:bg-gray-50">
+                {{ num }}
+            </a>
+            {% endif %}
+        {% endfor %}
+        
+        {% if page_obj.has_next %}
+        <a href="?page={{ page_obj.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+            <i class="fas fa-chevron-right"></i>
+        </a>
+        {% endif %}
+    </nav>
+</div>
+{% endif %}
+{% endblock %}

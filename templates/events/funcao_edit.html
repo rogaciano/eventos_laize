@@ -1,0 +1,70 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Editar Função{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50">
+        <h1 class="text-2xl font-bold text-gray-900">Editar Função</h1>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Altere os dados da função
+        </p>
+    </div>
+    
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700">
+                            {{ form.non_field_errors }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <div class="sm:col-span-3">
+                    <label for="{{ form.nome.id_for_label }}" class="block text-sm font-bold text-gray-800 mb-2">
+                        Nome da Função
+                    </label>
+                    <div class="mt-1">
+                        <input type="text" name="{{ form.nome.html_name }}" id="{{ form.nome.id_for_label }}" value="{{ form.nome.value|default:'' }}" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md">
+                    </div>
+                    {% if form.nome.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.nome.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="sm:col-span-3">
+                    <label for="{{ form.valor_padrao.id_for_label }}" class="block text-sm font-bold text-gray-800 mb-2">
+                        Valor Padrão (R$)
+                    </label>
+                    <div class="mt-1">
+                        <input type="number" name="{{ form.valor_padrao.html_name }}" id="{{ form.valor_padrao.id_for_label }}" value="{{ form.valor_padrao.value|default:'' }}" step="0.01" min="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md">
+                    </div>
+                    {% if form.valor_padrao.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.valor_padrao.errors }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'events:funcao_list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-arrow-left mr-2"></i>Voltar
+                </a>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-save mr-2"></i>Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

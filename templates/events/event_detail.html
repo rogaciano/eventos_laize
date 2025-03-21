@@ -1,0 +1,176 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ event.title }} - Gerenciador de Eventos{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="flex justify-between items-center px-4 py-5 sm:px-6">
+        <div>
+            <h1 class="text-2xl font-bold text-gray-900">{{ event.title }}</h1>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                {{ event.start_datetime|date:"d/m/Y" }} • {{ event.start_datetime|time:"H:i" }} até {{ event.end_datetime|time:"H:i" }}
+            </p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="{% url 'events:change_status' event.id %}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-exchange-alt mr-2"></i>Alterar Status
+            </a>
+            <a href="{% url 'events:update' event.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-edit mr-2"></i>Editar
+            </a>
+            <a href="{% url 'events:delete' event.id %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-trash mr-2"></i>Excluir
+            </a>
+            <a href="{% url 'events:list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-arrow-left mr-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+    
+    <div class="border-t border-gray-200">
+        <dl>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Cliente</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    <a href="{% url 'clients:detail' event.client.id %}" class="text-indigo-600 hover:text-indigo-900">
+                        {{ event.client.name }}
+                    </a>
+                </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Tipo de Evento</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {% if event.event_type %}
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800">
+                        {{ event.event_type.name }}
+                    </span>
+                    {% else %}
+                    <span class="text-gray-500">Não definido</span>
+                    {% endif %}
+                </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Local</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ event.location|default:"Não definido" }}
+                </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Valor</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {% if event.value %}
+                    R$ {{ event.value|floatformat:2 }}
+                    {% else %}
+                    <span class="text-gray-500">Não definido</span>
+                    {% endif %}
+                </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Situação</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 flex items-center">
+                    {% if event.status == 'cadastrado' %}
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-200 text-gray-800">Cadastrado</span>
+                    {% elif event.status == 'prospectado' %}
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-200 text-purple-800">Prospectado</span>
+                    {% elif event.status == 'agendado' %}
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">Agendado</span>
+                    {% elif event.status == 'em_andamento' %}
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-indigo-100 text-indigo-800">Em Andamento</span>
+                    {% elif event.status == 'concluido' %}
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800">Concluído</span>
+                    {% elif event.status == 'cancelado' %}
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">Cancelado</span>
+                    {% elif event.status == 'adiado' %}
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-yellow-100 text-yellow-800">Adiado</span>
+                    {% elif event.status == 'pendente' %}
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-orange-100 text-orange-800">Pendente de Confirmação</span>
+                    {% elif event.status == 'orcamento' %}
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">Orçamento</span>
+                    {% elif event.status == 'pre_producao' %}
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800">Pré-produção</span>
+                    {% elif event.status == 'pos_producao' %}
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-teal-100 text-teal-800">Pós-produção</span>
+                    {% elif event.status == 'arquivado' %}
+                    <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-300 text-gray-800">Arquivado</span>
+                    {% endif %}
+                    <a href="{% url 'events:status_history' event.id %}" class="ml-2 text-sm text-indigo-600 hover:text-indigo-900">
+                        <i class="fas fa-history mr-1"></i>Ver histórico
+                    </a>
+                </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Descrição</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ event.description|linebreaks|default:"Sem descrição" }}
+                </dd>
+            </div>
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Notas</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ event.notes|linebreaks|default:"Sem notas adicionais" }}
+                </dd>
+            </div>
+        </dl>
+    </div>
+</div>
+
+<!-- Participantes -->
+<div class="mt-8">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-900">Participantes</h2>
+        <a href="{% url 'events:add_participant' event.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-plus-circle mr-2"></i>Adicionar Participante
+        </a>
+    </div>
+    
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        {% if event.eventparticipant_set.all %}
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Função</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Valor</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for participant in event.eventparticipant_set.all %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">
+                            <a href="{% url 'people:detail' participant.person.id %}" class="text-indigo-600 hover:text-indigo-900">
+                                {{ participant.person.name }}
+                            </a>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-900">{{ participant.role.nome|default:"-" }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {% if participant.value %}
+                        R$ {{ participant.value|floatformat:2 }}
+                        {% else %}
+                        -
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="{% url 'events:update_participant' event.id participant.id %}" class="text-blue-600 hover:text-blue-900 mr-3" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'events:remove_participant' event.id participant.id %}" class="text-red-600 hover:text-red-900" title="Remover">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="p-6 text-center text-gray-500">
+            Nenhum participante adicionado a este evento
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

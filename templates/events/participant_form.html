@@ -1,0 +1,277 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{% if is_update %}Editar{% else %}Adicionar{% endif %} Participante - Gerenciador de Eventos{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 bg-gray-50">
+        <h1 class="text-2xl font-bold text-gray-900">
+            {% if is_update %}Editar{% else %}Adicionar{% endif %} Participante
+        </h1>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Evento: {{ event.title }}
+        </p>
+    </div>
+    
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-4">
+                <div class="flex">
+                    <div class="flex-shrink-0">
+                        <i class="fas fa-exclamation-circle text-red-400"></i>
+                    </div>
+                    <div class="ml-3">
+                        <p class="text-sm text-red-700">
+                            {{ form.non_field_errors }}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <div class="sm:col-span-6">
+                    <label for="{{ form.person.id_for_label }}" class="block text-sm font-bold text-gray-800 mb-2">
+                        Pessoa
+                    </label>
+                    <div class="mt-1">
+                        {{ form.person }}
+                    </div>
+                    {% if form.person.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.person.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="sm:col-span-3">
+                    <label for="{{ form.role.id_for_label }}" class="block text-sm font-bold text-gray-800 mb-2">
+                        Função
+                    </label>
+                    <div class="mt-1 flex">
+                        <div class="flex-grow">
+                            {{ form.role }}
+                        </div>
+                        <button type="button" @click="modalOpen = true" class="ml-2 bg-green-600 hover:bg-green-700 text-white px-3 py-2 rounded-md shadow-sm">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                    </div>
+                    {% if form.role.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.role.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="sm:col-span-3">
+                    <label for="{{ form.value.id_for_label }}" class="block text-sm font-bold text-gray-800 mb-2">
+                        Valor (R$)
+                    </label>
+                    <div class="mt-1">
+                        {{ form.value }}
+                    </div>
+                    {% if form.value.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.value.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="sm:col-span-6">
+                    <label for="{{ form.observations.id_for_label }}" class="block text-sm font-bold text-gray-800 mb-2">
+                        Observações
+                    </label>
+                    <div class="mt-1">
+                        {{ form.observations }}
+                    </div>
+                    {% if form.observations.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.observations.errors }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'events:detail' event.id %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-arrow-left mr-2"></i>Voltar
+                </a>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-save mr-2"></i>Salvar
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Modal para adicionar nova função -->
+<div x-data="modalData()" x-cloak>
+    <!-- Overlay de fundo -->
+    <div x-show="modalOpen" 
+         class="fixed inset-0 bg-black bg-opacity-50 z-40 flex items-center justify-center"
+         x-transition:enter="transition ease-out duration-300"
+         x-transition:enter-start="opacity-0"
+         x-transition:enter-end="opacity-100"
+         x-transition:leave="transition ease-in duration-200"
+         x-transition:leave-start="opacity-100"
+         x-transition:leave-end="opacity-0">
+        
+        <!-- Modal -->
+        <div x-show="modalOpen" 
+             @click.away="modalOpen = false"
+             class="bg-white rounded-lg shadow-xl max-w-md w-full mx-4 z-50"
+             x-transition:enter="transition ease-out duration-300"
+             x-transition:enter-start="opacity-0 transform scale-95"
+             x-transition:enter-end="opacity-100 transform scale-100"
+             x-transition:leave="transition ease-in duration-200"
+             x-transition:leave-start="opacity-100 transform scale-100"
+             x-transition:leave-end="opacity-0 transform scale-95">
+            
+            <!-- Cabeçalho do Modal -->
+            <div class="bg-blue-600 text-white px-4 py-3 flex justify-between items-center rounded-t-lg">
+                <h2 class="text-lg font-semibold">Nova Função</h2>
+                <button @click="modalOpen = false" class="text-white hover:text-gray-200">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <!-- Corpo do Modal -->
+            <div class="p-4">
+                <form @submit.prevent="submitForm" id="funcao-form">
+                    {% csrf_token %}
+                    
+                    <div class="mb-4">
+                        <label for="nome" class="block text-sm font-bold text-gray-800 mb-2">Nome da Função</label>
+                        <input type="text" id="nome" name="nome" x-model="formData.nome" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md">
+                        <div class="text-red-500 text-sm mt-1" x-text="errors.nome"></div>
+                    </div>
+                    
+                    <div class="mb-4">
+                        <label for="valor_padrao" class="block text-sm font-bold text-gray-800 mb-2">Valor Padrão (R$)</label>
+                        <input type="number" id="valor_padrao" name="valor_padrao" x-model="formData.valor_padrao" step="0.01" min="0" class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border border-gray-300 rounded-md">
+                        <div class="text-red-500 text-sm mt-1" x-text="errors.valor_padrao"></div>
+                    </div>
+                    
+                    <div class="mt-6 flex justify-end">
+                        <button type="button" @click="modalOpen = false" class="bg-gray-600 hover:bg-gray-700 py-2 px-4 rounded-md text-white mr-2">
+                            <i class="fas fa-times mr-2"></i>Cancelar
+                        </button>
+                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 py-2 px-4 rounded-md text-white">
+                            <i class="fas fa-save mr-2"></i>Salvar
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+{{ block.super }}
+<script>
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('modalData', () => ({
+            modalOpen: false,
+            formData: {
+                nome: '',
+                valor_padrao: ''
+            },
+            errors: {},
+            
+            submitForm() {
+                // Limpar erros anteriores
+                this.errors = {};
+                
+                // Preparar dados do formulário
+                const formData = new FormData();
+                formData.append('nome', this.formData.nome);
+                formData.append('valor_padrao', this.formData.valor_padrao);
+                formData.append('csrfmiddlewaretoken', document.querySelector('[name=csrfmiddlewaretoken]').value);
+                
+                // Enviar formulário via fetch
+                fetch("{% url 'events:funcao_create' %}", {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        // Adicionar a nova função ao select
+                        const roleSelect = document.getElementById('id_role');
+                        const option = new Option(data.nome, data.id, true, true);
+                        roleSelect.appendChild(option);
+                        
+                        // Atualizar o valor padrão se disponível
+                        if (data.valor_padrao) {
+                            document.getElementById('id_value').value = data.valor_padrao;
+                        }
+                        
+                        // Fechar o modal e mostrar mensagem de sucesso
+                        this.modalOpen = false;
+                        this.showSuccessMessage('Função adicionada com sucesso!');
+                        
+                        // Limpar o formulário
+                        this.formData.nome = '';
+                        this.formData.valor_padrao = '';
+                    } else {
+                        // Mostrar erros
+                        this.errors = data.errors || {};
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro:', error);
+                    this.errors = { 'geral': 'Ocorreu um erro ao processar a solicitação.' };
+                });
+            },
+            
+            showSuccessMessage(message) {
+                const alertDiv = document.createElement('div');
+                alertDiv.className = 'fixed top-4 right-4 bg-green-100 border-l-4 border-green-500 text-green-700 p-4 rounded shadow-md z-50';
+                alertDiv.innerHTML = `
+                    <div class="flex">
+                        <div class="flex-shrink-0">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="ml-3">
+                            <p class="text-sm">${message}</p>
+                        </div>
+                    </div>
+                `;
+                document.body.appendChild(alertDiv);
+                
+                // Remover a mensagem após 3 segundos
+                setTimeout(() => {
+                    alertDiv.remove();
+                }, 3000);
+            }
+        }));
+    });
+    
+    // Preencher automaticamente o valor padrão quando uma função for selecionada
+    document.addEventListener('DOMContentLoaded', function() {
+        const roleSelect = document.getElementById('id_role');
+        const valueInput = document.getElementById('id_value');
+        
+        roleSelect.addEventListener('change', function() {
+            const selectedRole = this.value;
+            if (selectedRole) {
+                fetch(`/events/funcao/${selectedRole}/valor_padrao/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.valor_padrao) {
+                            valueInput.value = data.valor_padrao;
+                        }
+                    })
+                    .catch(error => console.error('Erro:', error));
+            }
+        });
+    });
+    
+    // Adicionar classes aos campos do formulário
+    document.addEventListener('DOMContentLoaded', function() {
+        const formFields = document.querySelectorAll('form input, form select, form textarea');
+        formFields.forEach(field => {
+            field.classList.add('shadow-sm', 'focus:ring-indigo-500', 'focus:border-indigo-500', 'block', 'w-full', 'sm:text-sm', 'border', 'border-gray-300', 'rounded-md');
+        });
+    });
+</script>
+{% endblock %}
