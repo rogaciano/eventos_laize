@@ -19,10 +19,14 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth import views as auth_views
+from django.views.generic import RedirectView
 
 urlpatterns = [
+    # Redirect root URL to login
+    path('', RedirectView.as_view(pattern_name='login'), name='root'),
+    
     path('admin/', admin.site.urls),
-    path('', include('dashboard.urls')),
+    path('dashboard/', include('dashboard.urls')),
     path('events/', include('events.urls')),
     path('people/', include('people.urls')),
     path('clients/', include('clients.urls')),
