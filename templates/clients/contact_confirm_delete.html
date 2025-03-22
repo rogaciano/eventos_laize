@@ -1,0 +1,61 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Confirmar Exclusão de Contato - Gerenciador de Eventos{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg max-w-2xl mx-auto mt-10">
+    <div class="px-4 py-5 sm:px-6">
+        <h1 class="text-2xl font-bold text-gray-900">Confirmar Exclusão</h1>
+        <p class="mt-1 max-w-2xl text-sm text-gray-500">
+            Você está prestes a excluir um contato de {{ client.name }}
+        </p>
+    </div>
+    
+    <div class="border-t border-gray-200 px-4 py-5 sm:p-6">
+        <div class="bg-red-50 border-l-4 border-red-400 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-red-400"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-sm text-red-700">
+                        Atenção! Esta ação não pode ser desfeita. Tem certeza que deseja excluir este contato?
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="bg-gray-50 p-4 rounded-md mb-6">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Informações do contato:</h3>
+            <dl class="grid grid-cols-1 gap-x-4 gap-y-4 sm:grid-cols-2">
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Tipo</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ contact.get_type_display }}</dd>
+                </div>
+                <div class="sm:col-span-1">
+                    <dt class="text-sm font-medium text-gray-500">Valor</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ contact.value }}</dd>
+                </div>
+                {% if contact.label %}
+                <div class="sm:col-span-2">
+                    <dt class="text-sm font-medium text-gray-500">Descrição</dt>
+                    <dd class="mt-1 text-sm text-gray-900">{{ contact.label }}</dd>
+                </div>
+                {% endif %}
+            </dl>
+        </div>
+        
+        <div class="flex justify-end space-x-3">
+            <a href="{% url 'clients:detail' client.id %}" class="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                Cancelar
+            </a>
+            <form method="post">
+                {% csrf_token %}
+                <button type="submit" class="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+                    Confirmar Exclusão
+                </button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

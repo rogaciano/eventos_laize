@@ -116,3 +116,58 @@ def client_class_delete(request, class_id):
         return redirect('clients:class_list')
     
     return render(request, 'clients/client_class_confirm_delete.html', {'client_class': client_class})
+
+# Contact views
+def contact_create(request, client_id):
+    client = get_object_or_404(Client, pk=client_id)
+    
+    if request.method == 'POST':
+        form = ContactForm(request.POST)
+        if form.is_valid():
+            contact = form.save()
+            client.contacts.add(contact)
+            messages.success(request, 'Contato adicionado com sucesso!')
+            return redirect('clients:detail', client_id=client.id)
+    else:
+        form = ContactForm()
+    
+    return render(request, 'clients/contact_form.html', {
+        'form': form,
+        'client': client,
+        'title': 'Novo Contato'
+    })
+
+def contact_update(request, client_id, contact_id):
+    client = get_object_or_404(Client, pk=client_id)
+    contact = get_object_or_404(Contact, pk=contact_id)
+    
+    if request.method == 'POST':
+        form = ContactForm(request.POST, instance=contact)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Contato atualizado com sucesso!')
+            return redirect('clients:detail', client_id=client.id)
+    else:
+        form = ContactForm(instance=contact)
+    
+    return render(request, 'clients/contact_form.html', {
+        'form': form,
+        'client': client,
+        'contact': contact,
+        'title': 'Editar Contato'
+    })
+
+def contact_delete(request, client_id, contact_id):
+    client = get_object_or_404(Client, pk=client_id)
+    contact = get_object_or_404(Contact, pk=contact_id)
+    
+    if request.method == 'POST':
+        client.contacts.remove(contact)
+        contact.delete()
+        messages.success(request, 'Contato removido com sucesso!')
+        return redirect('clients:detail', client_id=client.id)
+    
+    return render(request, 'clients/contact_confirm_delete.html', {
+        'client': client,
+        'contact': contact
+    })

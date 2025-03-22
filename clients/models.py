@@ -20,7 +20,7 @@ class Contact(models.Model):
         ('whatsapp', 'WhatsApp'),
         ('email', 'Email'),
         ('instagram', 'Instagram'),
-        ('other', 'Other')
+        ('other', 'Outro')
     ]
     
     type = models.CharField(max_length=20, choices=CONTACT_TYPES)
