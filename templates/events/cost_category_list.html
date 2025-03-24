@@ -1,0 +1,73 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Categorias de Custos - Agência Atitude{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Categorias de Custos</h1>
+        <a href="{% url 'events:cost_category_create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-plus-circle mr-2"></i>Nova Categoria
+        </a>
+    </div>
+
+    {% if messages %}
+    <div class="mb-4">
+        {% for message in messages %}
+        <div class="p-4 {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %} rounded-md">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        {% if categories %}
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Nome</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Descrição</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for category in categories %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-medium text-gray-900">{{ category.name }}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-900">{{ category.description|default:"-"|truncatechars:100 }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <a href="{% url 'events:cost_category_update' category.id %}" class="text-blue-600 hover:text-blue-900 mr-3" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                        <a href="{% url 'events:cost_category_delete' category.id %}" class="text-red-600 hover:text-red-900" title="Excluir">
+                            <i class="fas fa-trash"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="py-8 text-center text-gray-500">
+            <p>Nenhuma categoria de custo cadastrada.</p>
+            <p class="mt-2">
+                <a href="{% url 'events:cost_category_create' %}" class="text-indigo-600 hover:text-indigo-900">
+                    Clique aqui para adicionar uma nova categoria
+                </a>
+            </p>
+        </div>
+        {% endif %}
+    </div>
+    
+    <div class="mt-4 flex justify-end">
+        <a href="{% url 'events:list' %}" class="text-indigo-600 hover:text-indigo-900">
+            <i class="fas fa-arrow-left mr-1"></i>Voltar para Eventos
+        </a>
+    </div>
+</div>
+{% endblock %}

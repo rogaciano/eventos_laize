@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, include
 from . import views
 
 app_name = 'events'
@@ -33,4 +33,7 @@ urlpatterns = [
     path('funcoes/', views.funcao_list, name='funcao_list'),
     path('funcoes/<int:funcao_id>/edit/', views.funcao_edit, name='funcao_edit'),
     path('funcoes/<int:funcao_id>/delete/', views.funcao_delete, name='funcao_delete'),
+    
+    # Incluir URLs de gestão de custos
+    path('cost/', include('events.urls_cost')),
 ]

@@ -1,0 +1,173 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Relatório Financeiro - Agência Atitude{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Relatório Financeiro de Eventos</h1>
+        <div class="flex space-x-2">
+            <button id="exportBtn" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-file-export mr-2"></i>Exportar para Excel
+            </button>
+        </div>
+    </div>
+
+    <!-- Filtros -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6 mb-6">
+        <h2 class="text-lg font-medium text-gray-900 mb-4">Filtros</h2>
+        <form method="get" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+                <label for="start_date" class="block text-sm font-medium text-gray-700">Data Inicial</label>
+                <input type="date" id="start_date" name="start_date" value="{{ start_date|default:'' }}" 
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            </div>
+            <div>
+                <label for="end_date" class="block text-sm font-medium text-gray-700">Data Final</label>
+                <input type="date" id="end_date" name="end_date" value="{{ end_date|default:'' }}" 
+                       class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+            </div>
+            <div class="flex items-end">
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-filter mr-2"></i>Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Resumo -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6">
+        <div class="px-4 py-5 sm:px-6 bg-gray-50">
+            <h2 class="text-lg font-medium text-gray-900">Resumo Financeiro</h2>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 p-6">
+            <div class="bg-blue-50 p-4 rounded-lg">
+                <h3 class="text-sm font-medium text-blue-800">Receita Total</h3>
+                <p class="mt-1 text-2xl font-bold text-blue-900">R$ {{ total_revenue|floatformat:2 }}</p>
+            </div>
+            <div class="bg-red-50 p-4 rounded-lg">
+                <h3 class="text-sm font-medium text-red-800">Despesas Totais</h3>
+                <p class="mt-1 text-2xl font-bold text-red-900">R$ {{ total_expenses|floatformat:2 }}</p>
+            </div>
+            <div class="bg-green-50 p-4 rounded-lg">
+                <h3 class="text-sm font-medium text-green-800">Lucro Total</h3>
+                <p class="mt-1 text-2xl font-bold {% if total_profit < 0 %}text-red-900{% else %}text-green-900{% endif %}">
+                    R$ {{ total_profit|floatformat:2 }}
+                </p>
+            </div>
+            <div class="bg-purple-50 p-4 rounded-lg">
+                <h3 class="text-sm font-medium text-purple-800">Margem Média</h3>
+                <p class="mt-1 text-2xl font-bold {% if avg_margin < 0 %}text-red-900{% else %}text-purple-900{% endif %}">
+                    {{ avg_margin|floatformat:2 }}%
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabela de Eventos -->
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6 bg-gray-50">
+            <h2 class="text-lg font-medium text-gray-900">Detalhamento por Evento</h2>
+        </div>
+        
+        {% if report_data %}
+        <table id="reportTable" class="min-w-full divide-y divide-gray-200">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Evento</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Cliente</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Data</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Receita</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Despesas</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Lucro</th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Margem</th>
+                    <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for event in report_data %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        <a href="{% url 'events:detail' event.id %}" class="text-indigo-600 hover:text-indigo-900">
+                            {{ event.title }}
+                        </a>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ event.client }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ event.date }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                        R$ {{ event.revenue|floatformat:2 }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                        R$ {{ event.expenses|floatformat:2 }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm {% if event.profit < 0 %}text-red-600{% else %}text-green-600{% endif %} text-right font-medium">
+                        R$ {{ event.profit|floatformat:2 }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm {% if event.margin < 0 %}text-red-600{% else %}text-green-600{% endif %} text-right font-medium">
+                        {{ event.margin|floatformat:2 }}%
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-center">
+                        <a href="{% url 'events:event_costs' event.id %}" class="text-indigo-600 hover:text-indigo-900" title="Ver Custos">
+                            <i class="fas fa-chart-pie"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="py-8 text-center text-gray-500">
+            <p>Nenhum evento concluído encontrado no período selecionado.</p>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+<script>
+    document.getElementById('exportBtn').addEventListener('click', function() {
+        // Criar uma tabela para exportação
+        var wb = XLSX.utils.book_new();
+        var ws_data = [
+            ['Relatório Financeiro - Agência Atitude', '', '', '', '', '', ''],
+            ['Período: {% if start_date %}{{ start_date }}{% else %}Início{% endif %} a {% if end_date %}{{ end_date }}{% else %}Hoje{% endif %}', '', '', '', '', '', ''],
+            ['', '', '', '', '', '', ''],
+            ['Evento', 'Cliente', 'Data', 'Receita (R$)', 'Despesas (R$)', 'Lucro (R$)', 'Margem (%)']
+        ];
+        
+        // Adicionar dados dos eventos
+        {% for event in report_data %}
+        ws_data.push([
+            '{{ event.title }}',
+            '{{ event.client }}',
+            '{{ event.date }}',
+            parseFloat('{{ event.revenue }}'),
+            parseFloat('{{ event.expenses }}'),
+            parseFloat('{{ event.profit }}'),
+            parseFloat('{{ event.margin }}')
+        ]);
+        {% endfor %}
+        
+        // Adicionar linha em branco e resumo
+        ws_data.push(['', '', '', '', '', '', '']);
+        ws_data.push(['TOTAIS', '', '', 
+            parseFloat('{{ total_revenue }}'), 
+            parseFloat('{{ total_expenses }}'), 
+            parseFloat('{{ total_profit }}'), 
+            parseFloat('{{ avg_margin }}')
+        ]);
+        
+        var ws = XLSX.utils.aoa_to_sheet(ws_data);
+        XLSX.utils.book_append_sheet(wb, ws, "Relatório Financeiro");
+        
+        // Exportar para Excel
+        XLSX.writeFile(wb, "relatorio_financeiro_agencia_atitude.xlsx");
+    });
+</script>
+{% endblock %}
+{% endblock %}

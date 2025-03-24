@@ -1,6 +1,8 @@
 from django.db import models
 from clients.models import Client
 from people.models import Person
+from django.db.models import Sum
+from decimal import Decimal
 
 class Funcao(models.Model):
     nome = models.CharField(max_length=100, unique=True)
@@ -51,7 +53,7 @@ class Event(models.Model):
     start_datetime = models.DateTimeField()
     end_datetime = models.DateTimeField()
     client = models.ForeignKey(Client, on_delete=models.CASCADE, related_name='events')
-    value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    value = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, verbose_name='Valor Contratado (R$)')
     location = models.TextField(blank=True, null=True)
     event_type = models.ForeignKey(EventType, on_delete=models.SET_NULL, null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='cadastrado', verbose_name='Situação')
@@ -67,6 +69,52 @@ class Event(models.Model):
         verbose_name = 'Event'
         verbose_name_plural = 'Events'
         ordering = ['-start_datetime']
+        
+    def get_total_participant_costs(self):
+        """Retorna o total de custos com participantes"""
+        result = self.eventparticipant_set.aggregate(total=Sum('value'))
+        return result['total'] or Decimal('0.00')
+        
+    def get_total_costs(self, cost_type='actual'):
+        """Retorna o total de custos do evento por tipo (orçamento ou real)"""
+        from .models_cost import EventCost
+        result = EventCost.objects.filter(event=self, cost_type=cost_type).aggregate(total=Sum('amount'))
+        return result['total'] or Decimal('0.00')
+    
+    def get_total_budgeted_costs(self):
+        """Retorna o total de custos orçados do evento"""
+        return self.get_total_costs(cost_type='budget')
+    
+    def get_total_real_costs(self):
+        """Retorna o total de custos reais do evento"""
+        return self.get_total_costs(cost_type='actual')
+    
+    def get_pending_costs(self):
+        """Retorna o total de custos pendentes de pagamento"""
+        from .models_cost import EventCost
+        result = EventCost.objects.filter(event=self, cost_type='actual', paid=False).aggregate(total=Sum('amount'))
+        return result['total'] or Decimal('0.00')
+        
+    def get_total_expenses(self):
+        """Retorna o total de despesas (custos reais + participantes)"""
+        participant_costs = self.get_total_participant_costs()
+        other_costs = self.get_total_costs(cost_type='actual')
+        return participant_costs + other_costs
+        
+    def get_profit(self):
+        """Calcula o lucro do evento (receita - despesas)"""
+        if not self.value:
+            return None
+        return self.value - self.get_total_expenses()
+        
+    def get_profit_margin(self):
+        """Calcula a margem de lucro em percentual"""
+        if not self.value or self.value == 0:
+            return None
+        profit = self.get_profit()
+        if profit is None:
+            return None
+        return (profit / self.value) * 100
 
 
 class EventStatusHistory(models.Model):

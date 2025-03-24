@@ -1,0 +1,66 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Excluir Custo - Agência Atitude{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-6">
+    <div class="mb-6">
+        <h1 class="text-2xl font-bold text-gray-900">Excluir Custo</h1>
+        <p class="mt-1 text-sm text-gray-500">Evento: {{ event.title }}</p>
+    </div>
+
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6">
+        <div class="bg-red-50 p-4 rounded-md mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-exclamation-triangle text-red-600"></i>
+                </div>
+                <div class="ml-3">
+                    <h3 class="text-sm font-medium text-red-800">Atenção!</h3>
+                    <div class="mt-2 text-sm text-red-700">
+                        <p>Você está prestes a excluir o custo <strong>{{ cost.description }}</strong> no valor de <strong>R$ {{ cost.amount|floatformat:2 }}</strong>.</p>
+                        <p class="mt-1">Esta ação não poderá ser desfeita.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="border-t border-gray-200 px-4 py-5 sm:p-0 mb-6">
+            <dl class="sm:divide-y sm:divide-gray-200">
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Categoria</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ cost.category.name }}</dd>
+                </div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 bg-gray-50">
+                    <dt class="text-sm font-medium text-gray-500">Descrição</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ cost.description }}</dd>
+                </div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Valor</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">R$ {{ cost.amount|floatformat:2 }}</dd>
+                </div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 bg-gray-50">
+                    <dt class="text-sm font-medium text-gray-500">Tipo</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ cost.get_cost_type_display }}</dd>
+                </div>
+                <div class="py-4 sm:py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <dt class="text-sm font-medium text-gray-500">Data</dt>
+                    <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ cost.date|date:"d/m/Y" }}</dd>
+                </div>
+            </dl>
+        </div>
+
+        <form method="post">
+            {% csrf_token %}
+            <div class="flex justify-end space-x-3">
+                <a href="{% url 'events:event_costs' event.id %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md shadow-sm">
+                    Cancelar
+                </a>
+                <button type="submit" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    Confirmar Exclusão
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -20,6 +20,62 @@
     <!-- Custom CSS -->
     <style>
         [x-cloak] { display: none !important; }
+        
+        /* Estilos para inputs */
+        input[type="text"],
+        input[type="number"],
+        input[type="email"],
+        input[type="password"],
+        input[type="date"],
+        input[type="datetime-local"],
+        input[type="tel"],
+        input[type="url"],
+        input[type="search"],
+        textarea,
+        select {
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            color: #111827;
+            background-color: #fff;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        input[type="text"]:focus,
+        input[type="number"]:focus,
+        input[type="email"]:focus,
+        input[type="password"]:focus,
+        input[type="date"]:focus,
+        input[type="datetime-local"]:focus,
+        input[type="tel"]:focus,
+        input[type="url"]:focus,
+        input[type="search"]:focus,
+        textarea:focus,
+        select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        
+        /* Ajuste para checkbox e radio */
+        input[type="checkbox"],
+        input[type="radio"] {
+            width: 1rem;
+            height: 1rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.25rem;
+            color: #6366f1;
+        }
+        
+        input[type="checkbox"]:focus,
+        input[type="radio"]:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
     </style>
     
     {% block extra_css %}{% endblock %}
@@ -40,6 +96,30 @@
                         <a href="{% url 'clients:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-500">Clientes</a>
                         <a href="{% url 'occurrences:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-500">Ocorrências</a>
                         <a href="{% url 'events:funcao_list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-500">Funções</a>
+                        <div class="relative" x-data="{ open: false }">
+                            <button @click="open = !open" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-500 flex items-center">
+                                <span>Financeiro</span>
+                                <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                                </svg>
+                            </button>
+                            <div x-show="open" 
+                                 @click.away="open = false" 
+                                 x-transition:enter="transition ease-out duration-100" 
+                                 x-transition:enter-start="transform opacity-0 scale-95" 
+                                 x-transition:enter-end="transform opacity-100 scale-100" 
+                                 x-transition:leave="transition ease-in duration-75" 
+                                 x-transition:leave-start="transform opacity-100 scale-100" 
+                                 x-transition:leave-end="transform opacity-0 scale-95" 
+                                 class="origin-top-right absolute z-10 right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" 
+                                 role="menu" 
+                                 aria-orientation="vertical" 
+                                 tabindex="-1"
+                                 x-cloak>
+                                <a href="{% url 'events:cost_category_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Categorias de Custos</a>
+                                <a href="{% url 'events:financial_report' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Relatório Financeiro</a>
+                            </div>
+                        </div>
                     </div>
                 </div>
                 
@@ -109,6 +189,21 @@
                 <a href="{% url 'clients:list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Clientes</a>
                 <a href="{% url 'occurrences:list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Ocorrências</a>
                 <a href="{% url 'events:funcao_list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Funções</a>
+                
+                <!-- Financeiro no menu mobile -->
+                <div x-data="{ openFinancial: false }">
+                    <button @click="openFinancial = !openFinancial" class="flex w-full justify-between px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">
+                        <span>Financeiro</span>
+                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                        </svg>
+                    </button>
+                    <div x-show="openFinancial" class="pl-4 space-y-1">
+                        <a href="{% url 'events:cost_category_list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Categorias de Custos</a>
+                        <a href="{% url 'events:financial_report' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Relatório Financeiro</a>
+                    </div>
+                </div>
+                
                 {% if user.is_authenticated %}
                 <div class="border-t border-indigo-700 pt-2 mt-2">
                     <div class="px-3 py-1 text-xs text-indigo-200">

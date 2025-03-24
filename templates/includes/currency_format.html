@@ -1,0 +1,18 @@
+{% comment %}
+Template para formatação de valores monetários no padrão brasileiro
+Uso: {% include 'includes/currency_format.html' with value=valor %}
+{% endcomment %}
+
+{% if value %}
+    {% with integer_part=value|floatformat:2|stringformat:"s"|slice:":-3" decimal_part=value|floatformat:2|stringformat:"s"|slice:"-2:" %}
+        {% if integer_part|length > 3 %}
+            {% with thousands=integer_part|slice:":-3" hundreds=integer_part|slice:"-3:" %}
+                R$ {{ thousands }}.{{ hundreds }},{{ decimal_part }}
+            {% endwith %}
+        {% else %}
+            R$ {{ integer_part }},{{ decimal_part }}
+        {% endif %}
+    {% endwith %}
+{% else %}
+    R$ 0,00
+{% endif %}
