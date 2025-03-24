@@ -4,7 +4,7 @@
 
 {% block content %}
 <!-- Page Header -->
-<section class="bg-indigo-600 text-white py-16">
+<section class="bg-black text-white py-16">
     <div class="container mx-auto px-4 text-center">
         <h1 class="text-4xl font-bold mb-4">{{ site_settings.blog_title }}</h1>
         <p class="text-xl max-w-3xl mx-auto">Fique por dentro das últimas novidades e tendências do mundo de eventos.</p>
@@ -12,30 +12,30 @@
 </section>
 
 <!-- Blog Posts -->
-<section class="py-16">
+<section class="py-16 bg-gray-900">
     <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {% for post in posts %}
-            <div class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition duration-300">
+            <div class="bg-gray-800 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition duration-300">
                 {% if post.image %}
                 <img src="{{ post.image.url }}" alt="{{ post.title }}" class="w-full h-48 object-cover">
                 {% else %}
-                <div class="w-full h-48 bg-indigo-100 flex items-center justify-center">
-                    <i class="fas fa-newspaper text-4xl text-indigo-300"></i>
+                <div class="w-full h-48 bg-gray-700 flex items-center justify-center">
+                    <i class="fas fa-newspaper text-4xl text-gray-500"></i>
                 </div>
                 {% endif %}
                 <div class="p-6">
-                    <p class="text-sm text-gray-500 mb-2">{{ post.published_at|date:"d/m/Y" }}</p>
-                    <h3 class="text-xl font-bold text-gray-800 mb-3">{{ post.title }}</h3>
-                    <p class="text-gray-600 mb-4">{{ post.content|truncatechars:150 }}</p>
-                    <a href="{% url 'landing:post_detail' post.slug %}" class="text-indigo-600 hover:text-indigo-800 font-semibold">
+                    <p class="text-sm text-gray-400 mb-2">{{ post.published_at|date:"d/m/Y" }}</p>
+                    <h3 class="text-xl font-bold text-white mb-3">{{ post.title }}</h3>
+                    <p class="text-gray-300 mb-4">{{ post.content|truncatechars:150 }}</p>
+                    <a href="{% url 'landing:post_detail' post.slug %}" class="text-white hover:text-gray-300 font-semibold">
                         Leia mais <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
             </div>
             {% empty %}
             <div class="col-span-3 text-center py-8">
-                <p class="text-gray-500">Novidades serão publicadas em breve.</p>
+                <p class="text-gray-400">Novidades serão publicadas em breve.</p>
             </div>
             {% endfor %}
         </div>
@@ -43,15 +43,15 @@
 </section>
 
 <!-- Newsletter Section -->
-<section class="py-16 bg-gray-50">
+<section class="py-16 bg-gray-800">
     <div class="container mx-auto px-4 text-center">
-        <h2 class="text-3xl font-bold text-gray-800 mb-6">Receba Nossas Novidades</h2>
-        <p class="text-gray-600 mb-8 max-w-2xl mx-auto">Inscreva-se em nossa newsletter para receber as últimas notícias, dicas e tendências do mundo de eventos.</p>
+        <h2 class="text-3xl font-bold text-white mb-6">Receba Nossas Novidades</h2>
+        <p class="text-gray-300 mb-8 max-w-2xl mx-auto">Inscreva-se em nossa newsletter para receber as últimas notícias, dicas e tendências do mundo de eventos.</p>
         
         <form class="max-w-md mx-auto">
             <div class="flex flex-col sm:flex-row gap-4">
-                <input type="email" placeholder="Seu e-mail" class="flex-grow px-4 py-3 rounded-lg border-2 border-gray-300 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50">
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-6 rounded-lg transition duration-300">
+                <input type="email" placeholder="Seu e-mail" class="flex-grow px-4 py-3 rounded-lg border-2 border-gray-600 bg-gray-700 text-white focus:border-white focus:ring focus:ring-white focus:ring-opacity-50">
+                <button type="submit" class="bg-white hover:bg-gray-200 text-black font-bold py-3 px-6 rounded-lg transition duration-300">
                     Inscrever-se
                 </button>
             </div>
@@ -60,83 +60,83 @@
 </section>
 
 <!-- Event Tips Section -->
-<section class="py-16">
+<section class="py-16 bg-gray-900">
     <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-gray-800 mb-12 text-center">Dicas para Eventos de Sucesso</h2>
+        <h2 class="text-3xl font-bold text-white mb-12 text-center">Dicas para Eventos de Sucesso</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-            <div class="bg-white p-8 rounded-lg shadow-md">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Planejamento é Essencial</h3>
-                <p class="text-gray-600 mb-4">Um bom planejamento é a base de qualquer evento bem-sucedido. Comece com antecedência, defina objetivos claros e crie um cronograma detalhado.</p>
+            <div class="bg-gray-800 p-8 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-white mb-4">Planejamento é Essencial</h3>
+                <p class="text-gray-300 mb-4">Um bom planejamento é a base de qualquer evento bem-sucedido. Comece com antecedência, defina objetivos claros e crie um cronograma detalhado.</p>
                 <ul class="space-y-2">
                     <li class="flex items-start">
-                        <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
-                        <span class="text-gray-600">Defina seu orçamento com clareza</span>
+                        <i class="fas fa-check-circle text-white mt-1 mr-2"></i>
+                        <span class="text-gray-300">Defina seu orçamento com clareza</span>
                     </li>
                     <li class="flex items-start">
-                        <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
-                        <span class="text-gray-600">Escolha a data com antecedência</span>
+                        <i class="fas fa-check-circle text-white mt-1 mr-2"></i>
+                        <span class="text-gray-300">Escolha a data com antecedência</span>
                     </li>
                     <li class="flex items-start">
-                        <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
-                        <span class="text-gray-600">Crie listas de verificação detalhadas</span>
+                        <i class="fas fa-check-circle text-white mt-1 mr-2"></i>
+                        <span class="text-gray-300">Crie listas de verificação detalhadas</span>
                     </li>
                 </ul>
             </div>
             
-            <div class="bg-white p-8 rounded-lg shadow-md">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Escolha os Fornecedores Certos</h3>
-                <p class="text-gray-600 mb-4">Trabalhar com fornecedores confiáveis e experientes faz toda a diferença. Pesquise, peça referências e estabeleça uma comunicação clara.</p>
+            <div class="bg-gray-800 p-8 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-white mb-4">Escolha os Fornecedores Certos</h3>
+                <p class="text-gray-300 mb-4">Trabalhar com fornecedores confiáveis e experientes faz toda a diferença. Pesquise, peça referências e estabeleça uma comunicação clara.</p>
                 <ul class="space-y-2">
                     <li class="flex items-start">
-                        <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
-                        <span class="text-gray-600">Verifique o histórico e portfólio</span>
+                        <i class="fas fa-check-circle text-white mt-1 mr-2"></i>
+                        <span class="text-gray-300">Verifique o histórico e portfólio</span>
                     </li>
                     <li class="flex items-start">
-                        <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
-                        <span class="text-gray-600">Estabeleça contratos claros</span>
+                        <i class="fas fa-check-circle text-white mt-1 mr-2"></i>
+                        <span class="text-gray-300">Estabeleça contratos claros</span>
                     </li>
                     <li class="flex items-start">
-                        <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
-                        <span class="text-gray-600">Mantenha uma comunicação constante</span>
+                        <i class="fas fa-check-circle text-white mt-1 mr-2"></i>
+                        <span class="text-gray-300">Mantenha uma comunicação constante</span>
                     </li>
                 </ul>
             </div>
             
-            <div class="bg-white p-8 rounded-lg shadow-md">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Pense na Experiência do Convidado</h3>
-                <p class="text-gray-600 mb-4">A experiência dos convidados deve ser sempre prioridade. Pense em cada detalhe, desde a chegada até a despedida.</p>
+            <div class="bg-gray-800 p-8 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-white mb-4">Pense na Experiência do Convidado</h3>
+                <p class="text-gray-300 mb-4">A experiência dos convidados deve ser sempre prioridade. Pense em cada detalhe, desde a chegada até a despedida.</p>
                 <ul class="space-y-2">
                     <li class="flex items-start">
-                        <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
-                        <span class="text-gray-600">Facilite o acesso e estacionamento</span>
+                        <i class="fas fa-check-circle text-white mt-1 mr-2"></i>
+                        <span class="text-gray-300">Facilite o acesso e estacionamento</span>
                     </li>
                     <li class="flex items-start">
-                        <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
-                        <span class="text-gray-600">Ofereça uma recepção calorosa</span>
+                        <i class="fas fa-check-circle text-white mt-1 mr-2"></i>
+                        <span class="text-gray-300">Ofereça uma recepção calorosa</span>
                     </li>
                     <li class="flex items-start">
-                        <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
-                        <span class="text-gray-600">Cuide da alimentação e conforto</span>
+                        <i class="fas fa-check-circle text-white mt-1 mr-2"></i>
+                        <span class="text-gray-300">Cuide da alimentação e conforto</span>
                     </li>
                 </ul>
             </div>
             
-            <div class="bg-white p-8 rounded-lg shadow-md">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Tenha um Plano B</h3>
-                <p class="text-gray-600 mb-4">Imprevistos acontecem, por isso é importante ter sempre um plano alternativo para cada aspecto do seu evento.</p>
+            <div class="bg-gray-800 p-8 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-white mb-4">Tenha um Plano B</h3>
+                <p class="text-gray-300 mb-4">Imprevistos acontecem, por isso é importante ter sempre um plano alternativo para cada aspecto do seu evento.</p>
                 <ul class="space-y-2">
                     <li class="flex items-start">
-                        <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
-                        <span class="text-gray-600">Prepare-se para mudanças climáticas</span>
+                        <i class="fas fa-check-circle text-white mt-1 mr-2"></i>
+                        <span class="text-gray-300">Prepare-se para mudanças climáticas</span>
                     </li>
                     <li class="flex items-start">
-                        <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
-                        <span class="text-gray-600">Tenha fornecedores de backup</span>
+                        <i class="fas fa-check-circle text-white mt-1 mr-2"></i>
+                        <span class="text-gray-300">Tenha fornecedores de backup</span>
                     </li>
                     <li class="flex items-start">
-                        <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
-                        <span class="text-gray-600">Prepare-se para emergências</span>
+                        <i class="fas fa-check-circle text-white mt-1 mr-2"></i>
+                        <span class="text-gray-300">Prepare-se para emergências</span>
                     </li>
                 </ul>
             </div>
@@ -145,11 +145,11 @@
 </section>
 
 <!-- CTA Section -->
-<section class="py-16 bg-indigo-600 text-white">
+<section class="py-16 bg-black text-white">
     <div class="container mx-auto px-4 text-center">
         <h2 class="text-3xl font-bold mb-6">Precisa de Ajuda com seu Evento?</h2>
         <p class="text-xl mb-10 max-w-2xl mx-auto">Nossa equipe de especialistas está pronta para transformar sua visão em realidade. Entre em contato hoje mesmo.</p>
-        <a href="{% url 'landing:contact' %}" class="inline-block bg-white text-indigo-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
+        <a href="{% url 'landing:contact' %}" class="inline-block bg-white text-black hover:bg-gray-200 font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
             Fale Conosco
         </a>
     </div>

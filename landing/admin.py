@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Service, Testimonial, Post, SiteSettings
+from .models import Service, Testimonial, Post, SiteSettings, Message
 
 # Register your models here.
 
@@ -23,6 +23,19 @@ class PostAdmin(admin.ModelAdmin):
     search_fields = ('title', 'content')
     prepopulated_fields = {'slug': ('title',)}
     ordering = ('-published_at',)
+
+@admin.register(Message)
+class MessageAdmin(admin.ModelAdmin):
+    list_display = ('name', 'email', 'subject', 'created_at', 'is_read')
+    list_filter = ('is_read', 'created_at')
+    search_fields = ('name', 'email', 'subject', 'message')
+    readonly_fields = ('created_at', 'read_at')
+    ordering = ('-created_at',)
+    list_editable = ('is_read',)
+    
+    def has_add_permission(self, request):
+        # Messages should only be created through the contact form
+        return False
 
 @admin.register(SiteSettings)
 class SiteSettingsAdmin(admin.ModelAdmin):

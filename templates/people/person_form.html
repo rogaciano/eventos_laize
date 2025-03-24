@@ -1,6 +1,6 @@
 {% extends 'base/base.html' %}
 
-{% block title %}{{ title }} - Gerenciador de Eventos{% endblock %}
+{% block title %}{{ title }} - Agência Atitude{% endblock %}
 
 {% block content %}
 <div class="bg-white shadow overflow-hidden sm:rounded-lg">
@@ -15,7 +15,7 @@
             <a href="{% url 'people:list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
                 <i class="fas fa-arrow-left mr-2"></i>Voltar
             </a>
-            <button type="submit" form="person-form" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <button type="submit" form="person-form" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-sm">
                 <i class="fas fa-save mr-2"></i>{% if form.instance.pk %}Atualizar Pessoa{% else %}Cadastrar Pessoa{% endif %}
             </button>
         </div>
@@ -404,7 +404,7 @@
                         <a href="{% url 'people:list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
                             <i class="fas fa-arrow-left mr-2"></i>Voltar
                         </a>
-                        <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                        <button type="submit" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-sm">
                             <i class="fas fa-save mr-2"></i>{% if form.instance.pk %}Atualizar Pessoa{% else %}Cadastrar Pessoa{% endif %}
                         </button>
                     </div>
@@ -418,16 +418,9 @@
 {% block extra_js %}
 <style>
     .star-rating .star {
-        color: #d1d5db; /* gray-300 */
-        transition: color 0.2s;
-    }
-    .star-rating .star.filled {
-        color: #f59e0b; /* yellow-500 */
-    }
-    .star-rating .star:hover {
-        color: #fbbf24; /* yellow-400 */
-    }
-    .star-rating .star.active ~ .star:hover {
+        cursor: pointer;
+        font-size: 1.5rem;
+        margin-right: 0.25rem;
         color: #d1d5db; /* gray-300 */
     }
 </style>
@@ -438,14 +431,17 @@
         formFields.forEach(field => {
             if (field.type !== 'hidden' && field.type !== 'checkbox' && field.type !== 'radio') {
                 if (field.tagName === 'TEXTAREA') {
-                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'h-24', 'bg-white');
+                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-black', 'focus:ring', 'focus:ring-black', 'focus:ring-opacity-50', 'h-24', 'bg-white', 'text-gray-900');
                 } else if (field.type === 'file') {
-                    field.classList.add('mt-1', 'block', 'w-full', 'text-sm', 'text-gray-900', 'file:mr-4', 'file:py-2', 'file:px-4', 'file:rounded-md', 'file:border-0', 'file:text-sm', 'file:font-semibold', 'file:bg-indigo-50', 'file:text-indigo-700', 'hover:file:bg-indigo-100');
+                    field.classList.add('mt-1', 'block', 'w-full', 'text-sm', 'text-gray-900', 'file:mr-4', 'file:py-2', 'file:px-4', 'file:rounded-md', 'file:border-0', 'file:text-sm', 'file:font-semibold', 'file:bg-gray-100', 'file:text-black', 'hover:file:bg-gray-200');
                 } else if (field.type === 'number') {
-                    field.classList.add('mt-1', 'block', 'w-full', 'md:w-24', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'bg-white');
+                    field.classList.add('mt-1', 'block', 'w-full', 'md:w-24', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-black', 'focus:ring', 'focus:ring-black', 'focus:ring-opacity-50', 'bg-white', 'text-gray-900');
                 } else {
-                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'bg-white');
+                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-black', 'focus:ring', 'focus:ring-black', 'focus:ring-opacity-50', 'bg-white', 'text-gray-900');
                 }
+                
+                // Remover qualquer classe que possa estar causando a diferença de cores
+                field.classList.remove('bg-gray-800', 'bg-gray-700', 'bg-gray-900', 'text-white');
             }
         });
         

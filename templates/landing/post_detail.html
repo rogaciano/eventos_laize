@@ -4,7 +4,7 @@
 
 {% block content %}
 <!-- Post Header -->
-<section class="bg-indigo-600 text-white py-16">
+<section class="bg-black text-white py-16">
     <div class="container mx-auto px-4 text-center">
         <h1 class="text-4xl font-bold mb-4">{{ post.title }}</h1>
         <p class="text-xl">{{ post.published_at|date:"d/m/Y" }}</p>
@@ -12,7 +12,7 @@
 </section>
 
 <!-- Post Content -->
-<section class="py-16">
+<section class="py-16 bg-gray-900">
     <div class="container mx-auto px-4">
         <div class="max-w-4xl mx-auto">
             {% if post.image %}
@@ -21,8 +21,8 @@
             </div>
             {% endif %}
             
-            <div class="bg-white p-8 rounded-lg shadow-md">
-                <div class="prose prose-lg max-w-none text-gray-700">
+            <div class="bg-gray-800 p-8 rounded-lg shadow-md">
+                <div class="prose prose-lg max-w-none text-gray-300">
                     {{ post.content|linebreaksbr }}
                 </div>
             </div>
@@ -30,22 +30,22 @@
             <!-- Share Links -->
             <div class="mt-8 flex items-center justify-between">
                 <div>
-                    <span class="text-gray-600 mr-4">Compartilhar:</span>
-                    <a href="#" class="text-blue-600 hover:text-blue-800 mx-2">
+                    <span class="text-gray-300 mr-4">Compartilhar:</span>
+                    <a href="#" class="text-blue-400 hover:text-blue-300 mx-2">
                         <i class="fab fa-facebook-f"></i>
                     </a>
-                    <a href="#" class="text-blue-400 hover:text-blue-600 mx-2">
+                    <a href="#" class="text-blue-300 hover:text-blue-200 mx-2">
                         <i class="fab fa-twitter"></i>
                     </a>
-                    <a href="#" class="text-green-600 hover:text-green-800 mx-2">
+                    <a href="#" class="text-green-400 hover:text-green-300 mx-2">
                         <i class="fab fa-whatsapp"></i>
                     </a>
-                    <a href="#" class="text-blue-700 hover:text-blue-900 mx-2">
+                    <a href="#" class="text-blue-400 hover:text-blue-300 mx-2">
                         <i class="fab fa-linkedin-in"></i>
                     </a>
                 </div>
                 
-                <a href="{% url 'landing:blog' %}" class="text-indigo-600 hover:text-indigo-800 font-semibold">
+                <a href="{% url 'landing:blog' %}" class="text-white hover:text-gray-300 font-semibold">
                     <i class="fas fa-arrow-left mr-1"></i> Voltar para Novidades
                 </a>
             </div>
@@ -54,32 +54,32 @@
 </section>
 
 <!-- Related Posts -->
-<section class="py-16 bg-gray-50">
+<section class="py-16 bg-gray-800">
     <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-gray-800 mb-12 text-center">Outras Novidades</h2>
+        <h2 class="text-3xl font-bold text-white mb-12 text-center">Outras Novidades</h2>
         
         <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
             {% for related_post in recent_posts %}
-            <div class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition duration-300">
+            <div class="bg-gray-700 rounded-lg overflow-hidden shadow-md hover:shadow-lg transition duration-300">
                 {% if related_post.image %}
                 <img src="{{ related_post.image.url }}" alt="{{ related_post.title }}" class="w-full h-48 object-cover">
                 {% else %}
-                <div class="w-full h-48 bg-indigo-100 flex items-center justify-center">
-                    <i class="fas fa-newspaper text-4xl text-indigo-300"></i>
+                <div class="w-full h-48 bg-gray-600 flex items-center justify-center">
+                    <i class="fas fa-newspaper text-4xl text-gray-400"></i>
                 </div>
                 {% endif %}
                 <div class="p-6">
-                    <p class="text-sm text-gray-500 mb-2">{{ related_post.published_at|date:"d/m/Y" }}</p>
-                    <h3 class="text-xl font-bold text-gray-800 mb-3">{{ related_post.title }}</h3>
-                    <p class="text-gray-600 mb-4">{{ related_post.content|truncatechars:100 }}</p>
-                    <a href="{% url 'landing:post_detail' related_post.slug %}" class="text-indigo-600 hover:text-indigo-800 font-semibold">
+                    <p class="text-sm text-gray-400 mb-2">{{ related_post.published_at|date:"d/m/Y" }}</p>
+                    <h3 class="text-xl font-bold text-white mb-3">{{ related_post.title }}</h3>
+                    <p class="text-gray-300 mb-4">{{ related_post.content|truncatechars:100 }}</p>
+                    <a href="{% url 'landing:post_detail' related_post.slug %}" class="text-white hover:text-gray-300 font-semibold">
                         Leia mais <i class="fas fa-arrow-right ml-1"></i>
                     </a>
                 </div>
             </div>
             {% empty %}
             <div class="col-span-3 text-center py-8">
-                <p class="text-gray-500">Não há outros posts disponíveis no momento.</p>
+                <p class="text-gray-400">Não há outros posts disponíveis no momento.</p>
             </div>
             {% endfor %}
         </div>
@@ -87,11 +87,11 @@
 </section>
 
 <!-- CTA Section -->
-<section class="py-16 bg-indigo-600 text-white">
+<section class="py-16 bg-black text-white">
     <div class="container mx-auto px-4 text-center">
         <h2 class="text-3xl font-bold mb-6">Gostou do Conteúdo?</h2>
         <p class="text-xl mb-10 max-w-2xl mx-auto">Entre em contato conosco para saber como podemos ajudar a tornar seu próximo evento um sucesso.</p>
-        <a href="{% url 'landing:contact' %}" class="inline-block bg-white text-indigo-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
+        <a href="{% url 'landing:contact' %}" class="inline-block bg-white text-black hover:bg-gray-200 font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
             Fale Conosco
         </a>
     </div>

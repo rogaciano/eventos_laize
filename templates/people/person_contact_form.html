@@ -82,11 +82,13 @@
         formFields.forEach(field => {
             if (field.type !== 'hidden' && field.type !== 'checkbox' && field.type !== 'radio') {
                 if (field.tagName === 'SELECT') {
-                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'bg-white');
+                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-600', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'bg-gray-800', 'text-white');
+                    // Remover classes que possam estar causando conflito
+                    field.classList.remove('bg-white', 'text-gray-900', 'border-gray-300');
                 } else if (field.tagName === 'TEXTAREA') {
-                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'bg-white');
+                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'bg-white', 'text-gray-900');
                 } else {
-                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'bg-white');
+                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'bg-white', 'text-gray-900');
                 }
             }
         });

@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Gerenciador de Eventos{% endblock %}</title>
+    <title>{% block title %}Agência Atitude{% endblock %}</title>
     
     <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -31,8 +31,7 @@
         input[type="tel"],
         input[type="url"],
         input[type="search"],
-        textarea,
-        select {
+        textarea {
             border: 1px solid #d1d5db;
             border-radius: 0.375rem;
             padding: 0.5rem 0.75rem;
@@ -40,7 +39,20 @@
             font-size: 0.875rem;
             line-height: 1.25rem;
             color: #111827;
-            background-color: #fff;
+            background-color: #ffffff;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+        }
+        
+        /* Estilos específicos para selects */
+        select {
+            border: 1px solid #4b5563;
+            border-radius: 0.375rem;
+            padding: 0.5rem 0.75rem;
+            width: 100%;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+            color: #ffffff;
+            background-color: #1f2937;
             box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
         }
         
@@ -56,8 +68,8 @@
         textarea:focus,
         select:focus {
             outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            border-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
         }
         
         /* Ajuste para checkbox e radio */
@@ -67,37 +79,40 @@
             height: 1rem;
             border: 1px solid #d1d5db;
             border-radius: 0.25rem;
-            color: #6366f1;
+            color: #111827;
         }
         
         input[type="checkbox"]:focus,
         input[type="radio"]:focus {
             outline: none;
-            border-color: #6366f1;
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            border-color: #ffffff;
+            box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.1);
         }
     </style>
     
     {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-gray-50 min-h-screen flex flex-col">
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
     <!-- Navbar -->
-    <nav class="bg-indigo-600 text-white shadow-md">
+    <nav class="bg-black text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{% url 'dashboard:dashboard' %}" class="font-bold text-xl">Gerenciador de Eventos</a>
+                        <a href="{% url 'dashboard:dashboard' %}" class="font-bold text-xl flex items-center">
+                            <img src="/static/img/brand/logo-atitude-white.png" alt="Agência Atitude" class="h-8 mr-2">
+                            Agência Atitude
+                        </a>
                     </div>
                     <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4">
-                        <a href="{% url 'dashboard:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-500">Dashboard</a>
-                        <a href="{% url 'events:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-500">Eventos</a>
-                        <a href="{% url 'people:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-500">Pessoas</a>
-                        <a href="{% url 'clients:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-500">Clientes</a>
-                        <a href="{% url 'occurrences:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-500">Ocorrências</a>
-                        <a href="{% url 'events:funcao_list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-500">Funções</a>
+                        <a href="{% url 'dashboard:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Dashboard</a>
+                        <a href="{% url 'events:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Eventos</a>
+                        <a href="{% url 'people:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Pessoas</a>
+                        <a href="{% url 'clients:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Clientes</a>
+                        <a href="{% url 'occurrences:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Ocorrências</a>
+                        <a href="{% url 'events:funcao_list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Funções</a>
                         <div class="relative" x-data="{ open: false }">
-                            <button @click="open = !open" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-indigo-500 flex items-center">
+                            <button @click="open = !open" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800 flex items-center">
                                 <span>Financeiro</span>
                                 <svg class="ml-1 h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
@@ -111,15 +126,21 @@
                                  x-transition:leave="transition ease-in duration-75" 
                                  x-transition:leave-start="transform opacity-100 scale-100" 
                                  x-transition:leave-end="transform opacity-0 scale-95" 
-                                 class="origin-top-right absolute z-10 right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" 
+                                 class="origin-top-right absolute z-10 right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-gray-800 ring-1 ring-white ring-opacity-5 focus:outline-none" 
                                  role="menu" 
                                  aria-orientation="vertical" 
                                  tabindex="-1"
                                  x-cloak>
-                                <a href="{% url 'events:cost_category_list' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Categorias de Custos</a>
-                                <a href="{% url 'events:financial_report' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem">Relatório Financeiro</a>
+                                <a href="{% url 'events:cost_category_list' %}" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700" role="menuitem">Categorias de Custos</a>
+                                <a href="{% url 'events:financial_report' %}" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700" role="menuitem">Relatório Financeiro</a>
                             </div>
                         </div>
+                        <a href="{% url 'landing:message_list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800 flex items-center">
+                            <span>Mensagens</span>
+                            {% if unread_messages_count > 0 %}
+                            <span class="ml-1 bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">{{ unread_messages_count }}</span>
+                            {% endif %}
+                        </a>
                     </div>
                 </div>
                 
@@ -128,9 +149,9 @@
                     {% if user.is_authenticated %}
                     <div class="ml-3 relative" x-data="{ open: false }">
                         <div>
-                            <button @click="open = !open" class="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
+                            <button @click="open = !open" class="flex text-sm rounded-full focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500" id="user-menu-button" aria-expanded="false" aria-haspopup="true">
                                 <span class="sr-only">Abrir menu do usuário</span>
-                                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-indigo-100 text-indigo-800">
+                                <span class="inline-flex items-center justify-center h-8 w-8 rounded-full bg-gray-700 text-white">
                                     <span class="text-sm font-medium">{{ user.username|slice:":1"|upper }}</span>
                                 </span>
                             </button>
@@ -143,26 +164,26 @@
                              x-transition:leave="transition ease-in duration-75" 
                              x-transition:leave-start="transform opacity-100 scale-100" 
                              x-transition:leave-end="transform opacity-0 scale-95" 
-                             class="origin-top-right absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none" 
+                             class="origin-top-right absolute z-10 right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-gray-800 ring-1 ring-white ring-opacity-5 focus:outline-none" 
                              role="menu" 
                              aria-orientation="vertical" 
                              aria-labelledby="user-menu-button" 
                              tabindex="-1"
                              x-cloak>
-                            <div class="px-4 py-2 text-xs text-gray-500">
+                            <div class="px-4 py-2 text-xs text-gray-400">
                                 Logado como <span class="font-medium">{{ user.username }}</span>
                             </div>
                             {% if user.is_staff %}
-                            <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Admin</a>
+                            <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700" role="menuitem" tabindex="-1">Admin</a>
                             {% endif %}
                             <form method="post" action="{% url 'logout' %}">
                                 {% csrf_token %}
-                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100" role="menuitem" tabindex="-1">Sair</button>
+                                <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700" role="menuitem" tabindex="-1">Sair</button>
                             </form>
                         </div>
                     </div>
                     {% else %}
-                    <a href="{% url 'login' %}" class="text-white hover:bg-indigo-500 px-3 py-2 rounded-md text-sm font-medium">Entrar</a>
+                    <a href="{% url 'login' %}" class="text-white hover:bg-gray-800 px-3 py-2 rounded-md text-sm font-medium">Entrar</a>
                     {% endif %}
                 </div>
                 
@@ -171,7 +192,7 @@
                     <button type="button" 
                             x-data="{ open: false }"
                             @click="open = !open"
-                            class="inline-flex items-center justify-center p-2 rounded-md text-indigo-200 hover:text-white hover:bg-indigo-500 focus:outline-none focus:bg-indigo-500 focus:text-white transition duration-150 ease-in-out">
+                            class="inline-flex items-center justify-center p-2 rounded-md text-gray-200 hover:text-white hover:bg-gray-800 focus:outline-none focus:bg-gray-800 focus:text-white transition duration-150 ease-in-out">
                         <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                             <path class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
                         </svg>
@@ -183,42 +204,49 @@
         <!-- Mobile menu -->
         <div x-data="{ open: false }" x-show="open" @click.away="open = false" class="md:hidden">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-                <a href="{% url 'dashboard:dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Dashboard</a>
-                <a href="{% url 'events:list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Eventos</a>
-                <a href="{% url 'people:list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Pessoas</a>
-                <a href="{% url 'clients:list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Clientes</a>
-                <a href="{% url 'occurrences:list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Ocorrências</a>
-                <a href="{% url 'events:funcao_list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Funções</a>
+                <a href="{% url 'dashboard:dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Dashboard</a>
+                <a href="{% url 'events:list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Eventos</a>
+                <a href="{% url 'people:list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Pessoas</a>
+                <a href="{% url 'clients:list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Clientes</a>
+                <a href="{% url 'occurrences:list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Ocorrências</a>
+                <a href="{% url 'events:funcao_list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Funções</a>
+                
+                <a href="{% url 'landing:message_list' %}" class="flex justify-between px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">
+                    <span>Mensagens</span>
+                    {% if unread_messages_count > 0 %}
+                    <span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">{{ unread_messages_count }}</span>
+                    {% endif %}
+                </a>
                 
                 <!-- Financeiro no menu mobile -->
                 <div x-data="{ openFinancial: false }">
-                    <button @click="openFinancial = !openFinancial" class="flex w-full justify-between px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">
+                    <button @click="openFinancial = !openFinancial" class="flex w-full justify-between px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">
                         <span>Financeiro</span>
                         <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
                     <div x-show="openFinancial" class="pl-4 space-y-1">
-                        <a href="{% url 'events:cost_category_list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Categorias de Custos</a>
-                        <a href="{% url 'events:financial_report' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Relatório Financeiro</a>
+                        <a href="{% url 'events:cost_category_list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Categorias de Custos</a>
+                        <a href="{% url 'events:financial_report' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Relatório Financeiro</a>
                     </div>
                 </div>
                 
                 {% if user.is_authenticated %}
-                <div class="border-t border-indigo-700 pt-2 mt-2">
-                    <div class="px-3 py-1 text-xs text-indigo-200">
+                <div class="border-t border-gray-700 pt-2 mt-2">
+                    <div class="px-3 py-1 text-xs text-gray-400">
                         Logado como <span class="font-medium">{{ user.username }}</span>
                     </div>
                     {% if user.is_staff %}
-                    <a href="{% url 'admin:index' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Admin</a>
+                    <a href="{% url 'admin:index' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Admin</a>
                     {% endif %}
                     <form method="post" action="{% url 'logout' %}">
                         {% csrf_token %}
-                        <button type="submit" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Sair</button>
+                        <button type="submit" class="block w-full text-left px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Sair</button>
                     </form>
                 </div>
                 {% else %}
-                <a href="{% url 'login' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-indigo-500">Entrar</a>
+                <a href="{% url 'login' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Entrar</a>
                 {% endif %}
             </div>
         </div>
@@ -230,29 +258,44 @@
             {% if messages %}
                 <div class="mb-4">
                     {% for message in messages %}
-                        <div class="p-4 {% if message.tags == 'success' %}bg-green-100 text-green-700 border border-green-400{% elif message.tags == 'error' %}bg-red-100 text-red-700 border border-red-400{% else %}bg-blue-100 text-blue-700 border border-blue-400{% endif %} rounded">
+                        <div class="p-4 {% if message.tags == 'success' %}bg-green-900 text-green-100 border border-green-700{% elif message.tags == 'error' %}bg-red-900 text-red-100 border border-red-700{% else %}bg-blue-900 text-blue-100 border border-blue-700{% endif %} rounded">
                             {{ message }}
                         </div>
                     {% endfor %}
                 </div>
             {% endif %}
             
-            <div class="bg-white shadow rounded-lg p-6">
+            <div class="bg-gray-800 shadow rounded-lg p-6 text-white">
                 {% block content %}{% endblock %}
             </div>
         </div>
     </div>
 
     <!-- Footer -->
-    <footer class="bg-white border-t mt-auto">
+    <footer class="bg-black border-t border-gray-800 mt-auto">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-            <div class="text-center text-gray-500 text-sm">
-                &copy; {% now "Y" %} Gerenciador de Eventos. Todos os direitos reservados.
+            <div class="text-center text-gray-400 text-sm">
+                &copy; {% now "Y" %} Agência Atitude. Todos os direitos reservados.
             </div>
         </div>
     </footer>
 
     <!-- JavaScript -->
     {% block extra_js %}{% endblock %}
+    
+    <!-- Script global para estilizar selects -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Estilizar todos os selects para seguir o padrão de fundo claro e texto escuro
+            const selects = document.querySelectorAll('select');
+            selects.forEach(select => {
+                // Remover classes que possam estar causando conflito
+                select.classList.remove('bg-gray-800', 'text-white', 'border-gray-600');
+                
+                // Adicionar classes para o padrão de fundo claro
+                select.classList.add('bg-white', 'text-gray-900', 'border-gray-300', 'border-2');
+            });
+        });
+    </script>
 </body>
 </html>

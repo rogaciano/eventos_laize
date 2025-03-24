@@ -19,6 +19,8 @@
     <style>
         body {
             font-family: 'Poppins', sans-serif;
+            background-color: #111827;
+            color: #f3f4f6;
         }
         .hero-section {
             background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80');
@@ -29,40 +31,41 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="min-h-screen flex flex-col bg-gray-900 text-white">
     <!-- Header/Navbar -->
-    <header class="bg-white shadow-md">
+    <header class="bg-black shadow-md">
         <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
-            <a href="{% url 'landing:home' %}" class="text-2xl font-bold text-indigo-600">
+            <a href="{% url 'landing:home' %}" class="text-2xl font-bold text-white flex items-center">
+                <img src="/static/img/brand/logo-atitude-white.png" alt="Agência Atitude" class="h-8 mr-2">
                 {{ site_settings.site_name }}
             </a>
             
             <!-- Mobile Menu Button -->
-            <button id="mobile-menu-button" class="md:hidden text-gray-700">
+            <button id="mobile-menu-button" class="md:hidden text-white">
                 <i class="fas fa-bars text-xl"></i>
             </button>
             
             <!-- Desktop Menu -->
             <div class="hidden md:flex space-x-6">
-                <a href="{% url 'landing:home' %}" class="text-gray-700 hover:text-indigo-600 transition duration-300">Home</a>
-                <a href="{% url 'landing:about' %}" class="text-gray-700 hover:text-indigo-600 transition duration-300">Sobre Nós</a>
-                <a href="{% url 'landing:services' %}" class="text-gray-700 hover:text-indigo-600 transition duration-300">Serviços</a>
-                <a href="{% url 'landing:blog' %}" class="text-gray-700 hover:text-indigo-600 transition duration-300">Novidades</a>
-                <a href="{% url 'landing:contact' %}" class="text-gray-700 hover:text-indigo-600 transition duration-300">Contato</a>
-                <a href="{% url 'login' %}" class="text-gray-500 hover:text-indigo-600 transition duration-300 text-sm">
+                <a href="{% url 'landing:home' %}" class="text-gray-300 hover:text-white transition duration-300">Home</a>
+                <a href="{% url 'landing:about' %}" class="text-gray-300 hover:text-white transition duration-300">Sobre Nós</a>
+                <a href="{% url 'landing:services' %}" class="text-gray-300 hover:text-white transition duration-300">Serviços</a>
+                <a href="{% url 'landing:blog' %}" class="text-gray-300 hover:text-white transition duration-300">Novidades</a>
+                <a href="{% url 'landing:contact' %}" class="text-gray-300 hover:text-white transition duration-300">Contato</a>
+                <a href="{% url 'login' %}" class="text-gray-400 hover:text-white transition duration-300 text-sm">
                     <i class="fas fa-lock mr-1"></i> Área Restrita
                 </a>
             </div>
         </nav>
         
         <!-- Mobile Menu (Hidden by default) -->
-        <div id="mobile-menu" class="hidden md:hidden px-4 py-2 bg-white shadow-inner">
-            <a href="{% url 'landing:home' %}" class="block py-2 text-gray-700 hover:text-indigo-600">Home</a>
-            <a href="{% url 'landing:about' %}" class="block py-2 text-gray-700 hover:text-indigo-600">Sobre Nós</a>
-            <a href="{% url 'landing:services' %}" class="block py-2 text-gray-700 hover:text-indigo-600">Serviços</a>
-            <a href="{% url 'landing:blog' %}" class="block py-2 text-gray-700 hover:text-indigo-600">Novidades</a>
-            <a href="{% url 'landing:contact' %}" class="block py-2 text-gray-700 hover:text-indigo-600">Contato</a>
-            <a href="{% url 'login' %}" class="block py-2 text-gray-500 hover:text-indigo-600 text-sm">
+        <div id="mobile-menu" class="hidden md:hidden px-4 py-2 bg-gray-800 shadow-inner">
+            <a href="{% url 'landing:home' %}" class="block py-2 text-gray-300 hover:text-white">Home</a>
+            <a href="{% url 'landing:about' %}" class="block py-2 text-gray-300 hover:text-white">Sobre Nós</a>
+            <a href="{% url 'landing:services' %}" class="block py-2 text-gray-300 hover:text-white">Serviços</a>
+            <a href="{% url 'landing:blog' %}" class="block py-2 text-gray-300 hover:text-white">Novidades</a>
+            <a href="{% url 'landing:contact' %}" class="block py-2 text-gray-300 hover:text-white">Contato</a>
+            <a href="{% url 'login' %}" class="block py-2 text-gray-400 hover:text-white text-sm">
                 <i class="fas fa-lock mr-1"></i> Área Restrita
             </a>
         </div>
@@ -74,7 +77,7 @@
     </main>
     
     <!-- Footer -->
-    <footer class="bg-gray-800 text-white py-10">
+    <footer class="bg-black text-white py-10">
         <div class="container mx-auto px-4">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
                 <!-- About Section -->
@@ -83,19 +86,19 @@
                     <p class="text-gray-300 mb-4">{{ site_settings.tagline }}</p>
                     <div class="flex space-x-4">
                         {% if site_settings.facebook %}
-                        <a href="{{ site_settings.facebook }}" target="_blank" class="text-white hover:text-indigo-400">
+                        <a href="{{ site_settings.facebook }}" target="_blank" class="text-white hover:text-gray-400">
                             <i class="fab fa-facebook-f"></i>
                         </a>
                         {% endif %}
                         
                         {% if site_settings.instagram %}
-                        <a href="{{ site_settings.instagram }}" target="_blank" class="text-white hover:text-indigo-400">
+                        <a href="{{ site_settings.instagram }}" target="_blank" class="text-white hover:text-gray-400">
                             <i class="fab fa-instagram"></i>
                         </a>
                         {% endif %}
                         
                         {% if site_settings.whatsapp %}
-                        <a href="https://wa.me/{{ site_settings.whatsapp }}" target="_blank" class="text-white hover:text-indigo-400">
+                        <a href="https://wa.me/{{ site_settings.whatsapp }}" target="_blank" class="text-white hover:text-gray-400">
                             <i class="fab fa-whatsapp"></i>
                         </a>
                         {% endif %}
@@ -121,21 +124,21 @@
                     <ul class="space-y-2">
                         {% if site_settings.address %}
                         <li class="flex items-start">
-                            <i class="fas fa-map-marker-alt mt-1 mr-2 text-indigo-400"></i>
+                            <i class="fas fa-map-marker-alt mt-1 mr-2 text-gray-400"></i>
                             <span class="text-gray-300">{{ site_settings.address }}</span>
                         </li>
                         {% endif %}
                         
                         {% if site_settings.phone %}
                         <li class="flex items-center">
-                            <i class="fas fa-phone-alt mr-2 text-indigo-400"></i>
+                            <i class="fas fa-phone-alt mr-2 text-gray-400"></i>
                             <span class="text-gray-300">{{ site_settings.phone }}</span>
                         </li>
                         {% endif %}
                         
                         {% if site_settings.contact_email %}
                         <li class="flex items-center">
-                            <i class="fas fa-envelope mr-2 text-indigo-400"></i>
+                            <i class="fas fa-envelope mr-2 text-gray-400"></i>
                             <span class="text-gray-300">{{ site_settings.contact_email }}</span>
                         </li>
                         {% endif %}
@@ -146,7 +149,7 @@
             <div class="border-t border-gray-700 mt-8 pt-6 text-center text-gray-400">
                 <p>{{ site_settings.footer_text|default:"&copy; 2025 Agência Atitude. Todos os direitos reservados." }}</p>
                 <p class="mt-2 text-sm">
-                    <a href="{% url 'login' %}" class="text-gray-400 hover:text-indigo-400">
+                    <a href="{% url 'login' %}" class="text-gray-400 hover:text-white">
                         <i class="fas fa-lock text-xs mr-1"></i> Área Restrita
                     </a>
                 </p>

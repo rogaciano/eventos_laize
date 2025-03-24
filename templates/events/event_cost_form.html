@@ -5,124 +5,152 @@
 {% block content %}
 <div class="container mx-auto px-4 py-6">
     <div class="mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">{{ title }}</h1>
-        <p class="mt-1 text-sm text-gray-500">Evento: {{ event.title }}</p>
+        <h1 class="text-2xl font-bold text-white">{{ title }}</h1>
+        <p class="mt-1 text-sm text-gray-400">Evento: {{ event.title }}</p>
     </div>
 
     {% if messages %}
     <div class="mb-4">
         {% for message in messages %}
-        <div class="p-4 {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %} rounded-md">
+        <div class="p-4 {% if message.tags == 'success' %}bg-green-800 text-green-100{% elif message.tags == 'error' %}bg-red-800 text-red-100{% else %}bg-gray-700 text-gray-100{% endif %} rounded-md">
             {{ message }}
         </div>
         {% endfor %}
     </div>
     {% endif %}
 
-    <div class="bg-white shadow overflow-hidden sm:rounded-lg p-6">
+    <div class="bg-gray-800 shadow overflow-hidden sm:rounded-lg p-6">
         <form method="post" enctype="multipart/form-data" novalidate>
             {% csrf_token %}
             
             <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div>
-                    <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-700">Categoria</label>
+                    <label for="{{ form.category.id_for_label }}" class="block text-sm font-medium text-gray-300">Categoria</label>
                     <div class="mt-1">
                         {{ form.category }}
                     </div>
                     {% if form.category.errors %}
-                    <p class="mt-2 text-sm text-red-600">{{ form.category.errors.0 }}</p>
+                    <p class="mt-2 text-sm text-red-400">{{ form.category.errors.0 }}</p>
                     {% endif %}
                 </div>
                 
                 <div>
-                    <label for="{{ form.cost_type.id_for_label }}" class="block text-sm font-medium text-gray-700">Tipo</label>
-                    <div class="mt-1">
-                        {{ form.cost_type }}
-                    </div>
-                    {% if form.cost_type.errors %}
-                    <p class="mt-2 text-sm text-red-600">{{ form.cost_type.errors.0 }}</p>
-                    {% endif %}
-                </div>
-                
-                <div>
-                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">Descrição</label>
-                    <div class="mt-1">
-                        {{ form.description }}
-                    </div>
-                    {% if form.description.errors %}
-                    <p class="mt-2 text-sm text-red-600">{{ form.description.errors.0 }}</p>
-                    {% endif %}
-                </div>
-                
-                <div>
-                    <label for="{{ form.amount.id_for_label }}" class="block text-sm font-medium text-gray-700">Valor (R$)</label>
-                    <div class="mt-1">
-                        {{ form.amount }}
-                    </div>
-                    {% if form.amount.errors %}
-                    <p class="mt-2 text-sm text-red-600">{{ form.amount.errors.0 }}</p>
-                    {% endif %}
-                </div>
-                
-                <div>
-                    <label for="{{ form.date.id_for_label }}" class="block text-sm font-medium text-gray-700">Data</label>
+                    <label for="{{ form.date.id_for_label }}" class="block text-sm font-medium text-gray-300">Data</label>
                     <div class="mt-1">
                         {{ form.date }}
                     </div>
                     {% if form.date.errors %}
-                    <p class="mt-2 text-sm text-red-600">{{ form.date.errors.0 }}</p>
+                    <p class="mt-2 text-sm text-red-400">{{ form.date.errors.0 }}</p>
                     {% endif %}
                 </div>
                 
                 <div>
-                    <div class="flex items-center h-full mt-6">
-                        <div class="flex items-center">
-                            {{ form.paid }}
-                            <label for="{{ form.paid.id_for_label }}" class="ml-2 block text-sm text-gray-900">
-                                Pago
-                            </label>
-                        </div>
+                    <label for="{{ form.cost_type.id_for_label }}" class="block text-sm font-medium text-gray-300">Tipo de Custo</label>
+                    <div class="mt-1">
+                        {{ form.cost_type }}
+                    </div>
+                    {% if form.cost_type.errors %}
+                    <p class="mt-2 text-sm text-red-400">{{ form.cost_type.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.amount.id_for_label }}" class="block text-sm font-medium text-gray-300">Valor</label>
+                    <div class="mt-1">
+                        {{ form.amount }}
+                    </div>
+                    {% if form.amount.errors %}
+                    <p class="mt-2 text-sm text-red-400">{{ form.amount.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="md:col-span-2">
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-300">Descrição</label>
+                    <div class="mt-1">
+                        {{ form.description }}
+                    </div>
+                    {% if form.description.errors %}
+                    <p class="mt-2 text-sm text-red-400">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <div class="flex items-center">
+                        {{ form.paid }}
+                        <label for="{{ form.paid.id_for_label }}" class="ml-2 block text-sm font-medium text-gray-300">
+                            Pago
+                        </label>
                     </div>
                     {% if form.paid.errors %}
-                    <p class="mt-2 text-sm text-red-600">{{ form.paid.errors.0 }}</p>
+                    <p class="mt-2 text-sm text-red-400">{{ form.paid.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.receipt.id_for_label }}" class="block text-sm font-medium text-gray-300">Comprovante</label>
+                    <div class="mt-1">
+                        {{ form.receipt }}
+                    </div>
+                    {% if form.receipt.errors %}
+                    <p class="mt-2 text-sm text-red-400">{{ form.receipt.errors.0 }}</p>
+                    {% endif %}
+                    {% if cost and cost.receipt %}
+                    <p class="mt-2 text-sm text-gray-400">
+                        Comprovante atual: <a href="{{ cost.receipt.url }}" target="_blank" class="text-gray-300 hover:text-white">Ver comprovante</a>
+                    </p>
+                    {% endif %}
+                </div>
+                
+                <div>
+                    <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-300">Observações</label>
+                    <div class="mt-1">
+                        {{ form.notes }}
+                    </div>
+                    {% if form.notes.errors %}
+                    <p class="mt-2 text-sm text-red-400">{{ form.notes.errors.0 }}</p>
                     {% endif %}
                 </div>
             </div>
             
-            <div class="mt-6">
-                <label for="{{ form.receipt.id_for_label }}" class="block text-sm font-medium text-gray-700">Comprovante</label>
-                <div class="mt-1">
-                    {{ form.receipt }}
-                </div>
-                {% if form.receipt.errors %}
-                <p class="mt-2 text-sm text-red-600">{{ form.receipt.errors.0 }}</p>
-                {% endif %}
-                {% if cost and cost.receipt %}
-                <p class="mt-2 text-sm text-gray-500">
-                    Comprovante atual: <a href="{{ cost.receipt.url }}" target="_blank" class="text-indigo-600 hover:text-indigo-900">Ver comprovante</a>
-                </p>
-                {% endif %}
-            </div>
-            
-            <div class="mt-6">
-                <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-700">Observações</label>
-                <div class="mt-1">
-                    {{ form.notes }}
-                </div>
-                {% if form.notes.errors %}
-                <p class="mt-2 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
-                {% endif %}
-            </div>
-            
             <div class="flex justify-end space-x-3 mt-6">
-                <a href="{% url 'events:event_costs' event.id %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md shadow-sm">
+                <a href="{% url 'events:event_costs' event.id %}" class="bg-white hover:bg-gray-200 text-gray-900 px-4 py-2 rounded-md shadow-sm">
                     Cancelar
                 </a>
-                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <button type="submit" class="bg-white hover:bg-gray-200 text-gray-900 px-4 py-2 rounded-md shadow-sm">
                     Salvar
                 </button>
             </div>
         </form>
     </div>
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Estilizar os selects
+        const selects = document.querySelectorAll('select');
+        selects.forEach(select => {
+            select.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-600', 'shadow-sm', 'focus:border-white', 'focus:ring-white', 'bg-gray-700', 'text-white');
+        });
+        
+        // Estilizar os inputs
+        const inputs = document.querySelectorAll('input[type="text"], input[type="number"], input[type="date"]');
+        inputs.forEach(input => {
+            input.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-600', 'shadow-sm', 'focus:border-white', 'focus:ring-white', 'bg-gray-700', 'text-white');
+        });
+        
+        // Estilizar as textareas
+        const textareas = document.querySelectorAll('textarea');
+        textareas.forEach(textarea => {
+            textarea.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-600', 'shadow-sm', 'focus:border-white', 'focus:ring-white', 'bg-gray-700', 'text-white');
+        });
+        
+        // Estilizar os checkboxes
+        const checkboxes = document.querySelectorAll('input[type="checkbox"]');
+        checkboxes.forEach(checkbox => {
+            checkbox.classList.add('h-4', 'w-4', 'text-white', 'focus:ring-white', 'border-gray-600', 'rounded', 'bg-gray-700');
+        });
+    });
+</script>
 {% endblock %}

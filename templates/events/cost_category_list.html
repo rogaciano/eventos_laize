@@ -5,16 +5,16 @@
 {% block content %}
 <div class="container mx-auto px-4 py-6">
     <div class="flex justify-between items-center mb-6">
-        <h1 class="text-2xl font-bold text-gray-900">Categorias de Custos</h1>
+        <h1 class="text-2xl font-bold">Categorias de Custos</h1>
         <a href="{% url 'events:cost_category_create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
-            <i class="fas fa-plus-circle mr-2"></i>Nova Categoria
+            <i class="fas fa-plus mr-2"></i>Nova Categoria
         </a>
     </div>
 
     {% if messages %}
     <div class="mb-4">
         {% for message in messages %}
-        <div class="p-4 {% if message.tags == 'success' %}bg-green-100 text-green-700{% elif message.tags == 'error' %}bg-red-100 text-red-700{% else %}bg-blue-100 text-blue-700{% endif %} rounded-md">
+        <div class="p-4 {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-gray-100 text-gray-800{% endif %} rounded-md">
             {{ message }}
         </div>
         {% endfor %}
@@ -33,15 +33,15 @@
             </thead>
             <tbody class="bg-white divide-y divide-gray-200">
                 {% for category in categories %}
-                <tr>
-                    <td class="px-6 py-4 whitespace-nowrap">
-                        <div class="text-sm font-medium text-gray-900">{{ category.name }}</div>
+                <tr class="hover:bg-gray-50">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {{ category.name }}
                     </td>
-                    <td class="px-6 py-4">
-                        <div class="text-sm text-gray-900">{{ category.description|default:"-"|truncatechars:100 }}</div>
+                    <td class="px-6 py-4 text-sm text-gray-500">
+                        {{ category.description|default:"-" }}
                     </td>
-                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                        <a href="{% url 'events:cost_category_update' category.id %}" class="text-blue-600 hover:text-blue-900 mr-3" title="Editar">
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-right">
+                        <a href="{% url 'events:cost_category_update' category.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3" title="Editar">
                             <i class="fas fa-edit"></i>
                         </a>
                         <a href="{% url 'events:cost_category_delete' category.id %}" class="text-red-600 hover:text-red-900" title="Excluir">
@@ -55,17 +55,14 @@
         {% else %}
         <div class="py-8 text-center text-gray-500">
             <p>Nenhuma categoria de custo cadastrada.</p>
-            <p class="mt-2">
-                <a href="{% url 'events:cost_category_create' %}" class="text-indigo-600 hover:text-indigo-900">
-                    Clique aqui para adicionar uma nova categoria
-                </a>
-            </p>
+            <a href="{% url 'events:cost_category_create' %}" class="inline-block mt-4 text-indigo-600 hover:text-indigo-900">
+                <i class="fas fa-plus mr-1"></i> Adicionar categoria
+            </a>
         </div>
         {% endif %}
     </div>
-    
     <div class="mt-4 flex justify-end">
-        <a href="{% url 'events:list' %}" class="text-indigo-600 hover:text-indigo-900">
+        <a href="{% url 'events:list' %}" class="text-gray-600 hover:text-gray-900">
             <i class="fas fa-arrow-left mr-1"></i>Voltar para Eventos
         </a>
     </div>

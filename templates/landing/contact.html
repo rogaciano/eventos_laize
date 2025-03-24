@@ -4,7 +4,7 @@
 
 {% block content %}
 <!-- Page Header -->
-<section class="bg-indigo-600 text-white py-16">
+<section class="bg-black text-white py-16">
     <div class="container mx-auto px-4 text-center">
         <h1 class="text-4xl font-bold mb-4">{{ site_settings.contact_title }}</h1>
         <p class="text-xl max-w-3xl mx-auto">Entre em contato conosco para discutir seu próximo evento ou esclarecer dúvidas.</p>
@@ -12,21 +12,21 @@
 </section>
 
 <!-- Contact Form and Info -->
-<section class="py-16">
+<section class="py-16 bg-gray-900">
     <div class="container mx-auto px-4">
         <div class="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <!-- Contact Form -->
-            <div class="bg-white p-8 rounded-lg shadow-md">
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Envie-nos uma Mensagem</h2>
+            <div class="bg-gray-800 p-8 rounded-lg shadow-md">
+                <h2 class="text-2xl font-bold text-white mb-6">Envie-nos uma Mensagem</h2>
                 
                 {% if form_sent %}
-                <div class="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-6" role="alert">
+                <div class="bg-green-800 border-l-4 border-green-500 text-green-100 p-4 mb-6" role="alert">
                     <p>Sua mensagem foi enviada com sucesso! Entraremos em contato em breve.</p>
                 </div>
                 {% endif %}
                 
                 {% if form_error %}
-                <div class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-6" role="alert">
+                <div class="bg-red-900 border-l-4 border-red-500 text-red-100 p-4 mb-6" role="alert">
                     <p>Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente.</p>
                 </div>
                 {% endif %}
@@ -35,46 +35,46 @@
                     {% csrf_token %}
                     
                     <div class="mb-4">
-                        <label for="id_name" class="block text-gray-700 font-medium mb-2">Nome</label>
+                        <label for="id_name" class="block text-gray-300 font-medium mb-2">Nome</label>
                         {{ form.name }}
                         {% if form.name.errors %}
-                        <p class="text-red-600 text-sm mt-1">{{ form.name.errors|join:", " }}</p>
+                        <p class="text-red-400 text-sm mt-1">{{ form.name.errors|join:", " }}</p>
                         {% endif %}
                     </div>
                     
                     <div class="mb-4">
-                        <label for="id_email" class="block text-gray-700 font-medium mb-2">Email</label>
+                        <label for="id_email" class="block text-gray-300 font-medium mb-2">Email</label>
                         {{ form.email }}
                         {% if form.email.errors %}
-                        <p class="text-red-600 text-sm mt-1">{{ form.email.errors|join:", " }}</p>
+                        <p class="text-red-400 text-sm mt-1">{{ form.email.errors|join:", " }}</p>
                         {% endif %}
                     </div>
                     
                     <div class="mb-4">
-                        <label for="id_phone" class="block text-gray-700 font-medium mb-2">Telefone</label>
+                        <label for="id_phone" class="block text-gray-300 font-medium mb-2">Telefone</label>
                         {{ form.phone }}
                         {% if form.phone.errors %}
-                        <p class="text-red-600 text-sm mt-1">{{ form.phone.errors|join:", " }}</p>
+                        <p class="text-red-400 text-sm mt-1">{{ form.phone.errors|join:", " }}</p>
                         {% endif %}
                     </div>
                     
                     <div class="mb-4">
-                        <label for="id_subject" class="block text-gray-700 font-medium mb-2">Assunto</label>
+                        <label for="id_subject" class="block text-gray-300 font-medium mb-2">Assunto</label>
                         {{ form.subject }}
                         {% if form.subject.errors %}
-                        <p class="text-red-600 text-sm mt-1">{{ form.subject.errors|join:", " }}</p>
+                        <p class="text-red-400 text-sm mt-1">{{ form.subject.errors|join:", " }}</p>
                         {% endif %}
                     </div>
                     
                     <div class="mb-6">
-                        <label for="id_message" class="block text-gray-700 font-medium mb-2">Mensagem</label>
+                        <label for="id_message" class="block text-gray-300 font-medium mb-2">Mensagem</label>
                         {{ form.message }}
                         {% if form.message.errors %}
-                        <p class="text-red-600 text-sm mt-1">{{ form.message.errors|join:", " }}</p>
+                        <p class="text-red-400 text-sm mt-1">{{ form.message.errors|join:", " }}</p>
                         {% endif %}
                     </div>
                     
-                    <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg transition duration-300">
+                    <button type="submit" class="w-full bg-white hover:bg-gray-200 text-black font-bold py-3 px-4 rounded-lg transition duration-300">
                         Enviar Mensagem
                     </button>
                 </form>
@@ -82,79 +82,79 @@
             
             <!-- Contact Info -->
             <div>
-                <h2 class="text-2xl font-bold text-gray-800 mb-6">Informações de Contato</h2>
+                <h2 class="text-2xl font-bold text-white mb-6">Informações de Contato</h2>
                 
                 <div class="space-y-8">
                     <div class="flex items-start">
-                        <div class="text-indigo-600 text-2xl mr-4">
+                        <div class="text-white text-2xl mr-4">
                             <i class="fas fa-map-marker-alt"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-gray-800 mb-1">Endereço</h3>
-                            <p class="text-gray-600">{{ site_settings.address|default:"Av. Exemplo, 123 - Centro, Cidade - Estado, 12345-678" }}</p>
+                            <h3 class="text-lg font-bold text-white mb-1">Endereço</h3>
+                            <p class="text-gray-300">{{ site_settings.address|default:"Av. Exemplo, 123 - Centro, Cidade - Estado, 12345-678" }}</p>
                         </div>
                     </div>
                     
                     <div class="flex items-start">
-                        <div class="text-indigo-600 text-2xl mr-4">
+                        <div class="text-white text-2xl mr-4">
                             <i class="fas fa-phone-alt"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-gray-800 mb-1">Telefone</h3>
-                            <p class="text-gray-600">{{ site_settings.phone|default:"(00) 1234-5678" }}</p>
+                            <h3 class="text-lg font-bold text-white mb-1">Telefone</h3>
+                            <p class="text-gray-300">{{ site_settings.phone|default:"(00) 1234-5678" }}</p>
                         </div>
                     </div>
                     
                     <div class="flex items-start">
-                        <div class="text-indigo-600 text-2xl mr-4">
+                        <div class="text-white text-2xl mr-4">
                             <i class="fas fa-envelope"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-gray-800 mb-1">Email</h3>
-                            <p class="text-gray-600">{{ site_settings.email|default:"contato@exemplo.com" }}</p>
+                            <h3 class="text-lg font-bold text-white mb-1">Email</h3>
+                            <p class="text-gray-300">{{ site_settings.email|default:"contato@exemplo.com" }}</p>
                         </div>
                     </div>
                     
                     <div class="flex items-start">
-                        <div class="text-indigo-600 text-2xl mr-4">
+                        <div class="text-white text-2xl mr-4">
                             <i class="fas fa-clock"></i>
                         </div>
                         <div>
-                            <h3 class="text-lg font-bold text-gray-800 mb-1">Horário de Atendimento</h3>
-                            <p class="text-gray-600">{{ site_settings.business_hours|default:"Segunda a Sexta: 9h às 18h" }}</p>
+                            <h3 class="text-lg font-bold text-white mb-1">Horário de Atendimento</h3>
+                            <p class="text-gray-300">{{ site_settings.business_hours|default:"Segunda a Sexta: 9h às 18h" }}</p>
                         </div>
                     </div>
                     
                     <!-- Social Media -->
                     <div>
-                        <h3 class="text-lg font-bold text-gray-800 mb-3">Redes Sociais</h3>
+                        <h3 class="text-lg font-bold text-white mb-3">Redes Sociais</h3>
                         <div class="flex space-x-4">
                             {% if site_settings.facebook_url %}
-                            <a href="{{ site_settings.facebook_url }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-2xl">
+                            <a href="{{ site_settings.facebook_url }}" target="_blank" class="text-white hover:text-gray-300 text-2xl">
                                 <i class="fab fa-facebook-f"></i>
                             </a>
                             {% endif %}
                             
                             {% if site_settings.instagram_url %}
-                            <a href="{{ site_settings.instagram_url }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-2xl">
+                            <a href="{{ site_settings.instagram_url }}" target="_blank" class="text-white hover:text-gray-300 text-2xl">
                                 <i class="fab fa-instagram"></i>
                             </a>
                             {% endif %}
                             
                             {% if site_settings.twitter_url %}
-                            <a href="{{ site_settings.twitter_url }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-2xl">
+                            <a href="{{ site_settings.twitter_url }}" target="_blank" class="text-white hover:text-gray-300 text-2xl">
                                 <i class="fab fa-twitter"></i>
                             </a>
                             {% endif %}
                             
                             {% if site_settings.linkedin_url %}
-                            <a href="{{ site_settings.linkedin_url }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-2xl">
+                            <a href="{{ site_settings.linkedin_url }}" target="_blank" class="text-white hover:text-gray-300 text-2xl">
                                 <i class="fab fa-linkedin-in"></i>
                             </a>
                             {% endif %}
                             
                             {% if site_settings.youtube_url %}
-                            <a href="{{ site_settings.youtube_url }}" target="_blank" class="text-indigo-600 hover:text-indigo-800 text-2xl">
+                            <a href="{{ site_settings.youtube_url }}" target="_blank" class="text-white hover:text-gray-300 text-2xl">
                                 <i class="fab fa-youtube"></i>
                             </a>
                             {% endif %}
@@ -167,56 +167,56 @@
 </section>
 
 <!-- Map Section -->
-<section class="py-16 bg-gray-50">
+<section class="py-16 bg-gray-800">
     <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-gray-800 mb-12 text-center">Nossa Localização</h2>
+        <h2 class="text-3xl font-bold text-white mb-12 text-center">Nossa Localização</h2>
         
-        <div class="bg-white p-4 rounded-lg shadow-md">
+        <div class="bg-gray-700 p-4 rounded-lg shadow-md">
             <!-- Placeholder for Google Maps iframe -->
-            <div class="w-full h-96 bg-gray-200 rounded-lg flex items-center justify-center">
+            <div class="w-full h-96 bg-gray-600 rounded-lg flex items-center justify-center">
                 <!-- Replace this with actual Google Maps embed code -->
                 <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3675.3564349262383!2d-43.17916548503453!3d-22.90575438501438!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x997f58a6a00a9d%3A0x3f251d85272f76f7!2sCentro%2C%20Rio%20de%20Janeiro%20-%20RJ!5e0!3m2!1spt-BR!2sbr!4v1620160000000!5m2!1spt-BR!2sbr" 
-                        width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" class="rounded-lg"></iframe>
+                width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" class="rounded-lg"></iframe>
             </div>
         </div>
     </div>
 </section>
 
 <!-- FAQ Section -->
-<section class="py-16">
+<section class="py-16 bg-gray-900">
     <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-gray-800 mb-12 text-center">Perguntas Frequentes</h2>
+        <h2 class="text-3xl font-bold text-white mb-12 text-center">Perguntas Frequentes</h2>
         
         <div class="max-w-4xl mx-auto space-y-6">
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-xl font-bold text-gray-800 mb-3">Qual é a antecedência ideal para contratar seus serviços?</h3>
-                <p class="text-gray-600">Recomendamos que entre em contato conosco com pelo menos 3 meses de antecedência para eventos de médio e grande porte. Para eventos menores, 1 a 2 meses podem ser suficientes. No entanto, quanto antes iniciarmos o planejamento, melhor será o resultado.</p>
+            <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-white mb-3">Qual é a antecedência ideal para contratar seus serviços?</h3>
+                <p class="text-gray-300">Recomendamos que entre em contato conosco com pelo menos 3 meses de antecedência para eventos de médio e grande porte. Para eventos menores, 1 a 2 meses podem ser suficientes. No entanto, quanto antes iniciarmos o planejamento, melhor será o resultado.</p>
             </div>
             
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-xl font-bold text-gray-800 mb-3">Vocês atendem em outras cidades?</h3>
-                <p class="text-gray-600">Sim, atendemos em diversas localidades. Entre em contato conosco para verificar a disponibilidade para a sua região e eventuais custos adicionais de deslocamento.</p>
+            <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-white mb-3">Vocês atendem em outras cidades?</h3>
+                <p class="text-gray-300">Sim, atendemos em diversas localidades. Entre em contato conosco para verificar a disponibilidade para a sua região e eventuais custos adicionais de deslocamento.</p>
             </div>
             
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-xl font-bold text-gray-800 mb-3">Como funciona o processo de orçamento?</h3>
-                <p class="text-gray-600">Após o contato inicial, agendamos uma reunião para entender suas necessidades e expectativas. Com base nessas informações, elaboramos um orçamento detalhado, que inclui todos os serviços e custos envolvidos. Este orçamento é apresentado e discutido antes de qualquer compromisso.</p>
+            <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-white mb-3">Como funciona o processo de orçamento?</h3>
+                <p class="text-gray-300">Após o contato inicial, agendamos uma reunião para entender suas necessidades e expectativas. Com base nessas informações, elaboramos um orçamento detalhado, que inclui todos os serviços e custos envolvidos. Este orçamento é apresentado e discutido antes de qualquer compromisso.</p>
             </div>
             
-            <div class="bg-white p-6 rounded-lg shadow-md">
-                <h3 class="text-xl font-bold text-gray-800 mb-3">Vocês oferecem pacotes personalizados?</h3>
-                <p class="text-gray-600">Sim, todos os nossos serviços são personalizados de acordo com as necessidades e desejos de cada cliente. Podemos criar pacotes específicos que atendam ao seu orçamento e às características do seu evento.</p>
+            <div class="bg-gray-800 p-6 rounded-lg shadow-md">
+                <h3 class="text-xl font-bold text-white mb-3">Vocês oferecem pacotes personalizados?</h3>
+                <p class="text-gray-300">Sim, todos os nossos serviços são personalizados de acordo com as necessidades e desejos de cada cliente. Podemos criar pacotes específicos que atendam ao seu orçamento e às características do seu evento.</p>
             </div>
         </div>
     </div>
 </section>
 
 <!-- CTA Section -->
-<section class="py-16 bg-indigo-600 text-white">
+<section class="py-16 bg-black text-white">
     <div class="container mx-auto px-4 text-center">
         <h2 class="text-3xl font-bold mb-6">Pronto para Começar?</h2>
         <p class="text-xl mb-10 max-w-2xl mx-auto">Entre em contato conosco hoje mesmo e transforme sua ideia em um evento inesquecível.</p>
-        <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;" class="inline-block bg-white text-indigo-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
+        <a href="#" onclick="window.scrollTo({top: 0, behavior: 'smooth'}); return false;" class="inline-block bg-white text-black hover:bg-gray-200 font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
             Enviar Mensagem
         </a>
     </div>

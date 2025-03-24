@@ -64,3 +64,27 @@ class SiteSettings(models.Model):
     class Meta:
         verbose_name = "Configurações do Site"
         verbose_name_plural = "Configurações do Site"
+
+class Message(models.Model):
+    name = models.CharField(max_length=100)
+    email = models.EmailField()
+    phone = models.CharField(max_length=20, blank=True)
+    subject = models.CharField(max_length=200)
+    message = models.TextField()
+    is_read = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    read_at = models.DateTimeField(null=True, blank=True)
+    
+    def __str__(self):
+        return f"Mensagem de {self.name}: {self.subject}"
+    
+    def mark_as_read(self):
+        if not self.is_read:
+            self.is_read = True
+            self.read_at = timezone.now()
+            self.save()
+    
+    class Meta:
+        ordering = ['-created_at']
+        verbose_name = "Mensagem"
+        verbose_name_plural = "Mensagens"

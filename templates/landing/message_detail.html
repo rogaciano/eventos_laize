@@ -1,0 +1,86 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ message.subject }} - Agência Atitude{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-white">{{ title }}</h1>
+            <p class="text-gray-400">{{ subtitle }}</p>
+        </div>
+        <div class="flex space-x-3">
+            <a href="{% url 'landing:message_list' %}" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">
+                Voltar para a lista
+            </a>
+            {% if message.is_read %}
+            <a href="{% url 'landing:message_mark_as_unread' message.pk %}" class="bg-yellow-700 hover:bg-yellow-600 text-white px-4 py-2 rounded-lg">
+                Marcar como não lida
+            </a>
+            {% else %}
+            <a href="{% url 'landing:message_mark_as_read' message.pk %}" class="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                Marcar como lida
+            </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <div class="bg-gray-700 rounded-lg overflow-hidden shadow">
+        <div class="bg-gray-800 px-6 py-4 border-b border-gray-600">
+            <div class="flex justify-between items-center">
+                <h2 class="text-xl font-semibold text-white">{{ message.subject }}</h2>
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {% if message.is_read %}bg-green-200 text-green-800{% else %}bg-red-200 text-red-800{% endif %}">
+                    {% if message.is_read %}
+                    Lida em {{ message.read_at|date:"d/m/Y H:i" }}
+                    {% else %}
+                    Não lida
+                    {% endif %}
+                </span>
+            </div>
+        </div>
+        
+        <div class="px-6 py-4">
+            <div class="mb-6">
+                <div class="flex items-center mb-2">
+                    <div class="bg-gray-600 rounded-full h-10 w-10 flex items-center justify-center mr-3">
+                        <span class="text-white font-medium">{{ message.name|slice:":1"|upper }}</span>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-medium text-white">{{ message.name }}</h3>
+                        <div class="text-sm text-gray-400">
+                            <a href="mailto:{{ message.email }}" class="hover:text-indigo-400">{{ message.email }}</a>
+                            {% if message.phone %}
+                            | <a href="tel:{{ message.phone }}" class="hover:text-indigo-400">{{ message.phone }}</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="text-sm text-gray-400">
+                    Enviado em {{ message.created_at|date:"d/m/Y" }} às {{ message.created_at|time:"H:i" }}
+                </div>
+            </div>
+            
+            <div class="bg-gray-800 p-4 rounded-lg">
+                <div class="text-gray-200 whitespace-pre-line">{{ message.message }}</div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="flex justify-between">
+        <a href="{% url 'landing:message_list' %}" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg">
+            Voltar para a lista
+        </a>
+        
+        <div class="flex space-x-3">
+            <a href="mailto:{{ message.email }}?subject=Re: {{ message.subject }}" class="bg-indigo-700 hover:bg-indigo-600 text-white px-4 py-2 rounded-lg">
+                Responder por Email
+            </a>
+            {% if message.phone %}
+            <a href="tel:{{ message.phone }}" class="bg-green-700 hover:bg-green-600 text-white px-4 py-2 rounded-lg">
+                Ligar
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

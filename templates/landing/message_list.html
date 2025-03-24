@@ -1,0 +1,88 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Mensagens - Agência Atitude{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    <div class="flex justify-between items-center">
+        <div>
+            <h1 class="text-2xl font-bold text-white">{{ title }}</h1>
+            <p class="text-gray-400">{{ subtitle }}</p>
+        </div>
+        {% if unread_count > 0 %}
+        <div class="bg-gray-700 px-4 py-2 rounded-lg">
+            <span class="text-white">Mensagens não lidas: <span class="font-bold text-red-400">{{ unread_count }}</span></span>
+        </div>
+        {% endif %}
+    </div>
+    
+    {% if messages_list %}
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-700">
+            <thead class="bg-gray-700">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">De</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Assunto</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Data</th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Ações</th>
+                </tr>
+            </thead>
+            <tbody class="bg-gray-800 divide-y divide-gray-700">
+                {% for message in messages_list %}
+                <tr class="{% if not message.is_read %}bg-gray-700 font-medium{% endif %}">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if message.is_read %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-200 text-green-800">
+                            <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-green-800" fill="currentColor" viewBox="0 0 8 8">
+                                <circle cx="4" cy="4" r="3" />
+                            </svg>
+                            Lida
+                        </span>
+                        {% else %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-200 text-red-800">
+                            <svg class="-ml-0.5 mr-1.5 h-2 w-2 text-red-800" fill="currentColor" viewBox="0 0 8 8">
+                                <circle cx="4" cy="4" r="3" />
+                            </svg>
+                            Não lida
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm text-gray-200">{{ message.name }}</div>
+                        <div class="text-xs text-gray-400">{{ message.email }}</div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm text-gray-200">{{ message.subject }}</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        {{ message.created_at|date:"d/m/Y H:i" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                        <div class="flex space-x-2">
+                            <a href="{% url 'landing:message_detail' message.pk %}" class="text-indigo-400 hover:text-indigo-300">
+                                Ver
+                            </a>
+                            {% if message.is_read %}
+                            <a href="{% url 'landing:message_mark_as_unread' message.pk %}" class="text-yellow-400 hover:text-yellow-300">
+                                Marcar como não lida
+                            </a>
+                            {% else %}
+                            <a href="{% url 'landing:message_mark_as_read' message.pk %}" class="text-green-400 hover:text-green-300">
+                                Marcar como lida
+                            </a>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="bg-gray-700 rounded-lg p-6 text-center">
+        <p class="text-gray-300">Não há mensagens para exibir.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib import messages
-from .models import Service, Testimonial, Post, SiteSettings
+from django.contrib.auth.decorators import login_required
+from django.utils import timezone
+from .models import Service, Testimonial, Post, SiteSettings, Message
 from .forms import ContactForm
 
 def get_site_settings():
@@ -74,43 +75,84 @@ def post_detail(request, slug):
 def contact(request):
     """View para a página de Contato"""
     site_settings = get_site_settings()
+    form_sent = False
+    form_error = False
     
     if request.method == 'POST':
         form = ContactForm(request.POST)
         if form.is_valid():
-            # Enviar e-mail
-            name = form.cleaned_data['name']
-            email = form.cleaned_data['email']
-            phone = form.cleaned_data['phone']
-            subject = form.cleaned_data['subject']
-            message = form.cleaned_data['message']
-            
-            email_message = f"""
-            Nome: {name}
-            E-mail: {email}
-            Telefone: {phone}
-            
-            Mensagem:
-            {message}
-            """
-            
+            # Salvar mensagem no banco de dados
             try:
-                send_mail(
-                    f"Contato do site: {subject}",
-                    email_message,
-                    settings.DEFAULT_FROM_EMAIL,
-                    [site_settings.contact_email],
-                    fail_silently=False,
+                Message.objects.create(
+                    name=form.cleaned_data['name'],
+                    email=form.cleaned_data['email'],
+                    phone=form.cleaned_data['phone'],
+                    subject=form.cleaned_data['subject'],
+                    message=form.cleaned_data['message']
                 )
-                messages.success(request, "Sua mensagem foi enviada com sucesso! Entraremos em contato em breve.")
-                return redirect('landing:contact')
+                form_sent = True
+                form = ContactForm()  # Limpar o formulário
             except Exception as e:
-                messages.error(request, f"Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente mais tarde.")
+                form_error = True
     else:
         form = ContactForm()
     
     context = {
         'form': form,
         'site_settings': site_settings,
+        'form_sent': form_sent,
+        'form_error': form_error
     }
     return render(request, 'landing/contact.html', context)
+
+@login_required
+def message_list(request):
+    """View para listar todas as mensagens"""
+    messages_list = Message.objects.all()
+    unread_count = Message.objects.filter(is_read=False).count()
+    
+    context = {
+        'messages_list': messages_list,
+        'unread_count': unread_count,
+        'title': 'Mensagens',
+        'subtitle': 'Gerenciar mensagens recebidas pelo site'
+    }
+    return render(request, 'landing/message_list.html', context)
+
+@login_required
+def message_detail(request, pk):
+    """View para visualizar detalhes de uma mensagem"""
+    message = get_object_or_404(Message, pk=pk)
+    
+    # Marcar como lida automaticamente ao visualizar
+    if not message.is_read:
+        message.mark_as_read()
+    
+    context = {
+        'message': message,
+        'title': f'Mensagem: {message.subject}',
+        'subtitle': f'De: {message.name}'
+    }
+    return render(request, 'landing/message_detail.html', context)
+
+@login_required
+def message_mark_as_read(request, pk):
+    """View para marcar uma mensagem como lida"""
+    message = get_object_or_404(Message, pk=pk)
+    message.mark_as_read()
+    messages.success(request, "Mensagem marcada como lida.")
+    return redirect('landing:message_list')
+
+@login_required
+def message_mark_as_unread(request, pk):
+    """View para marcar uma mensagem como não lida"""
+    message = get_object_or_404(Message, pk=pk)
+    message.is_read = False
+    message.read_at = None
+    message.save()
+    messages.success(request, "Mensagem marcada como não lida.")
+    return redirect('landing:message_list')
+
+def get_unread_messages_count():
+    """Função auxiliar para obter o número de mensagens não lidas"""
+    return Message.objects.filter(is_read=False).count()

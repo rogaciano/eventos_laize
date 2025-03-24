@@ -1,11 +1,11 @@
 {% extends 'base/base.html' %}
 
-{% block title %}Pessoas - Gerenciador de Eventos{% endblock %}
+{% block title %}Pessoas - Agência Atitude{% endblock %}
 
 {% block content %}
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold">Pessoas</h1>
-    <a href="{% url 'people:create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+    <a href="{% url 'people:create' %}" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-sm">
         <i class="fas fa-plus-circle mr-2"></i>Nova Pessoa
     </a>
 </div>
@@ -16,10 +16,10 @@
         <div>
             <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar por nome</label>
             <input type="text" name="search" id="search" value="{{ request.GET.search|default:'' }}" 
-                   class="shadow-sm focus:ring-indigo-500 focus:border-indigo-500 block w-full sm:text-sm border-gray-300 rounded-md">
+                   class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
         </div>
         <div class="flex items-end">
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm w-full md:w-auto">
+            <button type="submit" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-sm w-full md:w-auto">
                 <i class="fas fa-search mr-2"></i>Filtrar
             </button>
             {% if request.GET %}
@@ -56,7 +56,7 @@
                         </div>
                         {% endif %}
                         <div>
-                            <a href="{% url 'people:detail' person.id %}" class="text-sm font-medium text-gray-900 hover:text-indigo-600">{{ person.name }}</a>
+                            <a href="{% url 'people:detail' person.id %}" class="text-sm font-medium text-gray-900 hover:text-black">{{ person.name }}</a>
                         </div>
                     </div>
                 </td>
@@ -76,25 +76,25 @@
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
                     <div class="flex justify-center">
-                        {% if person.rating %}
+                        {% if person.average_rating %}
                             {% for i in "12345" %}
-                                {% if forloop.counter <= person.rating|floatformat:"0"|add:"0" %}
+                                {% if forloop.counter <= person.average_rating|floatformat:"0"|add:"0" %}
                                     <i class="fas fa-star text-yellow-400"></i>
                                 {% else %}
                                     <i class="far fa-star text-gray-300"></i>
                                 {% endif %}
                             {% endfor %}
-                            <span class="ml-2 text-sm text-gray-600">({{ person.rating|floatformat:"1" }})</span>
+                            <span class="ml-2 text-sm text-gray-600">({{ person.average_rating|floatformat:"1" }})</span>
                         {% else %}
                             <span class="text-gray-400">Não avaliado</span>
                         {% endif %}
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <a href="{% url 'people:detail' person.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                    <a href="{% url 'people:detail' person.id %}" class="text-black hover:text-gray-700 mr-3">
                         <i class="fas fa-eye"></i>
                     </a>
-                    <a href="{% url 'people:update' person.id %}" class="text-blue-600 hover:text-blue-900 mr-3">
+                    <a href="{% url 'people:update' person.id %}" class="text-black hover:text-gray-700 mr-3">
                         <i class="fas fa-edit"></i>
                     </a>
                     <a href="{% url 'people:delete' person.id %}" class="text-red-600 hover:text-red-900">
@@ -129,7 +129,7 @@
         
         {% for num in page_obj.paginator.page_range %}
             {% if page_obj.number == num %}
-            <span class="relative inline-flex items-center px-4 py-2 border border-indigo-500 bg-indigo-50 text-sm font-medium text-indigo-600">
+            <span class="relative inline-flex items-center px-4 py-2 border border-black bg-gray-100 text-sm font-medium text-black">
                 {{ num }}
             </span>
             {% else %}
