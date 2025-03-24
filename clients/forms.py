@@ -14,7 +14,13 @@ class ClientClassForm(forms.ModelForm):
         model = ClientClass
         fields = ['name', 'description']
         widgets = {
-            'description': forms.Textarea(attrs={'rows': 3}),
+            'name': forms.TextInput(attrs={
+                'class': 'mt-1 block w-full rounded-md border-gray-300 border-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 bg-white'
+            }),
+            'description': forms.Textarea(attrs={
+                'rows': 3,
+                'class': 'mt-1 block w-full rounded-md border-gray-300 border-2 shadow-sm focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 h-24 bg-white'
+            }),
         }
 
 class ContactForm(forms.ModelForm):
