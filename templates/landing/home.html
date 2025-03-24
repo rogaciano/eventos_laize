@@ -1,0 +1,164 @@
+{% extends 'landing/base.html' %}
+
+{% block title %}{{ site_settings.site_name }} - Agência Atitude{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-white py-32">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold mb-6">Transformamos Ideias em Eventos Memoráveis</h1>
+        <p class="text-xl md:text-2xl mb-10 max-w-3xl mx-auto">{{ site_settings.tagline|default:"Planejamento, organização e execução de eventos corporativos, sociais e festas com excelência e dedicação." }}</p>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="{% url 'landing:contact' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
+                Solicite um Orçamento
+            </a>
+            <a href="{% url 'landing:services' %}" class="bg-transparent hover:bg-white/10 text-white font-bold py-3 px-8 rounded-lg border-2 border-white transition duration-300 text-lg">
+                Nossos Serviços
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Services Section -->
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">{{ site_settings.services_title }}</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Oferecemos uma ampla gama de serviços para tornar seu evento único e inesquecível.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for service in services %}
+            <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition duration-300">
+                <div class="text-indigo-600 text-4xl mb-4">
+                    <i class="fas {{ service.icon }}"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">{{ service.title }}</h3>
+                <p class="text-gray-600">{{ service.description|truncatechars:150 }}</p>
+            </div>
+            {% empty %}
+            <div class="col-span-3 text-center py-8">
+                <p class="text-gray-500">Serviços serão adicionados em breve.</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-12">
+            <a href="{% url 'landing:services' %}" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                Ver Todos os Serviços
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- About Section Preview -->
+<section class="py-20">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">{{ site_settings.about_title }}</h2>
+                <div class="text-gray-600 space-y-4">
+                    {{ site_settings.about_content|truncatechars:500|linebreaksbr }}
+                </div>
+                <a href="{% url 'landing:about' %}" class="inline-block mt-8 text-indigo-600 hover:text-indigo-800 font-semibold">
+                    Saiba mais sobre nós <i class="fas fa-arrow-right ml-1"></i>
+                </a>
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-xl">
+                <img src="https://images.unsplash.com/photo-1540317580384-e5d43867caa6?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" 
+                     alt="Sobre nossa agência" class="w-full h-auto">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Testimonials Section -->
+<section class="py-20 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">O Que Nossos Clientes Dizem</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Veja os depoimentos de clientes satisfeitos com nossos serviços.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for testimonial in testimonials %}
+            <div class="bg-white p-8 rounded-lg shadow-md">
+                <div class="flex items-center mb-4">
+                    {% if testimonial.image %}
+                    <img src="{{ testimonial.image.url }}" alt="{{ testimonial.name }}" class="w-16 h-16 rounded-full object-cover mr-4">
+                    {% else %}
+                    <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+                        <span class="text-indigo-600 text-xl font-bold">{{ testimonial.name|slice:":1" }}</span>
+                    </div>
+                    {% endif %}
+                    <div>
+                        <h4 class="font-bold text-gray-800">{{ testimonial.name }}</h4>
+                        {% if testimonial.position %}
+                        <p class="text-gray-600 text-sm">{{ testimonial.position }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                <p class="text-gray-600 italic">"{{ testimonial.content|truncatechars:200 }}"</p>
+            </div>
+            {% empty %}
+            <div class="col-span-3 text-center py-8">
+                <p class="text-gray-500">Depoimentos serão adicionados em breve.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Recent Blog Posts -->
+<section class="py-20">
+    <div class="container mx-auto px-4">
+        <div class="text-center mb-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-4">{{ site_settings.blog_title }}</h2>
+            <p class="text-gray-600 max-w-2xl mx-auto">Fique por dentro das últimas novidades e tendências do mundo de eventos.</p>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for post in recent_posts %}
+            <div class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition duration-300">
+                {% if post.image %}
+                <img src="{{ post.image.url }}" alt="{{ post.title }}" class="w-full h-48 object-cover">
+                {% else %}
+                <div class="w-full h-48 bg-indigo-100 flex items-center justify-center">
+                    <i class="fas fa-newspaper text-4xl text-indigo-300"></i>
+                </div>
+                {% endif %}
+                <div class="p-6">
+                    <p class="text-sm text-gray-500 mb-2">{{ post.published_at|date:"d/m/Y" }}</p>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">{{ post.title }}</h3>
+                    <p class="text-gray-600 mb-4">{{ post.content|truncatechars:100 }}</p>
+                    <a href="{% url 'landing:post_detail' post.slug %}" class="text-indigo-600 hover:text-indigo-800 font-semibold">
+                        Leia mais <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-3 text-center py-8">
+                <p class="text-gray-500">Novidades serão publicadas em breve.</p>
+            </div>
+            {% endfor %}
+        </div>
+        
+        <div class="text-center mt-12">
+            <a href="{% url 'landing:blog' %}" class="inline-block bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300">
+                Ver Todas as Novidades
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-20 bg-indigo-600 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-6">Pronto para Transformar seu Evento?</h2>
+        <p class="text-xl mb-10 max-w-2xl mx-auto">Entre em contato conosco hoje mesmo e descubra como podemos ajudar a tornar seu evento um sucesso.</p>
+        <a href="{% url 'landing:contact' %}" class="inline-block bg-white text-indigo-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
+            Fale Conosco
+        </a>
+    </div>
+</section>
+{% endblock %}

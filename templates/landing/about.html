@@ -1,0 +1,149 @@
+{% extends 'landing/base.html' %}
+
+{% block title %}Sobre Nós - {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="bg-indigo-600 text-white py-16">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl font-bold mb-4">{{ site_settings.about_title }}</h1>
+        <p class="text-xl max-w-3xl mx-auto">Conheça nossa história, valores e a equipe por trás dos eventos de sucesso.</p>
+    </div>
+</section>
+
+<!-- About Content -->
+<section class="py-16">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+            <div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-6">Nossa História</h2>
+                <div class="text-gray-600 space-y-4">
+                    {{ site_settings.about_content|linebreaksbr|default:"Somos uma agência de eventos apaixonada por criar experiências memoráveis. Fundada com a missão de transformar ideias em realidade, nossa equipe trabalha incansavelmente para garantir que cada evento seja único e supere as expectativas dos clientes. Com anos de experiência no mercado, desenvolvemos expertise em diversos tipos de eventos, desde corporativos até celebrações sociais." }}
+                </div>
+            </div>
+            <div class="rounded-lg overflow-hidden shadow-xl">
+                <img src="https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" 
+                     alt="Nossa História" class="w-full h-auto">
+            </div>
+        </div>
+        
+        <!-- Values Section -->
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">Nossos Valores</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div class="bg-white p-8 rounded-lg shadow-md text-center">
+                    <div class="text-indigo-600 text-4xl mb-4">
+                        <i class="fas fa-star"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Excelência</h3>
+                    <p class="text-gray-600">Buscamos a excelência em cada detalhe, garantindo eventos impecáveis do início ao fim.</p>
+                </div>
+                
+                <div class="bg-white p-8 rounded-lg shadow-md text-center">
+                    <div class="text-indigo-600 text-4xl mb-4">
+                        <i class="fas fa-heart"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Paixão</h3>
+                    <p class="text-gray-600">Trabalhamos com paixão e dedicação, colocando nosso coração em cada projeto.</p>
+                </div>
+                
+                <div class="bg-white p-8 rounded-lg shadow-md text-center">
+                    <div class="text-indigo-600 text-4xl mb-4">
+                        <i class="fas fa-handshake"></i>
+                    </div>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">Compromisso</h3>
+                    <p class="text-gray-600">Comprometemo-nos a entregar exatamente o que prometemos, respeitando prazos e orçamentos.</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Why Choose Us -->
+        <div class="mb-16">
+            <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">Por Que Nos Escolher</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <div class="flex items-start">
+                    <div class="text-indigo-600 text-2xl mr-4">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Experiência Comprovada</h3>
+                        <p class="text-gray-600">Anos de experiência no mercado de eventos, com um portfólio diversificado de projetos bem-sucedidos.</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="text-indigo-600 text-2xl mr-4">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Equipe Qualificada</h3>
+                        <p class="text-gray-600">Profissionais altamente qualificados e apaixonados por criar experiências únicas.</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="text-indigo-600 text-2xl mr-4">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Atendimento Personalizado</h3>
+                        <p class="text-gray-600">Cada cliente recebe atenção personalizada, com soluções adaptadas às suas necessidades específicas.</p>
+                    </div>
+                </div>
+                
+                <div class="flex items-start">
+                    <div class="text-indigo-600 text-2xl mr-4">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-800 mb-2">Rede de Parceiros</h3>
+                        <p class="text-gray-600">Ampla rede de fornecedores e parceiros confiáveis para garantir a melhor qualidade em todos os aspectos do evento.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Testimonials -->
+        <div>
+            <h2 class="text-3xl font-bold text-gray-800 mb-8 text-center">O Que Nossos Clientes Dizem</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {% for testimonial in testimonials %}
+                <div class="bg-white p-8 rounded-lg shadow-md">
+                    <div class="flex items-center mb-4">
+                        {% if testimonial.image %}
+                        <img src="{{ testimonial.image.url }}" alt="{{ testimonial.name }}" class="w-16 h-16 rounded-full object-cover mr-4">
+                        {% else %}
+                        <div class="w-16 h-16 rounded-full bg-indigo-100 flex items-center justify-center mr-4">
+                            <span class="text-indigo-600 text-xl font-bold">{{ testimonial.name|slice:":1" }}</span>
+                        </div>
+                        {% endif %}
+                        <div>
+                            <h4 class="font-bold text-gray-800">{{ testimonial.name }}</h4>
+                            {% if testimonial.position %}
+                            <p class="text-gray-600 text-sm">{{ testimonial.position }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <p class="text-gray-600 italic">"{{ testimonial.content }}"</p>
+                </div>
+                {% empty %}
+                <div class="col-span-3 text-center py-8">
+                    <p class="text-gray-500">Depoimentos serão adicionados em breve.</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 bg-indigo-600 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-6">Vamos Trabalhar Juntos</h2>
+        <p class="text-xl mb-10 max-w-2xl mx-auto">Estamos prontos para transformar sua ideia em um evento inesquecível. Entre em contato conosco hoje mesmo.</p>
+        <a href="{% url 'landing:contact' %}" class="inline-block bg-white text-indigo-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
+            Fale Conosco
+        </a>
+    </div>
+</section>
+{% endblock %}

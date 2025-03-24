@@ -1,0 +1,99 @@
+{% extends 'landing/base.html' %}
+
+{% block title %}{{ post.title }} - {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<!-- Post Header -->
+<section class="bg-indigo-600 text-white py-16">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl font-bold mb-4">{{ post.title }}</h1>
+        <p class="text-xl">{{ post.published_at|date:"d/m/Y" }}</p>
+    </div>
+</section>
+
+<!-- Post Content -->
+<section class="py-16">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto">
+            {% if post.image %}
+            <div class="mb-8">
+                <img src="{{ post.image.url }}" alt="{{ post.title }}" class="w-full h-auto rounded-lg shadow-md">
+            </div>
+            {% endif %}
+            
+            <div class="bg-white p-8 rounded-lg shadow-md">
+                <div class="prose prose-lg max-w-none text-gray-700">
+                    {{ post.content|linebreaksbr }}
+                </div>
+            </div>
+            
+            <!-- Share Links -->
+            <div class="mt-8 flex items-center justify-between">
+                <div>
+                    <span class="text-gray-600 mr-4">Compartilhar:</span>
+                    <a href="#" class="text-blue-600 hover:text-blue-800 mx-2">
+                        <i class="fab fa-facebook-f"></i>
+                    </a>
+                    <a href="#" class="text-blue-400 hover:text-blue-600 mx-2">
+                        <i class="fab fa-twitter"></i>
+                    </a>
+                    <a href="#" class="text-green-600 hover:text-green-800 mx-2">
+                        <i class="fab fa-whatsapp"></i>
+                    </a>
+                    <a href="#" class="text-blue-700 hover:text-blue-900 mx-2">
+                        <i class="fab fa-linkedin-in"></i>
+                    </a>
+                </div>
+                
+                <a href="{% url 'landing:blog' %}" class="text-indigo-600 hover:text-indigo-800 font-semibold">
+                    <i class="fas fa-arrow-left mr-1"></i> Voltar para Novidades
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Related Posts -->
+<section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-gray-800 mb-12 text-center">Outras Novidades</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            {% for related_post in recent_posts %}
+            <div class="bg-white rounded-lg overflow-hidden shadow-md hover:shadow-lg transition duration-300">
+                {% if related_post.image %}
+                <img src="{{ related_post.image.url }}" alt="{{ related_post.title }}" class="w-full h-48 object-cover">
+                {% else %}
+                <div class="w-full h-48 bg-indigo-100 flex items-center justify-center">
+                    <i class="fas fa-newspaper text-4xl text-indigo-300"></i>
+                </div>
+                {% endif %}
+                <div class="p-6">
+                    <p class="text-sm text-gray-500 mb-2">{{ related_post.published_at|date:"d/m/Y" }}</p>
+                    <h3 class="text-xl font-bold text-gray-800 mb-3">{{ related_post.title }}</h3>
+                    <p class="text-gray-600 mb-4">{{ related_post.content|truncatechars:100 }}</p>
+                    <a href="{% url 'landing:post_detail' related_post.slug %}" class="text-indigo-600 hover:text-indigo-800 font-semibold">
+                        Leia mais <i class="fas fa-arrow-right ml-1"></i>
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-span-3 text-center py-8">
+                <p class="text-gray-500">Não há outros posts disponíveis no momento.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 bg-indigo-600 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-6">Gostou do Conteúdo?</h2>
+        <p class="text-xl mb-10 max-w-2xl mx-auto">Entre em contato conosco para saber como podemos ajudar a tornar seu próximo evento um sucesso.</p>
+        <a href="{% url 'landing:contact' %}" class="inline-block bg-white text-indigo-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
+            Fale Conosco
+        </a>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,181 @@
+{% extends 'landing/base.html' %}
+
+{% block title %}Serviços - {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<section class="bg-indigo-600 text-white py-16">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl font-bold mb-4">{{ site_settings.services_title }}</h1>
+        <p class="text-xl max-w-3xl mx-auto">Conheça nossa ampla gama de serviços para tornar seu evento único e inesquecível.</p>
+    </div>
+</section>
+
+<!-- Services List -->
+<section class="py-16">
+    <div class="container mx-auto px-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {% for service in services %}
+            <div class="bg-white p-8 rounded-lg shadow-md hover:shadow-lg transition duration-300">
+                <div class="text-indigo-600 text-4xl mb-4">
+                    <i class="fas {{ service.icon }}"></i>
+                </div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">{{ service.title }}</h3>
+                <p class="text-gray-600 mb-4">{{ service.description }}</p>
+            </div>
+            {% empty %}
+            <div class="col-span-3 text-center py-8">
+                <p class="text-gray-500">Serviços serão adicionados em breve.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<!-- Service Categories -->
+<section class="py-16 bg-gray-50">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-gray-800 mb-12 text-center">Categorias de Eventos</h2>
+        
+        <!-- Corporativos -->
+        <div class="mb-16">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="order-2 lg:order-1">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Eventos Corporativos</h3>
+                    <p class="text-gray-600 mb-6">Organizamos eventos corporativos completos, desde pequenas reuniões até grandes conferências. Nossa equipe cuida de cada detalhe para garantir que seu evento corporativo seja profissional, produtivo e memorável.</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
+                            <span class="text-gray-600">Conferências e Congressos</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
+                            <span class="text-gray-600">Workshops e Treinamentos</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
+                            <span class="text-gray-600">Lançamentos de Produtos</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
+                            <span class="text-gray-600">Confraternizações Empresariais</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="order-1 lg:order-2">
+                    <img src="https://images.unsplash.com/photo-1540575467063-178a50c2df87?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" 
+                         alt="Eventos Corporativos" class="w-full h-auto rounded-lg shadow-xl">
+                </div>
+            </div>
+        </div>
+        
+        <!-- Sociais -->
+        <div class="mb-16">
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div>
+                    <img src="https://images.unsplash.com/photo-1519741497674-611481863552?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" 
+                         alt="Eventos Sociais" class="w-full h-auto rounded-lg shadow-xl">
+                </div>
+                <div>
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Eventos Sociais</h3>
+                    <p class="text-gray-600 mb-6">Transformamos momentos especiais em memórias inesquecíveis. Nossos eventos sociais são planejados com atenção aos detalhes, garantindo que cada celebração seja única e reflita a personalidade dos anfitriões.</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
+                            <span class="text-gray-600">Casamentos</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
+                            <span class="text-gray-600">Aniversários</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
+                            <span class="text-gray-600">Formaturas</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
+                            <span class="text-gray-600">Festas Temáticas</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Culturais -->
+        <div>
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+                <div class="order-2 lg:order-1">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Eventos Culturais</h3>
+                    <p class="text-gray-600 mb-6">Promovemos a cultura através de eventos criativos e envolventes. Nossa equipe tem experiência na organização de diversos tipos de eventos culturais, sempre com foco na qualidade e na experiência do público.</p>
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
+                            <span class="text-gray-600">Festivais</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
+                            <span class="text-gray-600">Exposições</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
+                            <span class="text-gray-600">Shows e Concertos</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-check-circle text-indigo-600 mt-1 mr-2"></i>
+                            <span class="text-gray-600">Feiras Temáticas</span>
+                        </li>
+                    </ul>
+                </div>
+                <div class="order-1 lg:order-2">
+                    <img src="https://images.unsplash.com/photo-1501281668745-f7f57925c3b4?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80" 
+                         alt="Eventos Culturais" class="w-full h-auto rounded-lg shadow-xl">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Our Process -->
+<section class="py-16">
+    <div class="container mx-auto px-4">
+        <h2 class="text-3xl font-bold text-gray-800 mb-12 text-center">Nosso Processo</h2>
+        
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-8">
+            <div class="text-center">
+                <div class="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">1</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Consulta Inicial</h3>
+                <p class="text-gray-600">Conversamos sobre suas necessidades, expectativas e visão para o evento.</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">2</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Planejamento</h3>
+                <p class="text-gray-600">Desenvolvemos um plano detalhado, incluindo orçamento, cronograma e logística.</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">3</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Execução</h3>
+                <p class="text-gray-600">Coordenamos todos os aspectos do evento, garantindo que tudo ocorra conforme planejado.</p>
+            </div>
+            
+            <div class="text-center">
+                <div class="w-16 h-16 bg-indigo-600 text-white rounded-full flex items-center justify-center text-2xl font-bold mx-auto mb-4">4</div>
+                <h3 class="text-xl font-bold text-gray-800 mb-3">Avaliação</h3>
+                <p class="text-gray-600">Analisamos os resultados e coletamos feedback para melhorias contínuas.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-16 bg-indigo-600 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-6">Pronto para Começar?</h2>
+        <p class="text-xl mb-10 max-w-2xl mx-auto">Entre em contato conosco hoje mesmo para discutir seu próximo evento e receber um orçamento personalizado.</p>
+        <a href="{% url 'landing:contact' %}" class="inline-block bg-white text-indigo-600 hover:bg-gray-100 font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
+            Solicitar Orçamento
+        </a>
+    </div>
+</section>
+{% endblock %}
