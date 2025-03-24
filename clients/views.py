@@ -5,17 +5,34 @@ from .forms import ClientForm, ClientClassForm, ContactForm
 
 def client_list(request):
     clients = Client.objects.all()
-    return render(request, 'clients/client_list.html', {'clients': clients})
+    client_classes = ClientClass.objects.all()
+    
+    # Filtros
+    search_query = request.GET.get('search', '')
+    client_class_id = request.GET.get('client_class', '')
+    
+    if search_query:
+        clients = clients.filter(name__icontains=search_query)
+    
+    if client_class_id:
+        clients = clients.filter(client_class_id=client_class_id)
+    
+    return render(request, 'clients/client_list.html', {
+        'clients': clients,
+        'client_classes': client_classes
+    })
 
 def client_detail(request, client_id):
     client = get_object_or_404(Client, pk=client_id)
     contacts = client.contacts.all()
     events = client.events.all().order_by('-start_datetime')
+    occurrences = client.occurrences.all()
     
     return render(request, 'clients/client_detail.html', {
         'client': client,
         'contacts': contacts,
-        'events': events
+        'events': events,
+        'occurrences': occurrences
     })
 
 def client_create(request):

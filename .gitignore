@@ -51,3 +51,5 @@ Thumbs.db
 
 # Arquivos estáticos coletados
 staticfiles/
+
+settings_base.py

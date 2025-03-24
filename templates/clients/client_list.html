@@ -73,7 +73,7 @@
                     {% endif %}
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap">
-                    {% with client.contact_set.all|first as contact %}
+                    {% with client.contacts.all|first as contact %}
                         {% if contact %}
                             <div class="text-sm text-gray-900">{{ contact.value }}</div>
                             <div class="text-sm text-gray-500">{{ contact.get_type_display }}</div>
