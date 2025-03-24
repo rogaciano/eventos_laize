@@ -12,7 +12,10 @@ class ClientForm(forms.ModelForm):
 class ClientClassForm(forms.ModelForm):
     class Meta:
         model = ClientClass
-        fields = ['name']
+        fields = ['name', 'description']
+        widgets = {
+            'description': forms.Textarea(attrs={'rows': 3}),
+        }
 
 class ContactForm(forms.ModelForm):
     type = forms.ChoiceField(
