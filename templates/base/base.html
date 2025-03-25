@@ -92,7 +92,7 @@
     
     {% block extra_css %}{% endblock %}
 </head>
-<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col">
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col" x-data="{ mobileMenuOpen: false }">
     <!-- Navbar -->
     <nav class="bg-black text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -190,8 +190,7 @@
                 <!-- Mobile menu button -->
                 <div class="flex items-center md:hidden">
                     <button type="button" 
-                            x-data="{ open: false }"
-                            @click="open = !open"
+                            @click="mobileMenuOpen = !mobileMenuOpen"
                             class="inline-flex items-center justify-center p-2 rounded-md text-gray-200 hover:text-white hover:bg-gray-800 focus:outline-none focus:bg-gray-800 focus:text-white transition duration-150 ease-in-out">
                         <svg class="h-6 w-6" stroke="currentColor" fill="none" viewBox="0 0 24 24">
                             <path class="inline-flex" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
@@ -202,7 +201,7 @@
         </div>
         
         <!-- Mobile menu -->
-        <div x-data="{ open: false }" x-show="open" @click.away="open = false" class="md:hidden">
+        <div x-show="mobileMenuOpen" @click.away="mobileMenuOpen = false" class="md:hidden">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
                 <a href="{% url 'dashboard:dashboard' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Dashboard</a>
                 <a href="{% url 'events:list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Eventos</a>
@@ -222,11 +221,18 @@
                 <div x-data="{ openFinancial: false }">
                     <button @click="openFinancial = !openFinancial" class="flex w-full justify-between px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">
                         <span>Financeiro</span>
-                        <svg class="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <svg :class="openFinancial ? 'transform rotate-180' : ''" class="h-5 w-5 transition-transform duration-200" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
                         </svg>
                     </button>
-                    <div x-show="openFinancial" class="pl-4 space-y-1">
+                    <div x-show="openFinancial" 
+                         x-transition:enter="transition ease-out duration-100"
+                         x-transition:enter-start="transform opacity-0 scale-95"
+                         x-transition:enter-end="transform opacity-100 scale-100"
+                         x-transition:leave="transition ease-in duration-75"
+                         x-transition:leave-start="transform opacity-100 scale-100"
+                         x-transition:leave-end="transform opacity-0 scale-95"
+                         class="pl-4 space-y-1">
                         <a href="{% url 'events:cost_category_list' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Categorias de Custos</a>
                         <a href="{% url 'events:financial_report' %}" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Relatório Financeiro</a>
                     </div>

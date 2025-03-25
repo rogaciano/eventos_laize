@@ -238,7 +238,8 @@
 </div>
 
 <!-- Listagem de pessoas -->
-<div class="overflow-x-auto bg-white rounded-lg shadow">
+<!-- Versão para desktop (tabela) -->
+<div class="hidden md:block overflow-x-auto bg-white rounded-lg shadow">
     <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50">
             <tr>
@@ -262,7 +263,7 @@
                         </div>
                         {% endif %}
                         <div>
-                            <a href="{% url 'people:detail' person.id %}" class="text-sm font-medium text-white hover:text-gray-200">{{ person.name }}</a>
+                            <a href="{% url 'people:detail' person.id %}" class="text-sm font-medium text-gray-900 hover:text-gray-700">{{ person.name }}</a>
                         </div>
                     </div>
                 </td>
@@ -297,10 +298,10 @@
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <a href="{% url 'people:detail' person.id %}" class="text-white hover:text-gray-200 mr-3">
+                    <a href="{% url 'people:detail' person.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3">
                         <i class="fas fa-eye"></i>
                     </a>
-                    <a href="{% url 'people:update' person.id %}" class="text-white hover:text-gray-200 mr-3">
+                    <a href="{% url 'people:update' person.id %}" class="text-blue-600 hover:text-blue-900 mr-3">
                         <i class="fas fa-edit"></i>
                     </a>
                     <a href="{% url 'people:delete' person.id %}" class="text-red-600 hover:text-red-900">
@@ -321,6 +322,83 @@
             {% endfor %}
         </tbody>
     </table>
+</div>
+
+<!-- Versão para mobile (cards) -->
+<div class="md:hidden space-y-4">
+    {% for person in persons %}
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+        <div class="p-4 border-b border-gray-200">
+            <div class="flex items-center">
+                {% if person.photo %}
+                <img class="h-14 w-14 rounded-full object-cover mr-3" src="{{ person.photo.url }}" alt="{{ person.name }}">
+                {% else %}
+                <div class="h-14 w-14 rounded-full bg-gray-200 flex items-center justify-center mr-3">
+                    <span class="text-gray-500 text-xl font-medium">{{ person.name|slice:":1" }}</span>
+                </div>
+                {% endif %}
+                <div>
+                    <h3 class="text-lg font-semibold text-gray-900">{{ person.name }}</h3>
+                    <p class="text-sm text-gray-600">{{ person.city|default:"Cidade não informada" }}</p>
+                </div>
+            </div>
+        </div>
+        <div class="px-4 py-3 bg-gray-50">
+            <div class="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                    <p class="text-gray-500 mb-1">Telefone:</p>
+                    <p class="font-medium text-gray-900">
+                        {% with phone_contacts=person.contacts.all|dictsort:"type" %}
+                            {% for contact in phone_contacts %}
+                                {% if contact.type == 'whatsapp' and forloop.first %}
+                                    {{ contact.value }}
+                                {% endif %}
+                            {% empty %}
+                                Não informado
+                            {% endfor %}
+                        {% endwith %}
+                    </p>
+                </div>
+                <div>
+                    <p class="text-gray-500 mb-1">Avaliação:</p>
+                    <div class="flex items-center">
+                        {% if person.average_rating %}
+                            {% for i in "12345" %}
+                                {% if forloop.counter <= person.average_rating|floatformat:"0"|add:"0" %}
+                                    <i class="fas fa-star text-yellow-400"></i>
+                                {% else %}
+                                    <i class="far fa-star text-gray-300"></i>
+                                {% endif %}
+                            {% endfor %}
+                            <span class="ml-2 text-sm text-gray-600">({{ person.average_rating|floatformat:"1" }})</span>
+                        {% else %}
+                            <span class="text-gray-400">Não avaliado</span>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="px-4 py-3 bg-gray-100 flex justify-between">
+            <a href="{% url 'people:detail' person.id %}" class="text-indigo-600 hover:text-indigo-900 flex items-center">
+                <i class="fas fa-eye mr-1"></i> Ver
+            </a>
+            <a href="{% url 'people:update' person.id %}" class="text-blue-600 hover:text-blue-900 flex items-center">
+                <i class="fas fa-edit mr-1"></i> Editar
+            </a>
+            <a href="{% url 'people:delete' person.id %}" class="text-red-600 hover:text-red-900 flex items-center">
+                <i class="fas fa-trash mr-1"></i> Excluir
+            </a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="bg-white rounded-lg shadow p-6 text-center text-gray-500">
+        <div class="flex flex-col items-center">
+            <i class="fas fa-users text-gray-300 text-5xl mb-4"></i>
+            <p class="text-lg">Nenhuma pessoa cadastrada</p>
+            <p class="text-sm mt-1">Clique em "Adicionar Pessoa" para adicionar</p>
+        </div>
+    </div>
+    {% endfor %}
 </div>
 
 <!-- Paginação -->
