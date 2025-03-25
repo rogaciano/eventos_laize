@@ -12,4 +12,5 @@ urlpatterns = [
     path('<int:person_id>/contacts/add/', views.person_contact_add, name='contact_add'),
     path('<int:person_id>/contacts/<int:contact_id>/edit/', views.person_contact_edit, name='contact_edit'),
     path('<int:person_id>/contacts/<int:contact_id>/delete/', views.person_contact_delete, name='contact_delete'),
+    path('report/pdf/', views.generate_person_report_pdf, name='report_pdf'),
 ]

@@ -115,7 +115,6 @@ def person_list(request):
         try:
             idade_max = int(idade_max)
             # Data mínima de nascimento para ter no máximo idade_max anos
-            data_min = date(hoje.year - idade_max - 1, hoje.month, hoje.day)
             data_min = date(hoje.year - idade_max, hoje.month, hoje.day)
             persons = persons.filter(data_nascimento__gte=data_min)
         except (ValueError, TypeError):
@@ -345,3 +344,361 @@ def person_contact_delete(request, person_id, contact_id):
         'contact': contact,
         'person': person
     })
+
+from django.http import HttpResponse
+from datetime import date, datetime
+from io import BytesIO
+import os
+from reportlab.lib.pagesizes import letter, A4
+from reportlab.lib import colors
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, Image, PageBreak
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import inch, cm
+from reportlab.lib.enums import TA_CENTER, TA_LEFT, TA_RIGHT
+from reportlab.pdfgen import canvas
+from reportlab.platypus.flowables import Flowable
+
+# Classe para adicionar cabeçalho e rodapé com numeração de páginas
+class FooterCanvas(canvas.Canvas):
+    def __init__(self, *args, **kwargs):
+        canvas.Canvas.__init__(self, *args, **kwargs)
+        self.pages = []
+        
+    def showPage(self):
+        self.pages.append(dict(self.__dict__))
+        self._startPage()
+        
+    def save(self):
+        page_count = len(self.pages)
+        for page in self.pages:
+            self.__dict__.update(page)
+            self.draw_footer(page_count)
+            canvas.Canvas.showPage(self)
+        canvas.Canvas.save(self)
+        
+    def draw_footer(self, page_count):
+        # Data e hora atual
+        now = datetime.now()
+        date_time = now.strftime("%d/%m/%Y %H:%M:%S")
+        
+        # Adicionar data e hora no canto superior esquerdo
+        self.setFont("Helvetica", 8)
+        self.drawString(0.5*cm, 29*cm, f"Data/Hora: {date_time}")
+        
+        # Adicionar número de página no rodapé
+        page = f"Página {self._pageNumber} de {page_count}"
+        self.drawRightString(20*cm, 1*cm, page)
+
+def generate_person_report_pdf(request):
+    # Obter os parâmetros de filtro da sessão, se disponíveis
+    filter_params = request.session.get('filter_params', '')
+    
+    # Iniciar com todos os registros ou aplicar filtros
+    persons = Person.objects.all()
+    
+    # Aplicar os mesmos filtros que na view person_list
+    search_query = request.GET.get('search', '')
+    cor_olhos_id = request.GET.get('cor_olhos', '')
+    cor_cabelo_id = request.GET.get('cor_cabelo', '')
+    cor_pele_id = request.GET.get('cor_pele', '')
+    genero_id = request.GET.get('genero', '')
+    cidade = request.GET.get('cidade', '')
+    estado = request.GET.get('estado', '')
+    manequim = request.GET.get('manequim', '')
+    
+    # Filtros de intervalo para características numéricas
+    altura_min = request.GET.get('altura_min', '')
+    altura_max = request.GET.get('altura_max', '')
+    peso_min = request.GET.get('peso_min', '')
+    peso_max = request.GET.get('peso_max', '')
+    idade_min = request.GET.get('idade_min', '')
+    idade_max = request.GET.get('idade_max', '')
+    
+    # Aplicar filtros conforme fornecidos
+    if search_query:
+        persons = persons.filter(name__icontains=search_query)
+    
+    if cor_olhos_id:
+        persons = persons.filter(cor_olhos_id=cor_olhos_id)
+    
+    if cor_cabelo_id:
+        persons = persons.filter(cor_cabelo_id=cor_cabelo_id)
+    
+    if cor_pele_id:
+        persons = persons.filter(cor_pele_id=cor_pele_id)
+    
+    if genero_id:
+        persons = persons.filter(genero_id=genero_id)
+    
+    if cidade:
+        persons = persons.filter(city__icontains=cidade)
+    
+    if estado:
+        persons = persons.filter(state__iexact=estado)
+    
+    if manequim:
+        persons = persons.filter(manequim__iexact=manequim)
+    
+    # Aplicar filtros de intervalo para características numéricas
+    if altura_min:
+        try:
+            altura_min = float(altura_min.replace(',', '.'))
+            persons = persons.filter(altura__gte=altura_min)
+        except (ValueError, TypeError):
+            pass
+    
+    if altura_max:
+        try:
+            altura_max = float(altura_max.replace(',', '.'))
+            persons = persons.filter(altura__lte=altura_max)
+        except (ValueError, TypeError):
+            pass
+    
+    if peso_min:
+        try:
+            peso_min = float(peso_min.replace(',', '.'))
+            persons = persons.filter(peso__gte=peso_min)
+        except (ValueError, TypeError):
+            pass
+    
+    if peso_max:
+        try:
+            peso_max = float(peso_max.replace(',', '.'))
+            persons = persons.filter(peso__lte=peso_max)
+        except (ValueError, TypeError):
+            pass
+    
+    # Para idade, precisamos calcular com base na data de nascimento
+    hoje = date.today()
+    
+    if idade_min:
+        try:
+            idade_min = int(idade_min)
+            # Data máxima de nascimento para ter pelo menos idade_min anos
+            data_max = date(hoje.year - idade_min, hoje.month, hoje.day)
+            persons = persons.filter(data_nascimento__lte=data_max)
+        except (ValueError, TypeError):
+            pass
+    
+    if idade_max:
+        try:
+            idade_max = int(idade_max)
+            # Data mínima de nascimento para ter no máximo idade_max anos
+            data_min = date(hoje.year - idade_max, hoje.month, hoje.day)
+            persons = persons.filter(data_nascimento__gte=data_min)
+        except (ValueError, TypeError):
+            pass
+    
+    # Criar um buffer para o PDF
+    buffer = BytesIO()
+    
+    # Criar o documento PDF com o canvas personalizado para cabeçalho e rodapé
+    doc = SimpleDocTemplate(
+        buffer, 
+        pagesize=A4, 
+        topMargin=1.2*cm,  # Aumentado para dar espaço ao cabeçalho
+        bottomMargin=1.2*cm,  # Aumentado para dar espaço ao rodapé
+        leftMargin=0.5*cm, 
+        rightMargin=0.5*cm
+    )
+    
+    # Definir estilos
+    styles = getSampleStyleSheet()
+    
+    # Criar estilo personalizado para o título
+    title_style = ParagraphStyle(
+        'Title',
+        parent=styles['Heading1'],
+        fontSize=14,
+        alignment=TA_CENTER,
+        spaceAfter=0.3*cm
+    )
+    
+    # Criar estilo personalizado para o nome da pessoa
+    name_style = ParagraphStyle(
+        'PersonName',
+        parent=styles['Heading2'],
+        fontSize=11,
+        alignment=TA_LEFT,
+        spaceAfter=0.2*cm
+    )
+    
+    # Criar estilo personalizado para o cabeçalho da seção
+    section_style = ParagraphStyle(
+        'SectionHeader',
+        parent=styles['Heading3'],
+        fontSize=9,
+        alignment=TA_LEFT,
+        spaceAfter=0.1*cm
+    )
+    
+    # Criar estilo para o texto normal
+    normal_style = ParagraphStyle(
+        'Normal',
+        parent=styles['Normal'],
+        fontSize=8
+    )
+    
+    # Lista para armazenar os elementos do PDF
+    elements = []
+    
+    # Adicionar título do relatório
+    elements.append(Paragraph("Relatório de Pessoas", title_style))
+    elements.append(Spacer(1, 0.3*cm))
+    
+    # Criar uma tabela para organizar as pessoas em 2 colunas
+    person_data = []
+    row = []
+    count = 0
+    
+    # Para cada pessoa, adicionar suas informações
+    for person in persons:
+        # Criar uma tabela para cada pessoa
+        person_elements = []
+        
+        # Adicionar nome da pessoa
+        person_elements.append(Paragraph(person.name, name_style))
+        
+        # Criar uma tabela com duas colunas: foto e características
+        data = []
+        
+        # Primeira coluna: foto
+        if person.photo:
+            try:
+                # Obter o caminho completo da imagem
+                img_path = person.photo.path
+                # Verificar se o arquivo existe
+                if os.path.exists(img_path):
+                    # Redimensionar a imagem para caber no PDF
+                    img = Image(img_path)
+                    img.drawHeight = 3*cm
+                    img.drawWidth = 3*cm
+                    photo_cell = img
+                else:
+                    photo_cell = Paragraph("Foto não disponível", normal_style)
+            except:
+                photo_cell = Paragraph("Erro ao carregar foto", normal_style)
+        else:
+            photo_cell = Paragraph("Sem foto", normal_style)
+        
+        # Segunda coluna: características físicas
+        characteristics = []
+        
+        # Adicionar cabeçalho da seção
+        characteristics.append(Paragraph("Características Físicas", section_style))
+        
+        # Adicionar características em pares
+        char_data = []
+        
+        # Nascimento e Idade
+        if person.data_nascimento:
+            nascimento = person.data_nascimento.strftime("%d/%m/%Y")
+            char_data.append([
+                Paragraph(f"<b>Nascimento:</b> {nascimento}", normal_style),
+                Paragraph(f"<b>Idade:</b> {person.idade} anos" if person.idade else "<b>Idade:</b> -", normal_style)
+            ])
+        
+        # Telefone (WhatsApp)
+        whatsapp_contact = person.contacts.filter(type='whatsapp').first()
+        telefone = whatsapp_contact.value if whatsapp_contact else "-"
+        char_data.append([
+            Paragraph(f"<b>Telefone:</b> {telefone}", normal_style),
+            Paragraph("", normal_style)  # Célula vazia para manter o layout
+        ])
+        
+        # Altura e Peso
+        char_data.append([
+            Paragraph(f"<b>Altura:</b> {person.altura} m" if person.altura else "<b>Altura:</b> -", normal_style),
+            Paragraph(f"<b>Peso:</b> {person.peso} kg" if person.peso else "<b>Peso:</b> -", normal_style)
+        ])
+        
+        # Manequim e Gênero
+        char_data.append([
+            Paragraph(f"<b>Manequim:</b> {person.manequim}" if person.manequim else "<b>Manequim:</b> -", normal_style),
+            Paragraph(f"<b>Gênero:</b> {person.genero.nome}" if person.genero else "<b>Gênero:</b> -", normal_style)
+        ])
+        
+        # Cor da pele e Cor dos olhos
+        char_data.append([
+            Paragraph(f"<b>Cor da pele:</b> {person.cor_pele.nome}" if person.cor_pele else "<b>Cor da pele:</b> -", normal_style),
+            Paragraph(f"<b>Cor dos olhos:</b> {person.cor_olhos.nome}" if person.cor_olhos else "<b>Cor dos olhos:</b> -", normal_style)
+        ])
+        
+        # Cor do cabelo
+        char_data.append([
+            Paragraph(f"<b>Cor do cabelo:</b> {person.cor_cabelo.nome}" if person.cor_cabelo else "<b>Cor do cabelo:</b> -", normal_style),
+            Paragraph("", normal_style)  # Célula vazia para manter o layout
+        ])
+        
+        # Criar tabela de características
+        char_table = Table(char_data, colWidths=[3.5*cm, 3.5*cm])
+        char_table.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, -1), 1),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 1),
+        ]))
+        
+        characteristics.append(char_table)
+        
+        # Adicionar foto e características à tabela principal
+        data.append([photo_cell, characteristics])
+        
+        # Criar tabela principal para a pessoa
+        person_table = Table(data, colWidths=[3.5*cm, 7.5*cm])
+        person_table.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, -1), 2),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 2),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+            ('BOX', (0, 0), (-1, -1), 0.5, colors.lightgrey),
+            ('BACKGROUND', (0, 0), (-1, -1), colors.white),
+        ]))
+        
+        # Adicionar a tabela da pessoa à lista de elementos da pessoa
+        person_elements.append(person_table)
+        
+        # Criar um container para a pessoa
+        person_container = Table([[el] for el in person_elements], colWidths=[11.5*cm])
+        
+        # Adicionar à linha atual
+        row.append(person_container)
+        count += 1
+        
+        # Se tiver 2 pessoas na linha, adicionar à tabela principal e começar uma nova linha
+        if count % 2 == 0:
+            person_data.append(row)
+            row = []
+    
+    # Se sobrar pessoas na última linha, adicionar à tabela principal
+    if row:
+        # Preencher com células vazias se necessário
+        while len(row) < 2:
+            row.append("")
+        person_data.append(row)
+    
+    # Criar a tabela principal com 2 colunas
+    if person_data:
+        main_table = Table(person_data, colWidths=[10.5*cm, 10.5*cm])
+        main_table.setStyle(TableStyle([
+            ('VALIGN', (0, 0), (-1, -1), 'TOP'),
+            ('TOPPADDING', (0, 0), (-1, -1), 3),
+            ('BOTTOMPADDING', (0, 0), (-1, -1), 3),
+            ('LEFTPADDING', (0, 0), (-1, -1), 3),
+            ('RIGHTPADDING', (0, 0), (-1, -1), 3),
+        ]))
+        elements.append(main_table)
+    
+    # Construir o PDF com o canvas personalizado
+    doc.build(elements, canvasmaker=FooterCanvas)
+    
+    # Obter o valor do buffer
+    pdf = buffer.getvalue()
+    buffer.close()
+    
+    # Criar a resposta HTTP com o PDF
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = 'attachment; filename="relatorio_pessoas.pdf"'
+    response.write(pdf)
+    
+    return response

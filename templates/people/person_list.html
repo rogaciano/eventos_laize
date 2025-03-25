@@ -4,10 +4,15 @@
 
 {% block content %}
 <div class="flex justify-between items-center mb-6">
-    <h1 class="text-2xl font-bold">Pessoas</h1>
-    <a href="{% url 'people:create' %}" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-sm">
-        <i class="fas fa-plus-circle mr-2"></i>Nova Pessoa
-    </a>
+    <h1 class="text-2xl font-bold text-white">Pessoas</h1>
+    <div class="flex space-x-2">
+        <a href="{% url 'people:create' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-plus-circle mr-2"></i>Adicionar Pessoa
+        </a>
+        <a href="{% url 'people:report_pdf' %}?{{ request.GET.urlencode }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-file-pdf mr-2"></i>Gerar Relatório PDF
+        </a>
+    </div>
 </div>
 
 <!-- Filtros -->
@@ -257,7 +262,7 @@
                         </div>
                         {% endif %}
                         <div>
-                            <a href="{% url 'people:detail' person.id %}" class="text-sm font-medium text-gray-900 hover:text-black">{{ person.name }}</a>
+                            <a href="{% url 'people:detail' person.id %}" class="text-sm font-medium text-white hover:text-gray-200">{{ person.name }}</a>
                         </div>
                     </div>
                 </td>
@@ -267,7 +272,7 @@
                 <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                     {% with phone_contacts=person.contacts.all|dictsort:"type" %}
                         {% for contact in phone_contacts %}
-                            {% if contact.type == 'phone' and forloop.first %}
+                            {% if contact.type == 'whatsapp' and forloop.first %}
                                 {{ contact.value }}
                             {% endif %}
                         {% empty %}
@@ -292,10 +297,10 @@
                     </div>
                 </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <a href="{% url 'people:detail' person.id %}" class="text-black hover:text-gray-700 mr-3">
+                    <a href="{% url 'people:detail' person.id %}" class="text-white hover:text-gray-200 mr-3">
                         <i class="fas fa-eye"></i>
                     </a>
-                    <a href="{% url 'people:update' person.id %}" class="text-black hover:text-gray-700 mr-3">
+                    <a href="{% url 'people:update' person.id %}" class="text-white hover:text-gray-200 mr-3">
                         <i class="fas fa-edit"></i>
                     </a>
                     <a href="{% url 'people:delete' person.id %}" class="text-red-600 hover:text-red-900">
