@@ -166,26 +166,13 @@ def add_participant(request, event_id):
             
             if conflicting_events.exists():
                 # Há conflito de horário
-                conflict_details = []
-                for conflicting_event in conflicting_events:
-                    conflict_details.append(
-                        f"{conflicting_event.title} "
-                        f"({conflicting_event.start_datetime.strftime('%d/%m/%Y %H:%M')} - "
-                        f"{conflicting_event.end_datetime.strftime('%d/%m/%Y %H:%M')})"
-                    )
+                conflicting_event = conflicting_events.first()
                 
-                conflict_message = "Conflito de horário detectado. Esta pessoa já está em outro(s) evento(s) neste horário:<br>"
-                conflict_message += "<ul>"
-                for detail in conflict_details:
-                    conflict_message += f"<li>{detail}</li>"
-                conflict_message += "</ul>"
-                conflict_message += "Deseja adicionar mesmo assim?"
-                
-                # Passar os dados do formulário e a mensagem de conflito para a confirmação
+                # Passar os dados do formulário e a informação do conflito para a confirmação
                 return render(request, 'events/participant_conflict.html', {
                     'form': form,
                     'event': event,
-                    'conflict_message': conflict_message,
+                    'conflicting_event': conflicting_event,
                     'person': person
                 })
             

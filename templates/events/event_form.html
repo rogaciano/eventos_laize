@@ -113,16 +113,6 @@
                 {% endif %}
             </div>
             
-            <div class="mt-6">
-                <label for="{{ form.notes.id_for_label }}" class="block text-sm font-bold text-gray-800 mb-2">
-                    Notas Adicionais
-                </label>
-                {{ form.notes }}
-                {% if form.notes.errors %}
-                <p class="mt-1 text-sm text-red-600">{{ form.notes.errors.0 }}</p>
-                {% endif %}
-            </div>
-            
             <div class="mt-8 flex justify-end space-x-3">
                 <a href="{% url 'events:list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
                     <i class="fas fa-arrow-left mr-2"></i>Voltar

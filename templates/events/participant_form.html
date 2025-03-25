@@ -254,7 +254,7 @@
         roleSelect.addEventListener('change', function() {
             const selectedRole = this.value;
             if (selectedRole) {
-                fetch(`/events/funcao/${selectedRole}/valor_padrao/`)
+                fetch(`/sistema/events/funcoes/${selectedRole}/valor_padrao/`)
                     .then(response => response.json())
                     .then(data => {
                         if (data.valor_padrao) {
@@ -264,14 +264,32 @@
                     .catch(error => console.error('Erro:', error));
             }
         });
+        
+        // Executar também no carregamento da página para preencher o valor se já houver uma função selecionada
+        if (roleSelect.value) {
+            fetch(`/sistema/events/funcoes/${roleSelect.value}/valor_padrao/`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.valor_padrao) {
+                        valueInput.value = data.valor_padrao;
+                    }
+                })
+                .catch(error => console.error('Erro:', error));
+        }
     });
     
     // Adicionar classes aos campos do formulário
     document.addEventListener('DOMContentLoaded', function() {
         const formFields = document.querySelectorAll('form input, form select, form textarea');
         formFields.forEach(field => {
-            field.classList.add('shadow-sm', 'focus:ring-indigo-500', 'focus:border-indigo-500', 'block', 'w-full', 'sm:text-sm', 'border', 'border-gray-300', 'rounded-md');
+            field.classList.add('shadow-sm', 'focus:ring-indigo-500', 'focus:border-indigo-500', 'block', 'w-full', 'sm:text-sm', 'border', 'border-gray-300', 'rounded-md', 'bg-white', 'text-gray-900');
         });
+        
+        // Adicionar estilo específico para o campo de observações
+        const observationsField = document.getElementById('id_observations');
+        if (observationsField) {
+            observationsField.style.color = '#1a202c'; // Cor escura para garantir visibilidade
+        }
     });
 </script>
 {% endblock %}

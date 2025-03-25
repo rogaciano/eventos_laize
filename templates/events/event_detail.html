@@ -94,10 +94,12 @@
                     </div>
                     <div class="ml-4">
                         <p class="text-sm font-medium text-gray-500">Lucro Estimado</p>
-                        <p class="text-lg font-semibold {% if event.get_profit > 0 %}text-green-600{% elif event.get_profit < 0 %}text-red-600{% else %}text-gray-600{% endif %}">
-                            {% include 'includes/currency_format.html' with value=event.get_profit %}
-                            {% if event.get_profit_margin %}
-                            <span class="text-xs">({{ event.get_profit_margin|floatformat:1 }}%)</span>
+                        <p class="text-lg font-semibold text-gray-900">
+                            {% include 'includes/currency_format.html' with value=event.get_estimated_profit %}
+                            {% if event.value and event.get_total_real_costs %}
+                            <span class="text-xs text-green-600 ml-1">
+                                ({{ event.get_profit_percentage|floatformat:0 }}%)
+                            </span>
                             {% endif %}
                         </p>
                     </div>
@@ -129,12 +131,24 @@
                 </dd>
             </div>
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Período do Evento</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    <div class="flex items-center">
+                        <span class="mr-2"><i class="far fa-calendar-alt text-indigo-500"></i></span>
+                        <span>{{ event.start_datetime|date:"d/m/Y" }} às {{ event.start_datetime|time:"H:i" }}</span>
+                        <span class="mx-2">até</span>
+                        <span>{{ event.end_datetime|date:"d/m/Y" }} às {{ event.end_datetime|time:"H:i" }}</span>
+                        <span class="ml-2 text-gray-500">({{ event.get_duration_display }})</span>
+                    </div>
+                </dd>
+            </div>
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Local</dt>
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                     {{ event.location|default:"Não definido" }}
                 </dd>
             </div>
-            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Valor</dt>
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                     {% if event.value %}
@@ -144,7 +158,7 @@
                     {% endif %}
                 </dd>
             </div>
-            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Situação</dt>
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2 flex items-center">
                     {% if event.status == 'cadastrado' %}
@@ -177,13 +191,13 @@
                     </a>
                 </dd>
             </div>
-            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Descrição</dt>
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                     {{ event.description|linebreaks|default:"Sem descrição" }}
                 </dd>
             </div>
-            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Notas</dt>
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                     {{ event.notes|linebreaks|default:"Sem notas adicionais" }}
