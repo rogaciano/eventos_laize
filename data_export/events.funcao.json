@@ -1,0 +1,16 @@
+[
+    {
+        "id": 2,
+        "nome": "Fiscal de Corredor",
+        "valor_padrao": "120.00",
+        "created_at": "2025-03-20T23:57:45.021Z",
+        "updated_at": "2025-03-20T23:57:45.021Z"
+    },
+    {
+        "id": 1,
+        "nome": "Lider de Corredor",
+        "valor_padrao": "150.00",
+        "created_at": "2025-03-20T22:44:58.374Z",
+        "updated_at": "2025-03-20T23:09:22.982Z"
+    }
+]

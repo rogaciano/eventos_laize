@@ -1,0 +1,170 @@
+[
+    {
+        "id": 1,
+        "type": "whatsapp",
+        "value": "81 9 9922-3045",
+        "label": "Tiago Executivo",
+        "created_at": "2025-03-21T00:34:39.091Z",
+        "updated_at": "2025-03-21T00:34:39.091Z"
+    },
+    {
+        "id": 2,
+        "type": "email",
+        "value": "blima@example.com",
+        "label": "Suporte",
+        "created_at": "2025-03-25T01:26:52.825Z",
+        "updated_at": "2025-03-25T01:26:52.825Z"
+    },
+    {
+        "id": 3,
+        "type": "whatsapp",
+        "value": "(071) 8279 6463",
+        "label": "Geral",
+        "created_at": "2025-03-25T01:26:52.832Z",
+        "updated_at": "2025-03-25T01:26:52.832Z"
+    },
+    {
+        "id": 4,
+        "type": "other",
+        "value": "+55 51 3480 0691",
+        "label": "Geral",
+        "created_at": "2025-03-25T01:26:52.837Z",
+        "updated_at": "2025-03-25T01:26:52.837Z"
+    },
+    {
+        "id": 5,
+        "type": "email",
+        "value": "gcamara@example.org",
+        "label": "Comercial",
+        "created_at": "2025-03-25T01:26:52.844Z",
+        "updated_at": "2025-03-25T01:26:52.844Z"
+    },
+    {
+        "id": 6,
+        "type": "whatsapp",
+        "value": "+55 (011) 3100-9777",
+        "label": "Geral",
+        "created_at": "2025-03-25T01:26:52.865Z",
+        "updated_at": "2025-03-25T01:26:52.865Z"
+    },
+    {
+        "id": 7,
+        "type": "instagram",
+        "value": "@thiagonovais",
+        "label": "Geral",
+        "created_at": "2025-03-25T01:26:52.885Z",
+        "updated_at": "2025-03-25T01:26:52.885Z"
+    },
+    {
+        "id": 8,
+        "type": "email",
+        "value": "vitor25@example.org",
+        "label": "Financeiro",
+        "created_at": "2025-03-25T01:26:52.891Z",
+        "updated_at": "2025-03-25T01:26:52.891Z"
+    },
+    {
+        "id": 9,
+        "type": "email",
+        "value": "joao-vitor42@example.com",
+        "label": "Financeiro",
+        "created_at": "2025-03-25T01:26:52.913Z",
+        "updated_at": "2025-03-25T01:26:52.913Z"
+    },
+    {
+        "id": 10,
+        "type": "whatsapp",
+        "value": "+55 11 2092 6946",
+        "label": "Geral",
+        "created_at": "2025-03-25T01:26:52.921Z",
+        "updated_at": "2025-03-25T01:26:52.921Z"
+    },
+    {
+        "id": 11,
+        "type": "email",
+        "value": "sousajose@example.com",
+        "label": "Suporte",
+        "created_at": "2025-03-25T01:26:52.928Z",
+        "updated_at": "2025-03-25T01:26:52.928Z"
+    },
+    {
+        "id": 12,
+        "type": "instagram",
+        "value": "@gabriel15",
+        "label": "Suporte",
+        "created_at": "2025-03-25T01:26:52.949Z",
+        "updated_at": "2025-03-25T01:26:52.949Z"
+    },
+    {
+        "id": 13,
+        "type": "whatsapp",
+        "value": "(031) 9986-8927",
+        "label": "Financeiro",
+        "created_at": "2025-03-25T01:26:52.969Z",
+        "updated_at": "2025-03-25T01:26:52.969Z"
+    },
+    {
+        "id": 14,
+        "type": "whatsapp",
+        "value": "31 7700-3439",
+        "label": "Financeiro",
+        "created_at": "2025-03-25T01:26:52.989Z",
+        "updated_at": "2025-03-25T01:26:52.989Z"
+    },
+    {
+        "id": 15,
+        "type": "instagram",
+        "value": "@hpereira",
+        "label": "Suporte",
+        "created_at": "2025-03-25T01:26:52.996Z",
+        "updated_at": "2025-03-25T01:26:52.996Z"
+    },
+    {
+        "id": 16,
+        "type": "other",
+        "value": "61 5862 5918",
+        "label": "Geral",
+        "created_at": "2025-03-25T01:26:53.001Z",
+        "updated_at": "2025-03-25T01:26:53.001Z"
+    },
+    {
+        "id": 17,
+        "type": "instagram",
+        "value": "@marcela25",
+        "label": "Comercial",
+        "created_at": "2025-03-25T01:26:53.022Z",
+        "updated_at": "2025-03-25T01:26:53.022Z"
+    },
+    {
+        "id": 18,
+        "type": "instagram",
+        "value": "@scavalcanti",
+        "label": "Geral",
+        "created_at": "2025-03-25T01:26:53.027Z",
+        "updated_at": "2025-03-25T01:26:53.027Z"
+    },
+    {
+        "id": 19,
+        "type": "instagram",
+        "value": "@calebenogueira",
+        "label": "Comercial",
+        "created_at": "2025-03-25T01:26:53.051Z",
+        "updated_at": "2025-03-25T01:26:53.051Z"
+    },
+    {
+        "id": 20,
+        "type": "email",
+        "value": "almeidacaue@example.net",
+        "label": "Financeiro",
+        "created_at": "2025-03-25T01:26:53.059Z",
+        "updated_at": "2025-03-25T01:26:53.059Z"
+    },
+    {
+        "id": 21,
+        "type": "whatsapp",
+        "value": "+55 84 0505-3365",
+        "label": "Financeiro",
+        "created_at": "2025-03-25T01:26:53.079Z",
+        "updated_at": "2025-03-25T01:26:53.079Z"
+    }
+]

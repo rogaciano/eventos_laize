@@ -1,0 +1,14 @@
+[
+    {
+        "id": 2,
+        "name": "Panfletagem",
+        "created_at": "2025-03-20T17:55:41.075Z",
+        "updated_at": "2025-03-20T17:55:41.075Z"
+    },
+    {
+        "id": 1,
+        "name": "Rodada de Negócios",
+        "created_at": "2025-03-20T17:55:24.529Z",
+        "updated_at": "2025-03-20T17:55:24.529Z"
+    }
+]

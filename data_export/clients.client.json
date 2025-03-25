@@ -1,0 +1,136 @@
+[
+    {
+        "id": 1,
+        "name": "ACIC - Associação Comercial e Empresarial de Caruaru",
+        "client_class_id": 1,
+        "notes": "Associaçao de Caruaru - Faz muitos eventos principalmente a Rodada de Negócios da Moda Pernambucana",
+        "created_at": "2025-03-20T17:57:44.586Z",
+        "updated_at": "2025-03-20T17:57:44.586Z",
+        "contacts_ids": [
+            1
+        ]
+    },
+    {
+        "id": 2,
+        "name": "Bare Jeep",
+        "client_class_id": 2,
+        "notes": "loja tal",
+        "created_at": "2025-03-21T00:29:31.594Z",
+        "updated_at": "2025-03-21T00:29:31.594Z"
+    },
+    {
+        "id": 12,
+        "name": "Camargo Sousa S/A",
+        "client_class_id": 1,
+        "created_at": "2025-03-25T01:26:53.045Z",
+        "updated_at": "2025-03-25T01:26:53.045Z",
+        "contacts_ids": [
+            19,
+            20
+        ]
+    },
+    {
+        "id": 11,
+        "name": "Fonseca Duarte S.A.",
+        "client_class_id": 2,
+        "notes": "Animi sapiente libero harum nisi. Eveniet assumenda exercitationem nemo quo. Eos cupiditate sint iusto excepturi quibusdam. Numquam rerum culpa dolores aperiam porro dolorem.",
+        "created_at": "2025-03-25T01:26:53.016Z",
+        "updated_at": "2025-03-25T01:26:53.016Z",
+        "contacts_ids": [
+            17,
+            18
+        ]
+    },
+    {
+        "id": 7,
+        "name": "Montenegro - ME",
+        "client_class_id": 1,
+        "notes": "Est vitae nobis asperiores possimus. Cum iure error itaque cumque provident. Maxime nam dolorum ratione ipsa voluptate.\nMinus ipsa quas voluptatibus. Similique exercitationem praesentium quam.",
+        "created_at": "2025-03-25T01:26:52.905Z",
+        "updated_at": "2025-03-25T01:26:52.905Z",
+        "contacts_ids": [
+            9,
+            10,
+            11
+        ]
+    },
+    {
+        "id": 9,
+        "name": "Moura",
+        "client_class_id": 2,
+        "created_at": "2025-03-25T01:26:52.962Z",
+        "updated_at": "2025-03-25T01:26:52.962Z",
+        "contacts_ids": [
+            13
+        ]
+    },
+    {
+        "id": 8,
+        "name": "Pacheco",
+        "client_class_id": 1,
+        "notes": "Commodi pariatur recusandae repellendus odit quidem. Temporibus facere officia animi atque.\nReiciendis natus minus a.\nIpsam velit blanditiis modi quam dolorum blanditiis.",
+        "created_at": "2025-03-25T01:26:52.942Z",
+        "updated_at": "2025-03-25T01:26:52.942Z",
+        "contacts_ids": [
+            12
+        ]
+    },
+    {
+        "id": 13,
+        "name": "Pinto",
+        "client_class_id": 2,
+        "created_at": "2025-03-25T01:26:53.072Z",
+        "updated_at": "2025-03-25T01:26:53.072Z",
+        "contacts_ids": [
+            21
+        ]
+    },
+    {
+        "id": 6,
+        "name": "Porto",
+        "client_class_id": 2,
+        "notes": "Sint debitis iusto ab officiis provident. Facere voluptatum non culpa ipsa aliquid.\nIllum vitae nam totam. Modi ducimus quod a architecto cumque.",
+        "created_at": "2025-03-25T01:26:52.878Z",
+        "updated_at": "2025-03-25T01:26:52.878Z",
+        "contacts_ids": [
+            7,
+            8
+        ]
+    },
+    {
+        "id": 10,
+        "name": "Rezende",
+        "client_class_id": 1,
+        "notes": "Eos id sapiente ducimus.\nAspernatur doloribus occaecati repellendus. Illum quod illum provident minima. Aut culpa iusto corporis numquam.",
+        "created_at": "2025-03-25T01:26:52.983Z",
+        "updated_at": "2025-03-25T01:26:52.983Z",
+        "contacts_ids": [
+            14,
+            15,
+            16
+        ]
+    },
+    {
+        "id": 4,
+        "name": "Vasconcelos",
+        "client_class_id": 2,
+        "created_at": "2025-03-25T01:26:52.818Z",
+        "updated_at": "2025-03-25T01:26:52.818Z",
+        "contacts_ids": [
+            2,
+            3,
+            4,
+            5
+        ]
+    },
+    {
+        "id": 5,
+        "name": "das Neves",
+        "client_class_id": 1,
+        "created_at": "2025-03-25T01:26:52.858Z",
+        "updated_at": "2025-03-25T01:26:52.858Z",
+        "contacts_ids": [
+            6
+        ]
+    }
+]

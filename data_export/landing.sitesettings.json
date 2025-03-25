@@ -1,0 +1,19 @@
+[
+    {
+        "id": 1,
+        "site_name": "Agência Atitude",
+        "tagline": "",
+        "about_title": "Sobre Nós",
+        "about_content": "",
+        "services_title": "Nossos Serviços",
+        "blog_title": "Novidades",
+        "contact_title": "Entre em Contato",
+        "contact_email": "contato@exemplo.com",
+        "phone": "",
+        "address": "",
+        "facebook": "",
+        "instagram": "",
+        "whatsapp": "",
+        "footer_text": ""
+    }
+]

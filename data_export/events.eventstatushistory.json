@@ -1,0 +1,38 @@
+[
+    {
+        "id": 4,
+        "event_id": 2,
+        "old_status": "pos_producao",
+        "new_status": "concluido",
+        "description": "",
+        "created_at": "2025-03-24T19:46:43.281Z",
+        "created_by": "rogaciano"
+    },
+    {
+        "id": 3,
+        "event_id": 2,
+        "old_status": "pre_producao",
+        "new_status": "pos_producao",
+        "description": "terminou",
+        "created_at": "2025-03-21T00:26:41.885Z",
+        "created_by": "rogaciano"
+    },
+    {
+        "id": 2,
+        "event_id": 2,
+        "old_status": "em_andamento",
+        "new_status": "pre_producao",
+        "description": "Teste",
+        "created_at": "2025-03-21T00:26:17.838Z",
+        "created_by": "rogaciano"
+    },
+    {
+        "id": 1,
+        "event_id": 2,
+        "old_status": "agendado",
+        "new_status": "em_andamento",
+        "description": "captação das pessoas para participar",
+        "created_at": "2025-03-21T00:25:37.004Z",
+        "created_by": "rogaciano"
+    }
+]

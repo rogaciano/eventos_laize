@@ -1,0 +1,52 @@
+[
+    {
+        "id": 5,
+        "date": "2025-03-24T21:32:20.346Z",
+        "related_to": "person",
+        "person_id": 1,
+        "description": "ligar",
+        "status": "pending",
+        "created_at": "2025-03-24T21:32:20.346Z",
+        "updated_at": "2025-03-24T21:32:20.346Z"
+    },
+    {
+        "id": 4,
+        "date": "2025-03-21T00:39:03.367Z",
+        "related_to": "client",
+        "client_id": 1,
+        "description": "problemas com a funcionaria tal",
+        "status": "resolved",
+        "created_at": "2025-03-21T00:39:03.367Z",
+        "updated_at": "2025-03-21T00:39:03.367Z"
+    },
+    {
+        "id": 3,
+        "date": "2025-03-20T19:58:26.780Z",
+        "related_to": "person",
+        "person_id": 1,
+        "description": "teste",
+        "status": "resolved",
+        "created_at": "2025-03-20T19:58:26.780Z",
+        "updated_at": "2025-03-20T19:58:44.122Z"
+    },
+    {
+        "id": 2,
+        "date": "2025-03-20T19:00:39.732Z",
+        "related_to": "person",
+        "person_id": 1,
+        "description": "Bebeu muita cerveja no show",
+        "status": "resolved",
+        "created_at": "2025-03-20T19:00:39.732Z",
+        "updated_at": "2025-03-20T19:58:11.491Z"
+    },
+    {
+        "id": 1,
+        "date": "2025-03-20T18:14:49.186Z",
+        "related_to": "person",
+        "person_id": 2,
+        "description": "Pessoa se destacou no evento tal proativa",
+        "status": "closed",
+        "created_at": "2025-03-20T18:14:49.186Z",
+        "updated_at": "2025-03-20T18:14:49.186Z"
+    }
+]

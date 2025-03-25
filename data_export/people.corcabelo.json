@@ -1,0 +1,42 @@
+[
+    {
+        "id": 10,
+        "nome": "Brancos"
+    },
+    {
+        "id": 4,
+        "nome": "Castanho Claro"
+    },
+    {
+        "id": 2,
+        "nome": "Castanho Escuro"
+    },
+    {
+        "id": 3,
+        "nome": "Castanho Médio"
+    },
+    {
+        "id": 9,
+        "nome": "Grisalhos"
+    },
+    {
+        "id": 7,
+        "nome": "Loiro Claro"
+    },
+    {
+        "id": 5,
+        "nome": "Loiro Escuro"
+    },
+    {
+        "id": 6,
+        "nome": "Loiro Médio"
+    },
+    {
+        "id": 1,
+        "nome": "Preto"
+    },
+    {
+        "id": 8,
+        "nome": "Ruivo"
+    }
+]
