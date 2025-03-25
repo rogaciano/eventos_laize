@@ -12,21 +12,222 @@
 
 <!-- Filtros -->
 <div class="bg-gray-50 p-4 rounded-lg mb-6 border border-gray-200">
-    <form method="get" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <div>
-            <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar por nome</label>
-            <input type="text" name="search" id="search" value="{{ request.GET.search|default:'' }}" 
-                   class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+    <form method="get" class="space-y-4">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+                <label for="search" class="block text-sm font-medium text-gray-700 mb-1">Buscar por nome</label>
+                <input type="text" name="search" id="search" value="{{ search_query }}" 
+                       class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+            </div>
+            
+            <div class="flex items-end">
+                <button type="submit" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-sm w-full md:w-auto">
+                    <i class="fas fa-search mr-2"></i>Filtrar
+                </button>
+                {% if request.GET %}
+                    <a href="{% url 'people:list' %}" class="ml-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md shadow-sm">
+                        <i class="fas fa-times mr-2"></i>Limpar
+                    </a>
+                {% endif %}
+                
+                <button type="button" id="toggle-advanced-filters" class="ml-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-filter mr-2"></i>Filtros Avançados
+                </button>
+            </div>
         </div>
-        <div class="flex items-end">
-            <button type="submit" class="bg-black hover:bg-gray-800 text-white px-4 py-2 rounded-md shadow-sm w-full md:w-auto">
-                <i class="fas fa-search mr-2"></i>Filtrar
-            </button>
-            {% if request.GET %}
-                <a href="{% url 'people:list' %}" class="ml-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-md shadow-sm">
-                    <i class="fas fa-times mr-2"></i>Limpar
-                </a>
-            {% endif %}
+        
+        <!-- Filtros avançados (inicialmente ocultos) -->
+        <div id="advanced-filters" class="{% if cor_olhos_id or cor_cabelo_id or cor_pele_id or genero_id or cidade or estado or altura_min or altura_max or peso_min or peso_max or idade_min or idade_max or efficiency_min or punctuality_min or proactivity_min or appearance_min or communication_min or manequim %}block{% else %}hidden{% endif %} pt-4 border-t border-gray-200 mt-4">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <!-- Características físicas -->
+                <div>
+                    <label for="cor_olhos" class="block text-sm font-medium text-gray-700 mb-1">Cor dos olhos</label>
+                    <select name="cor_olhos" id="cor_olhos" class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">Todas</option>
+                        {% for cor in cores_olhos %}
+                            <option value="{{ cor.id }}" {% if cor.id|stringformat:"i" == cor_olhos_id %}selected{% endif %}>{{ cor.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="cor_cabelo" class="block text-sm font-medium text-gray-700 mb-1">Cor do cabelo</label>
+                    <select name="cor_cabelo" id="cor_cabelo" class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">Todas</option>
+                        {% for cor in cores_cabelo %}
+                            <option value="{{ cor.id }}" {% if cor.id|stringformat:"i" == cor_cabelo_id %}selected{% endif %}>{{ cor.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="cor_pele" class="block text-sm font-medium text-gray-700 mb-1">Cor da pele</label>
+                    <select name="cor_pele" id="cor_pele" class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">Todas</option>
+                        {% for cor in cores_pele %}
+                            <option value="{{ cor.id }}" {% if cor.id|stringformat:"i" == cor_pele_id %}selected{% endif %}>{{ cor.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="genero" class="block text-sm font-medium text-gray-700 mb-1">Gênero</label>
+                    <select name="genero" id="genero" class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">Todos</option>
+                        {% for gen in generos %}
+                            <option value="{{ gen.id }}" {% if gen.id|stringformat:"i" == genero_id %}selected{% endif %}>{{ gen.nome }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Características numéricas com intervalos -->
+                <div class="col-span-1 md:col-span-3 mt-4 mb-2">
+                    <h3 class="font-medium text-gray-700 border-b pb-1">Características físicas</h3>
+                </div>
+                
+                <!-- Manequim -->
+                <div>
+                    <label for="manequim" class="block text-sm font-medium text-gray-700 mb-1">Manequim</label>
+                    <select name="manequim" id="manequim" class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">Todos</option>
+                        {% for tamanho in manequins %}
+                            <option value="{{ tamanho }}" {% if tamanho == manequim %}selected{% endif %}>{{ tamanho }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Altura (intervalo) -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label for="altura_min" class="block text-sm font-medium text-gray-700 mb-1">Altura mínima (m)</label>
+                        <input type="text" name="altura_min" id="altura_min" value="{{ altura_min }}" placeholder="Ex: 1.60" 
+                               class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="altura_max" class="block text-sm font-medium text-gray-700 mb-1">Altura máxima (m)</label>
+                        <input type="text" name="altura_max" id="altura_max" value="{{ altura_max }}" placeholder="Ex: 1.80" 
+                               class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                    </div>
+                </div>
+                
+                <!-- Peso (intervalo) -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label for="peso_min" class="block text-sm font-medium text-gray-700 mb-1">Peso mínimo (kg)</label>
+                        <input type="text" name="peso_min" id="peso_min" value="{{ peso_min }}" placeholder="Ex: 50" 
+                               class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="peso_max" class="block text-sm font-medium text-gray-700 mb-1">Peso máximo (kg)</label>
+                        <input type="text" name="peso_max" id="peso_max" value="{{ peso_max }}" placeholder="Ex: 80" 
+                               class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                    </div>
+                </div>
+                
+                <!-- Idade (intervalo) -->
+                <div class="grid grid-cols-2 gap-2">
+                    <div>
+                        <label for="idade_min" class="block text-sm font-medium text-gray-700 mb-1">Idade mínima</label>
+                        <input type="number" name="idade_min" id="idade_min" value="{{ idade_min }}" placeholder="Ex: 18" 
+                               class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                    </div>
+                    <div>
+                        <label for="idade_max" class="block text-sm font-medium text-gray-700 mb-1">Idade máxima</label>
+                        <input type="number" name="idade_max" id="idade_max" value="{{ idade_max }}" placeholder="Ex: 40" 
+                               class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                    </div>
+                </div>
+                
+                <!-- Localização -->
+                <div class="col-span-1 md:col-span-3 mt-4 mb-2">
+                    <h3 class="font-medium text-gray-700 border-b pb-1">Localização</h3>
+                </div>
+                
+                <div>
+                    <label for="cidade" class="block text-sm font-medium text-gray-700 mb-1">Cidade</label>
+                    <select name="cidade" id="cidade" class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">Todas</option>
+                        {% for city in cidades %}
+                            <option value="{{ city }}" {% if city == cidade %}selected{% endif %}>{{ city }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="estado" class="block text-sm font-medium text-gray-700 mb-1">Estado</label>
+                    <select name="estado" id="estado" class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">Todos</option>
+                        {% for state in estados %}
+                            <option value="{{ state }}" {% if state == estado %}selected{% endif %}>{{ state }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <!-- Avaliações -->
+                <div class="col-span-1 md:col-span-3 mt-4 mb-2">
+                    <h3 class="font-medium text-gray-700 border-b pb-1">Avaliações mínimas</h3>
+                </div>
+                
+                <div>
+                    <label for="efficiency_min" class="block text-sm font-medium text-gray-700 mb-1">Eficiência (mín)</label>
+                    <select name="efficiency_min" id="efficiency_min" class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">Qualquer</option>
+                        <option value="1" {% if efficiency_min == '1' %}selected{% endif %}>★ ou mais</option>
+                        <option value="2" {% if efficiency_min == '2' %}selected{% endif %}>★★ ou mais</option>
+                        <option value="3" {% if efficiency_min == '3' %}selected{% endif %}>★★★ ou mais</option>
+                        <option value="4" {% if efficiency_min == '4' %}selected{% endif %}>★★★★ ou mais</option>
+                        <option value="5" {% if efficiency_min == '5' %}selected{% endif %}>★★★★★</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="punctuality_min" class="block text-sm font-medium text-gray-700 mb-1">Pontualidade (mín)</label>
+                    <select name="punctuality_min" id="punctuality_min" class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">Qualquer</option>
+                        <option value="1" {% if punctuality_min == '1' %}selected{% endif %}>★ ou mais</option>
+                        <option value="2" {% if punctuality_min == '2' %}selected{% endif %}>★★ ou mais</option>
+                        <option value="3" {% if punctuality_min == '3' %}selected{% endif %}>★★★ ou mais</option>
+                        <option value="4" {% if punctuality_min == '4' %}selected{% endif %}>★★★★ ou mais</option>
+                        <option value="5" {% if punctuality_min == '5' %}selected{% endif %}>★★★★★</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="proactivity_min" class="block text-sm font-medium text-gray-700 mb-1">Proatividade (mín)</label>
+                    <select name="proactivity_min" id="proactivity_min" class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">Qualquer</option>
+                        <option value="1" {% if proactivity_min == '1' %}selected{% endif %}>★ ou mais</option>
+                        <option value="2" {% if proactivity_min == '2' %}selected{% endif %}>★★ ou mais</option>
+                        <option value="3" {% if proactivity_min == '3' %}selected{% endif %}>★★★ ou mais</option>
+                        <option value="4" {% if proactivity_min == '4' %}selected{% endif %}>★★★★ ou mais</option>
+                        <option value="5" {% if proactivity_min == '5' %}selected{% endif %}>★★★★★</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="appearance_min" class="block text-sm font-medium text-gray-700 mb-1">Aparência (mín)</label>
+                    <select name="appearance_min" id="appearance_min" class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">Qualquer</option>
+                        <option value="1" {% if appearance_min == '1' %}selected{% endif %}>★ ou mais</option>
+                        <option value="2" {% if appearance_min == '2' %}selected{% endif %}>★★ ou mais</option>
+                        <option value="3" {% if appearance_min == '3' %}selected{% endif %}>★★★ ou mais</option>
+                        <option value="4" {% if appearance_min == '4' %}selected{% endif %}>★★★★ ou mais</option>
+                        <option value="5" {% if appearance_min == '5' %}selected{% endif %}>★★★★★</option>
+                    </select>
+                </div>
+                
+                <div>
+                    <label for="communication_min" class="block text-sm font-medium text-gray-700 mb-1">Comunicação (mín)</label>
+                    <select name="communication_min" id="communication_min" class="shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md">
+                        <option value="">Qualquer</option>
+                        <option value="1" {% if communication_min == '1' %}selected{% endif %}>★ ou mais</option>
+                        <option value="2" {% if communication_min == '2' %}selected{% endif %}>★★ ou mais</option>
+                        <option value="3" {% if communication_min == '3' %}selected{% endif %}>★★★ ou mais</option>
+                        <option value="4" {% if communication_min == '4' %}selected{% endif %}>★★★★ ou mais</option>
+                        <option value="5" {% if communication_min == '5' %}selected{% endif %}>★★★★★</option>
+                    </select>
+                </div>
+            </div>
         </div>
     </form>
 </div>
@@ -147,4 +348,17 @@
     </nav>
 </div>
 {% endif %}
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleButton = document.getElementById('toggle-advanced-filters');
+        const advancedFilters = document.getElementById('advanced-filters');
+        
+        toggleButton.addEventListener('click', function() {
+            advancedFilters.classList.toggle('hidden');
+        });
+    });
+</script>
 {% endblock %}

@@ -18,10 +18,18 @@ class LoginRequiredMiddleware:
             '/admin/login/',
             '/static/',
             '/media/',
+            # Landing page URLs
+            reverse('landing:home'),
+            reverse('landing:about'),
+            reverse('landing:services'),
+            reverse('landing:blog'),
+            reverse('landing:contact'),
+            '/',  # Root URL
         ]
         # Add password reset confirm URL pattern (can't use reverse with parameters)
         self.public_patterns = [
             '/reset/',
+            '/landing/',  # Todas as URLs que começam com /landing/
         ]
 
     def __call__(self, request):

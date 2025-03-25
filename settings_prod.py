@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Custom apps
+    'landing',
     'events',
     'people',
     'clients',
@@ -142,8 +143,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Authentication settings
 LOGIN_URL = 'login'
-LOGIN_REDIRECT_URL = '/dashboard/'
-LOGOUT_REDIRECT_URL = 'login'
+LOGIN_REDIRECT_URL = 'sistema_home'
+LOGOUT_REDIRECT_URL = 'landing:home'
 
 # Email settings (for password reset)
 # For development, use console backend
