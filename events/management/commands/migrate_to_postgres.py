@@ -65,7 +65,6 @@ class Command(BaseCommand):
                 all_models.append(model)
 
         # Ordenar modelos para garantir que dependências sejam respeitadas
-        # Primeiro, modelos sem FKs, depois os com FKs
         models_order = self.sort_models_by_dependencies(all_models)
 
         if not import_only:
@@ -88,6 +87,11 @@ class Command(BaseCommand):
             for field in model._meta.fields:
                 if isinstance(field, ForeignKey):
                     deps.append(field.remote_field.model)
+            
+            # Adicionar dependências de ManyToMany também
+            for field in model._meta.many_to_many:
+                deps.append(field.remote_field.model)
+                
             models_with_deps[model] = deps
         
         # Ordenar
@@ -153,7 +157,7 @@ class Command(BaseCommand):
         """Importa dados de arquivos JSON para o PostgreSQL"""
         # Verificar conexão com PostgreSQL
         try:
-            connection = connections['default']
+            connection = connections['postgres']
             connection.cursor()
             self.stdout.write(self.style.SUCCESS("Conexão com PostgreSQL estabelecida com sucesso!"))
         except Exception as e:
@@ -176,7 +180,7 @@ class Command(BaseCommand):
                 data = json.load(f)
             
             # Limpar tabela antes de importar
-            model.objects.all().delete()
+            model.objects.using('postgres').all().delete()
             
             # Importar objetos
             imported_count = 0
@@ -198,7 +202,7 @@ class Command(BaseCommand):
                 
                 # Criar objeto
                 try:
-                    obj = model.objects.create(**fields_dict)
+                    obj = model.objects.using('postgres').create(**fields_dict)
                     
                     # Armazenar dados M2M para importar depois
                     if m2m_fields:
@@ -212,7 +216,22 @@ class Command(BaseCommand):
             # Importar dados M2M
             for obj, m2m_fields in m2m_data:
                 for field_name, values in m2m_fields.items():
-                    m2m_field = getattr(obj, field_name)
-                    m2m_field.set(values)
+                    try:
+                        m2m_field = getattr(obj, field_name)
+                        # Verificar se todos os IDs existem antes de tentar definir
+                        model_to_check = model._meta.get_field(field_name).remote_field.model
+                        existing_ids = set(model_to_check.objects.using('postgres').filter(pk__in=values).values_list('pk', flat=True))
+                        missing_ids = set(values) - existing_ids
+                        
+                        if missing_ids:
+                            self.stdout.write(self.style.WARNING(
+                                f"  Aviso: IDs {missing_ids} não encontrados para o campo {field_name} do modelo {model_name}"
+                            ))
+                            # Usar apenas IDs existentes
+                            m2m_field.set(existing_ids)
+                        else:
+                            m2m_field.set(values)
+                    except Exception as e:
+                        self.stdout.write(self.style.ERROR(f"  Erro ao definir relação M2M {field_name}: {str(e)}"))
             
             self.stdout.write(self.style.SUCCESS(f"  Importados {imported_count} registros para {model_name}"))

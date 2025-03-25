@@ -23,6 +23,7 @@ urlpatterns = [
     
     # Event Participant URLs
     path('<int:event_id>/participants/add/', views.add_participant, name='add_participant'),
+    path('<int:event_id>/participants/confirm-add/', views.confirm_add_participant, name='confirm_add_participant'),
     path('<int:event_id>/participants/<int:participant_id>/remove/', views.remove_participant, name='remove_participant'),
     path('<int:event_id>/participants/<int:participant_id>/edit/', views.update_participant, name='update_participant'),
     
@@ -33,6 +34,10 @@ urlpatterns = [
     path('funcoes/', views.funcao_list, name='funcao_list'),
     path('funcoes/<int:funcao_id>/edit/', views.funcao_edit, name='funcao_edit'),
     path('funcoes/<int:funcao_id>/delete/', views.funcao_delete, name='funcao_delete'),
+    
+    # Calendar URLs
+    path('calendar/', views.event_calendar, name='calendar'),
+    path('calendar/data/', views.event_calendar_data, name='calendar_data'),
     
     # Incluir URLs de gestão de custos
     path('cost/', include('events.urls_cost')),

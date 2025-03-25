@@ -144,14 +144,26 @@
         formFields.forEach(field => {
             if (field.type !== 'hidden' && field.type !== 'checkbox' && field.type !== 'radio') {
                 if (field.tagName === 'SELECT') {
-                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'bg-white');
+                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'bg-white', 'text-gray-900');
                 } else if (field.tagName === 'TEXTAREA') {
-                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'h-24', 'bg-white');
+                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'h-24', 'bg-white', 'text-gray-900');
                 } else {
-                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'bg-white');
+                    field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'border-2', 'shadow-sm', 'focus:border-indigo-500', 'focus:ring', 'focus:ring-indigo-500', 'focus:ring-opacity-50', 'bg-white', 'text-gray-900');
                 }
             }
         });
+        
+        // Adiciona estilos específicos para os campos com problemas de visibilidade
+        const locationField = document.querySelector('#{{ form.location.id_for_label }}');
+        const descriptionField = document.querySelector('#{{ form.description.id_for_label }}');
+        
+        if (locationField) {
+            locationField.style.color = '#1a202c'; // Cor escura para garantir visibilidade
+        }
+        
+        if (descriptionField) {
+            descriptionField.style.color = '#1a202c'; // Cor escura para garantir visibilidade
+        }
     });
 </script>
 {% endblock %}

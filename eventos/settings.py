@@ -87,6 +87,14 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
+    },
+    'postgres': {
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'agenciaatitude',  # nome do banco de dados
+        'USER': 'agenciaatitude',  # usuário do PostgreSQL
+        'PASSWORD': '*Marien2012',  # senha do usuário
+        'HOST': 'localhost',  # host do PostgreSQL
+        'PORT': '',  # porta do PostgreSQL (vazio para padrão)
     }
 }
 

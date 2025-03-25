@@ -84,3 +84,31 @@
     </div>
 </div>
 {% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Adiciona classes do Tailwind aos campos do formulário
+        const formFields = document.querySelectorAll('select, textarea');
+        formFields.forEach(field => {
+            if (field.tagName === 'SELECT') {
+                field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-blue-500', 'focus:ring', 'focus:ring-blue-500', 'focus:ring-opacity-50', 'bg-white', 'text-gray-900');
+            } else if (field.tagName === 'TEXTAREA') {
+                field.classList.add('mt-1', 'block', 'w-full', 'rounded-md', 'border-gray-300', 'shadow-sm', 'focus:border-blue-500', 'focus:ring', 'focus:ring-blue-500', 'focus:ring-opacity-50', 'h-24', 'bg-white', 'text-gray-900');
+            }
+        });
+        
+        // Adiciona estilos específicos para os campos com problemas de visibilidade
+        const descriptionField = document.querySelector('#{{ form.description.id_for_label }}');
+        const statusField = document.querySelector('#{{ form.new_status.id_for_label }}');
+        
+        if (descriptionField) {
+            descriptionField.style.color = '#1a202c'; // Cor escura para garantir visibilidade
+        }
+        
+        if (statusField) {
+            statusField.style.color = '#1a202c'; // Cor escura para garantir visibilidade
+        }
+    });
+</script>
+{% endblock %}

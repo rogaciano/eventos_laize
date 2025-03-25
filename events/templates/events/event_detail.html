@@ -1,0 +1,130 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-3">
+        <h2>{{ event.title }}</h2>
+        <div>
+            <a href="{% url 'events:list' %}" class="btn btn-outline-secondary btn-sm">
+                <i class="fas fa-list"></i> Lista de Eventos
+            </a>
+            <a href="{% url 'events:calendar' %}" class="btn btn-outline-primary btn-sm">
+                <i class="fas fa-calendar-alt"></i> Calendário
+            </a>
+            <a href="{% url 'events:update' event.id %}" class="btn btn-warning btn-sm">
+                <i class="fas fa-edit"></i> Editar
+            </a>
+            <a href="{% url 'events:status_history' event.id %}" class="btn btn-info btn-sm">
+                <i class="fas fa-history"></i> Histórico
+            </a>
+            <a href="{% url 'events:change_status' event.id %}" class="btn btn-secondary btn-sm">
+                <i class="fas fa-exchange-alt"></i> Mudar Status
+            </a>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">Informações do Evento</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <p><strong>Cliente:</strong> {{ event.client.name }}</p>
+                            <p><strong>Local:</strong> {{ event.location|default:"Não informado" }}</p>
+                            <p><strong>Status:</strong> <span class="badge 
+                                {% if event.status == 'cadastrado' %}bg-secondary{% endif %}
+                                {% if event.status == 'prospectado' %}bg-info{% endif %}
+                                {% if event.status == 'agendado' %}bg-primary{% endif %}
+                                {% if event.status == 'em_andamento' %}bg-warning{% endif %}
+                                {% if event.status == 'concluido' %}bg-success{% endif %}
+                                {% if event.status == 'cancelado' %}bg-danger{% endif %}
+                                {% if event.status == 'adiado' %}bg-purple{% endif %}
+                                {% if event.status == 'pendente' %}bg-warning{% endif %}
+                                {% if event.status == 'orcamento' %}bg-teal{% endif %}
+                                {% if event.status == 'pre_producao' %}bg-pink{% endif %}
+                                {% if event.status == 'pos_producao' %}bg-indigo{% endif %}
+                                {% if event.status == 'arquivado' %}bg-dark{% endif %}
+                            ">{{ event.get_status_display }}</span></p>
+                        </div>
+                        <div class="col-md-6">
+                            <p><strong>Início:</strong> {{ event.start_datetime|date:"d/m/Y H:i" }}</p>
+                            <p><strong>Fim:</strong> {{ event.end_datetime|date:"d/m/Y H:i" }}</p>
+                            <p><strong>Tipo:</strong> {{ event.event_type.nome|default:"Não informado" }}</p>
+                        </div>
+                    </div>
+                    <hr>
+                    <h6>Descrição:</h6>
+                    <p class="text-muted">{{ event.description|default:"Sem descrição"|linebreaks }}</p>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header bg-success text-white">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h5 class="mb-0">Participantes</h5>
+                        <a href="{% url 'events:add_participant' event.id %}" class="btn btn-sm btn-light">
+                            <i class="fas fa-plus"></i> Adicionar
+                        </a>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    {% if participants %}
+                        <ul class="list-group list-group-flush">
+                            {% for participant in participants %}
+                                <li class="list-group-item">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <div>
+                                            <strong>{{ participant.person.name }}</strong><br>
+                                            <small class="text-muted">{{ participant.role.nome|default:"Sem função" }}</small>
+                                        </div>
+                                        <div>
+                                            <span class="badge bg-success">R$ {{ participant.value|floatformat:2 }}</span>
+                                            <div class="btn-group btn-group-sm mt-1">
+                                                <a href="{% url 'events:update_participant' event.id participant.id %}" class="btn btn-outline-warning">
+                                                    <i class="fas fa-edit"></i>
+                                                </a>
+                                                <a href="{% url 'events:remove_participant' event.id participant.id %}" class="btn btn-outline-danger" 
+                                                   onclick="return confirm('Tem certeza que deseja remover este participante?');">
+                                                    <i class="fas fa-trash"></i>
+                                                </a>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul>
+                    {% else %}
+                        <div class="p-3 text-center text-muted">
+                            <p>Nenhum participante cadastrado</p>
+                            <a href="{% url 'events:add_participant' event.id %}" class="btn btn-sm btn-outline-success">
+                                <i class="fas fa-plus"></i> Adicionar Participante
+                            </a>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5 class="mb-0">Informações Adicionais</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Data de Criação:</strong> {{ event.created_at|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Última Atualização:</strong> {{ event.updated_at|date:"d/m/Y H:i" }}</p>
+                    {% if event.notes %}
+                        <hr>
+                        <h6>Observações:</h6>
+                        <p class="text-muted">{{ event.notes|linebreaks }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

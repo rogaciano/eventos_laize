@@ -1,0 +1,56 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <h2>Conflito de Horário Detectado</h2>
+    
+    <div class="alert alert-warning">
+        {{ conflict_message|safe }}
+    </div>
+    
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-primary text-white">
+                    <h5>Detalhes do Evento</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Evento:</strong> {{ event.title }}</p>
+                    <p><strong>Data/Hora Início:</strong> {{ event.start_datetime|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Data/Hora Fim:</strong> {{ event.end_datetime|date:"d/m/Y H:i" }}</p>
+                    <p><strong>Local:</strong> {{ event.location|default:"Não informado" }}</p>
+                    <p><strong>Cliente:</strong> {{ event.client.name }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-header bg-info text-white">
+                    <h5>Participante</h5>
+                </div>
+                <div class="card-body">
+                    <p><strong>Nome:</strong> {{ person.name }}</p>
+                    <p><strong>Função:</strong> {{ form.cleaned_data.role.nome|default:"Não informada" }}</p>
+                    <p><strong>Valor:</strong> R$ {{ form.cleaned_data.value|default:"0,00" }}</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="mt-4 d-flex justify-content-between">
+        <a href="{% url 'events:add_participant' event.id %}" class="btn btn-secondary">Cancelar</a>
+        
+        <form method="post" action="{% url 'events:confirm_add_participant' event.id %}">
+            {% csrf_token %}
+            {% for field in form.hidden_fields %}
+                {{ field }}
+            {% endfor %}
+            {% for field in form.visible_fields %}
+                <input type="hidden" name="{{ field.name }}" value="{{ field.value|default:'' }}">
+            {% endfor %}
+            <button type="submit" class="btn btn-warning">Adicionar Mesmo Assim</button>
+        </form>
+    </div>
+</div>
+{% endblock %}

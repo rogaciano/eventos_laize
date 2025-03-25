@@ -1,146 +1,180 @@
-# Guia de Migração de Dados: SQLite para PostgreSQL na VPS
+# Guia de Migração para PostgreSQL
 
-Este guia descreve o processo completo para migrar os dados do seu banco SQLite local para o PostgreSQL na VPS.
+Este guia descreve o processo para migrar o banco de dados do SQLite para o PostgreSQL no sistema de eventos.
 
-## Passo 1: Transferir os Arquivos Necessários para a VPS
+## Passo 1: Preparar o Ambiente Local
 
-1. Transfira os seguintes arquivos para a VPS usando SFTP (FileZilla ou outro cliente):
-   - O arquivo `data_export.zip` (contém todos os dados exportados)
-   - O script `events/management/commands/migrate_to_postgres.py`
-
+1. Instale o pacote psycopg2 (adaptador PostgreSQL para Python):
    ```
-   Caminho local: c:\projetos\eventos_laize\data_export.zip
-   Caminho na VPS: /home/seu_usuario/eventos_laize/data_export.zip
+   pip install psycopg2
+   ```
+
+2. Verifique se o PostgreSQL está instalado e funcionando no seu ambiente local.
+
+3. Certifique-se de que o arquivo `settings.py` está configurado com os dois bancos de dados:
+   ```python
+   DATABASES = {
+       'default': {
+           'ENGINE': 'django.db.backends.sqlite3',
+           'NAME': BASE_DIR / 'db.sqlite3',
+       },
+       'postgres': {
+           'ENGINE': 'django.db.backends.postgresql_psycopg2',
+           'NAME': 'agenciaatitude',
+           'USER': 'agenciaatitude',
+           'PASSWORD': '*Marien2012',
+           'HOST': 'localhost',
+           'PORT': '',
+       }
+   }
+   ```
+
+## Passo 2: Executar a Migração em Duas Etapas
+
+### Etapa 1: Exportar Dados do SQLite para JSON
+
+Execute o comando de exportação para gerar os arquivos JSON:
+
+```
+python manage.py migrate_to_postgres --export-only --export-path=data_export
+```
+
+Este comando irá:
+1. Criar um diretório `data_export` (se não existir)
+2. Exportar todos os dados do SQLite para arquivos JSON nesse diretório
+3. Cada modelo terá seu próprio arquivo JSON (ex: `events.event.json`)
+
+### Etapa 2: Importar Dados do JSON para PostgreSQL
+
+Execute o comando de importação para carregar os dados no PostgreSQL:
+
+```
+python manage.py migrate_to_postgres --import-only --export-path=data_export
+```
+
+Este comando irá:
+1. Ler os arquivos JSON do diretório `data_export`
+2. Importar os dados para o PostgreSQL na ordem correta
+3. Tratar adequadamente as relações ManyToMany e chaves estrangeiras
+
+## Passo 3: Verificar a Migração
+
+Após a migração, verifique se todos os dados foram transferidos corretamente:
+
+1. Acesse o sistema usando o banco PostgreSQL:
+   ```python
+   # No shell do Django
+   python manage.py shell
    
-   Caminho local: c:\projetos\eventos_laize\events\management\commands\migrate_to_postgres.py
-   Caminho na VPS: /home/seu_usuario/eventos_laize/events/management/commands/migrate_to_postgres.py
+   # Dentro do shell
+   from django.db import connections
+   connections.databases['default'] = connections.databases['postgres']
+   
+   # Agora você pode consultar os modelos normalmente
+   from events.models import Event
+   Event.objects.count()  # Deve mostrar o mesmo número de registros que no SQLite
    ```
 
-## Passo 2: Preparar o Ambiente na VPS
+2. Verifique especialmente os modelos com relações ManyToMany para garantir que todas as relações foram preservadas.
 
-1. Conecte-se à VPS via SSH:
-   ```
-   ssh seu_usuario@seu_servidor
-   ```
+## Passo 4: Transferir para o Servidor
 
-2. Navegue até o diretório do projeto:
+1. Copie o script de migração para o servidor:
    ```
-   cd /home/seu_usuario/eventos_laize
+   scp events/management/commands/migrate_to_postgres.py usuario@servidor:/caminho/para/projeto/events/management/commands/
    ```
 
-3. Descompacte o arquivo de dados:
+2. No servidor, crie um backup do banco SQLite atual:
    ```
-   unzip data_export.zip
-   ```
-
-4. Certifique-se de que a estrutura do banco de dados PostgreSQL está criada:
-   ```
-   python manage.py migrate
+   cp db.sqlite3 db.sqlite3.backup
    ```
 
-## Passo 3: Importar os Dados para o PostgreSQL
-
-1. Execute o comando de importação:
+3. Limpe os dados de teste do banco SQLite (opcional, se necessário):
    ```
-   python manage.py migrate_to_postgres --import-only
+   python manage.py flush
    ```
 
-2. Verifique se a importação foi bem-sucedida acessando o sistema e confirmando que os dados estão disponíveis.
-
-## Passo 4: Migrar Usuários e Permissões
-
-Como os usuários e permissões são gerenciados pelo Django Auth, precisamos transferi-los separadamente:
-
-1. Exporte os usuários do SQLite:
-   ```
-   python manage.py dumpdata auth.User auth.Group auth.Permission --indent 2 > users_export.json
-   ```
-
-2. Transfira o arquivo `users_export.json` para a VPS.
-
-3. Na VPS, importe os usuários para o PostgreSQL:
-   ```
-   python manage.py loaddata users_export.json
-   ```
-
-4. Verifique se os usuários foram importados corretamente:
-   ```
-   python manage.py shell -c "from django.contrib.auth.models import User; print(User.objects.all().values('username'))"
+4. Atualize o arquivo `settings.py` no servidor para incluir a configuração do PostgreSQL:
+   ```python
+   DATABASES = {
+       'default': {
+           'ENGINE': 'django.db.backends.sqlite3',
+           'NAME': BASE_DIR / 'db.sqlite3',
+       },
+       'postgres': {
+           'ENGINE': 'django.db.backends.postgresql_psycopg2',
+           'NAME': 'agenciaatitude',
+           'USER': 'agenciaatitude',
+           'PASSWORD': '*Marien2012',
+           'HOST': 'localhost',
+           'PORT': '',
+       }
+   }
    ```
 
-## Passo 5: Verificar a Integridade dos Dados
-
-1. Verifique se todos os dados foram importados corretamente:
+5. Execute a migração em duas etapas como descrito anteriormente:
    ```
-   python manage.py shell -c "from events.models import Event; print(Event.objects.count())"
-   python manage.py shell -c "from people.models import Person; print(Person.objects.count())"
-   python manage.py shell -c "from clients.models import Client; print(Client.objects.count())"
+   python manage.py migrate_to_postgres --export-only --export-path=data_export
+   python manage.py migrate_to_postgres --import-only --export-path=data_export
    ```
 
-2. Verifique se os relacionamentos estão corretos:
+## Passo 5: Atualizar a Configuração para Usar Apenas PostgreSQL
+
+1. Após confirmar que a migração foi bem-sucedida, atualize o arquivo `settings.py` para usar apenas o PostgreSQL:
+   ```python
+   DATABASES = {
+       'default': {
+           'ENGINE': 'django.db.backends.postgresql_psycopg2',
+           'NAME': 'agenciaatitude',
+           'USER': 'agenciaatitude',
+           'PASSWORD': '*Marien2012',
+           'HOST': 'localhost',
+           'PORT': '',
+       }
+   }
    ```
-   python manage.py shell -c "from events.models import Event; print(Event.objects.first().participants.count())"
+
+2. Reinicie o servidor Gunicorn:
    ```
-
-## Passo 6: Criar um Superusuário (se necessário)
-
-Se você precisar criar um novo superusuário no PostgreSQL:
-```
-python manage.py createsuperuser
-```
-
-## Passo 7: Reiniciar o Servidor Web
-
-1. Reinicie o servidor web para aplicar todas as alterações:
-   ```
-   sudo systemctl restart gunicorn
-   sudo systemctl restart nginx
+   systemctl restart gunicorn_agenciaatitude
    ```
 
 ## Solução de Problemas
 
-### Problema: Erro de conexão com o PostgreSQL
-- Verifique se o PostgreSQL está em execução: `sudo systemctl status postgresql`
-- Verifique as configurações de conexão em `settings_prod.py`
-- Certifique-se de que o usuário PostgreSQL tem as permissões corretas
+### Problema: Erro de Foreign Key Constraint
 
-### Problema: Erros durante a importação
-- Verifique os logs para identificar o problema específico
-- Pode ser necessário ajustar o script de migração para lidar com casos específicos
-- Verifique se todas as tabelas foram criadas corretamente com `python manage.py showmigrations`
+Se você encontrar erros de restrição de chave estrangeira durante a importação, isso geralmente ocorre porque os modelos estão sendo importados em uma ordem que não respeita as dependências. O script foi projetado para evitar isso, mas se ocorrer:
 
-### Problema: Dados ausentes após a importação
-- Verifique se todos os arquivos JSON foram transferidos corretamente
-- Certifique-se de que a ordem de importação está respeitando as dependências entre modelos
+1. Verifique se todos os modelos relacionados foram migrados corretamente
+2. Tente executar novamente o comando de importação
 
-## Observações Importantes
+### Problema: Dados Ausentes
 
-1. **Backup**: Sempre faça um backup do banco de dados PostgreSQL antes de importar novos dados.
-2. **Ambiente de Teste**: Se possível, teste a importação em um ambiente de teste antes de aplicar no ambiente de produção.
-3. **Configurações de Estilo**: As preferências de estilo (fundo claro para tabelas, listas de dados e inputs) serão mantidas, pois estão definidas nos templates e não no banco de dados.
-   - Verifique se o arquivo `templates/base/base.html` contém os estilos corretos para inputs e selects com fundo claro e texto escuro.
-   - Confirme que as tabelas e listas de dados (como categorias de custos, eventos, etc.) mantêm o estilo com fundo claro e texto escuro.
+Se você notar que alguns dados estão ausentes após a migração:
 
-## Verificação Final
+1. Verifique os arquivos JSON exportados para confirmar se os dados foram exportados corretamente
+2. Verifique se há erros nos logs durante a importação
+3. Para modelos específicos, você pode tentar migrar manualmente:
+   ```
+   python manage.py migrate_to_postgres --export-only --export-path=data_export_specific
+   # Edite os arquivos JSON conforme necessário
+   python manage.py migrate_to_postgres --import-only --export-path=data_export_specific
+   ```
 
-Após a migração, verifique os seguintes pontos para garantir que tudo está funcionando corretamente:
+### Problema: Erros de Conexão
 
-1. **Estilos e Aparência**:
-   - Verifique se todos os inputs e selects têm fundo claro e texto escuro, mesmo no tema escuro geral do sistema.
-   - Confirme que as tabelas e listas de dados mantêm o estilo com fundo claro e texto escuro para melhor legibilidade.
+Se você encontrar erros de conexão com o PostgreSQL:
 
-2. **Funcionalidades do Menu Móvel**:
-   - Teste o menu móvel em dispositivos reais para garantir que ele abre e fecha corretamente.
-   - Verifique se a diretiva `x-cloak` está funcionando corretamente para o menu móvel.
+1. Verifique se o PostgreSQL está em execução:
+   ```
+   systemctl status postgresql
+   ```
 
-3. **Visualização em Dispositivos Móveis**:
-   - Confirme que a visualização de eventos, pessoas e clientes está usando cards em dispositivos móveis.
-   - Verifique se as áreas de toque têm tamanho adequado para interação em dispositivos móveis.
+2. Verifique se as credenciais estão corretas no arquivo `settings.py`
 
-## Próximos Passos
-
-Após a migração bem-sucedida, você pode:
-1. Realizar testes abrangentes para garantir que todas as funcionalidades estão operando corretamente
-2. Monitorar o desempenho do sistema com o PostgreSQL
-3. Configurar backups automáticos para o PostgreSQL
-4. Considerar otimizações específicas para PostgreSQL, como índices adicionais para melhorar o desempenho
+3. Verifique se o usuário do PostgreSQL tem permissões adequadas:
+   ```
+   sudo -u postgres psql
+   postgres=# ALTER USER agenciaatitude WITH SUPERUSER;
+   postgres=# \q
+   ```

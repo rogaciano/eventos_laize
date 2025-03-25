@@ -6,6 +6,9 @@
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold">Eventos</h1>
     <div class="flex space-x-2">
+        <a href="{% url 'events:calendar' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-calendar-alt mr-2"></i>Calendário
+        </a>
         <a href="{% url 'events:create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
             <i class="fas fa-plus-circle mr-2"></i>Novo Evento
         </a>
