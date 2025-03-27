@@ -123,8 +123,8 @@
                                  aria-orientation="vertical" 
                                  tabindex="-1"
                                  x-cloak>
-                                <a href="{% url 'events:cost_category_list' %}" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700" role="menuitem">Categorias de Custos</a>
-                                <a href="{% url 'events:financial_report' %}" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700" role="menuitem">Relatório Financeiro</a>
+                                <a href="{% url 'events:cost_category_list' %}" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700" role="menuitem" tabindex="-1">Categorias de Custos</a>
+                                <a href="{% url 'events:financial_report' %}" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700" role="menuitem" tabindex="-1">Relatório Financeiro</a>
                             </div>
                         </div>
                         <a href="{% url 'landing:message_list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800 flex items-center">
@@ -168,6 +168,8 @@
                             {% if user.is_staff %}
                             <a href="{% url 'admin:index' %}" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700" role="menuitem" tabindex="-1">Admin</a>
                             {% endif %}
+                            <a href="{% url 'events:company_settings' %}" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700" role="menuitem" tabindex="-1">Dados da Empresa</a>
+                            <a href="{% url 'events:default_budget_settings' %}" class="block px-4 py-2 text-sm text-gray-200 hover:bg-gray-700" role="menuitem" tabindex="-1">Configurações de Orçamento</a>
                             <form method="post" action="{% url 'logout' %}">
                                 {% csrf_token %}
                                 <button type="submit" class="block w-full text-left px-4 py-2 text-sm text-gray-200 hover:bg-gray-700" role="menuitem" tabindex="-1">Sair</button>

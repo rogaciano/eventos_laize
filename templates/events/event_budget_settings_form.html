@@ -1,0 +1,115 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Configurações do Orçamento - {{ event.title }} - Gerenciador de Eventos{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-lg leading-6 font-medium text-gray-900">Configurações do Orçamento</h2>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ event.title }}</p>
+        </div>
+        <div>
+            <a href="{% url 'events:event_budget' event.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-arrow-left mr-2"></i> Voltar
+            </a>
+        </div>
+    </div>
+
+    <div class="px-4 py-5 sm:p-6">
+        {% if using_default_values %}
+        <div class="rounded-md bg-blue-50 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-blue-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+                        <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3 flex-1 md:flex md:justify-between">
+                    <p class="text-sm text-blue-700">
+                        Alguns campos foram preenchidos automaticamente com valores das configurações padrão.
+                    </p>
+                    <p class="mt-3 text-sm md:mt-0 md:ml-6">
+                        <a href="{% url 'events:default_budget_settings' %}" class="whitespace-nowrap font-medium text-blue-700 hover:text-blue-600">
+                            Editar padrões <span aria-hidden="true">&rarr;</span>
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <!-- Condições de Pagamento -->
+                <div class="sm:col-span-6">
+                    <label for="{{ form.payment_terms.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.payment_terms.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.payment_terms }}
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">Ex: 50% de entrada e 50% após o evento</p>
+                    {% if form.payment_terms.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.payment_terms.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Validade da Proposta -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.validity_days.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.validity_days.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.validity_days }}
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">Número de dias que a proposta é válida</p>
+                    {% if form.validity_days.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.validity_days.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Responsabilidades do Cliente -->
+                <div class="sm:col-span-6">
+                    <label for="{{ form.client_responsibilities.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.client_responsibilities.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.client_responsibilities }}
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">Ex: Fornecimento de alimentação, transporte, etc.</p>
+                    {% if form.client_responsibilities.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.client_responsibilities.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Observações Adicionais -->
+                <div class="sm:col-span-6">
+                    <label for="{{ form.additional_notes.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.additional_notes.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.additional_notes }}
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">Outras informações importantes para o orçamento</p>
+                    {% if form.additional_notes.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.additional_notes.errors }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="pt-5">
+                <div class="flex justify-end">
+                    <a href="{% url 'events:event_budget' event.id %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -51,6 +51,18 @@ urlpatterns = [
     # Gallery URLs
     path('event/<int:event_id>/gallery/', views.event_gallery, name='event_gallery'),
     path('event/<int:event_id>/gallery/add/', views.event_gallery_add, name='event_gallery_add'),
-    path('event/<int:event_id>/gallery/<int:gallery_id>/edit/', views.event_gallery_edit, name='event_gallery_edit'),
-    path('event/<int:event_id>/gallery/<int:gallery_id>/delete/', views.event_gallery_delete, name='event_gallery_delete'),
+    path('event/<int:event_id>/gallery/<int:photo_id>/edit/', views.event_gallery_edit, name='event_gallery_edit'),
+    path('event/<int:event_id>/gallery/<int:photo_id>/delete/', views.event_gallery_delete, name='event_gallery_delete'),
+    
+    # Budget URLs
+    path('event/<int:event_id>/budget/', views.event_budget, name='event_budget'),
+    path('event/<int:event_id>/budget/item/add/', views.event_budget_item_add, name='event_budget_item_add'),
+    path('event/<int:event_id>/budget/item/<int:item_id>/edit/', views.event_budget_item_edit, name='event_budget_item_edit'),
+    path('event/<int:event_id>/budget/item/<int:item_id>/delete/', views.event_budget_item_delete, name='event_budget_item_delete'),
+    path('event/<int:event_id>/budget/settings/', views.event_budget_settings, name='event_budget_settings'),
+    path('event/<int:event_id>/budget/pdf/', views.event_budget_pdf, name='event_budget_pdf'),
+    path('budget/default-settings/', views.default_budget_settings, name='default_budget_settings'),
+    
+    # Company Settings URL
+    path('company/settings/', views.company_settings, name='company_settings'),
 ]

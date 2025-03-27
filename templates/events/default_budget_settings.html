@@ -1,0 +1,104 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Configurações Padrão de Orçamento - Gerenciador de Eventos{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-lg leading-6 font-medium text-gray-900">Configurações Padrão de Orçamento</h2>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">Defina valores padrão que serão aplicados automaticamente a novos orçamentos</p>
+        </div>
+        <div>
+            <a href="{% url 'events:list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-arrow-left mr-2"></i> Voltar
+            </a>
+        </div>
+    </div>
+
+    <div class="px-4 py-5 sm:p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <!-- Condições de Pagamento -->
+                <div class="sm:col-span-6">
+                    <label for="{{ form.payment_terms.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.payment_terms.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.payment_terms }}
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">Exemplo: "50% de sinal e 50% no dia do evento."</p>
+                    {% if form.payment_terms.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.payment_terms.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Validade -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.validity_days.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.validity_days.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.validity_days }}
+                    </div>
+                    {% if form.validity_days.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.validity_days.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Responsabilidades do Cliente -->
+                <div class="sm:col-span-6">
+                    <label for="{{ form.client_responsibilities.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.client_responsibilities.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.client_responsibilities }}
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">Exemplo: "Providenciar local adequado para a realização do evento."</p>
+                    {% if form.client_responsibilities.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.client_responsibilities.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Observações Adicionais -->
+                <div class="sm:col-span-6">
+                    <label for="{{ form.additional_notes.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.additional_notes.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.additional_notes }}
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">Exemplo: "Valores sujeitos a alteração sem aviso prévio."</p>
+                    {% if form.additional_notes.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.additional_notes.errors }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="pt-5">
+                <div class="flex justify-end">
+                    <a href="{% url 'events:list' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        </form>
+        
+        <div class="mt-10 border-t border-gray-200 pt-6">
+            <h3 class="text-lg font-medium text-gray-900">Informações</h3>
+            <p class="mt-2 text-sm text-gray-500">
+                As configurações definidas aqui serão aplicadas automaticamente a todos os novos orçamentos criados.
+                Você ainda poderá personalizar cada orçamento individualmente conforme necessário.
+            </p>
+            <p class="mt-2 text-sm text-gray-500">
+                Última atualização: {{ default_settings.updated_at|date:"d/m/Y H:i" }}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

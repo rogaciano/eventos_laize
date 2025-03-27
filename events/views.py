@@ -5,10 +5,16 @@ from django.core import serializers
 import json
 from .models import Event, EventType, EventParticipant, Funcao, EventStatusHistory, EventGallery
 from people.models import Person
-from .forms import EventForm, EventTypeForm, EventParticipantForm, FuncaoForm, EventStatusHistoryForm, EventGalleryForm, EventCostForm
+from .forms import EventForm, EventTypeForm, EventParticipantForm, FuncaoForm, EventStatusHistoryForm, EventGalleryForm, EventCostForm, EventBudgetItemForm, BudgetSettingsForm, CompanySettingsForm, DefaultBudgetSettingsForm
 from .models_cost import EventCost, CostCategory
-from django.db.models import ProtectedError, Q, Count
+from .models_budget import EventBudgetItem, BudgetSettings, DefaultBudgetSettings
+from .models_company import CompanySettings
+from django.db.models import ProtectedError, Q, Count, Sum
 from django.core.paginator import Paginator
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from io import BytesIO
+from django.utils import timezone
 
 # Event views
 def event_list(request):
@@ -613,3 +619,275 @@ def event_gallery_delete(request, event_id, gallery_id):
         'subtitle': 'Confirmar exclusão da foto'
     }
     return render(request, 'events/event_gallery_confirm_delete.html', context)
+
+# Budget views
+def event_budget(request, event_id):
+    """View para gerenciar orçamento de um evento"""
+    event = get_object_or_404(Event, pk=event_id)
+    budget_items = EventBudgetItem.objects.filter(event=event).order_by('date', 'start_time')
+    
+    # Obter ou criar configurações de orçamento
+    budget_settings, created = BudgetSettings.objects.get_or_create(event=event)
+    
+    # Calcular o total do orçamento corretamente
+    total = sum(item.quantity * item.unit_value for item in budget_items)
+    
+    context = {
+        'event': event,
+        'budget_items': budget_items,
+        'budget_settings': budget_settings,
+        'total': total,
+    }
+    return render(request, 'events/event_budget.html', context)
+
+
+def event_budget_item_add(request, event_id):
+    """View para adicionar um item ao orçamento"""
+    event = get_object_or_404(Event, pk=event_id)
+    
+    if request.method == 'POST':
+        form = EventBudgetItemForm(request.POST)
+        if form.is_valid():
+            budget_item = form.save(commit=False)
+            budget_item.event = event
+            budget_item.save()
+            messages.success(request, 'Item adicionado ao orçamento com sucesso!')
+            return redirect('events:event_budget', event_id=event.id)
+    else:
+        # Gerar código automático baseado na quantidade de itens existentes
+        next_code = EventBudgetItem.objects.filter(event=event).count() + 1
+        form = EventBudgetItemForm(initial={'code': f'0{next_code}'})
+    
+    context = {
+        'event': event,
+        'form': form,
+    }
+    return render(request, 'events/event_budget_item_form.html', context)
+
+
+def event_budget_item_edit(request, event_id, item_id):
+    """View para editar um item do orçamento"""
+    event = get_object_or_404(Event, pk=event_id)
+    budget_item = get_object_or_404(EventBudgetItem, pk=item_id, event=event)
+    
+    if request.method == 'POST':
+        form = EventBudgetItemForm(request.POST, instance=budget_item)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Item do orçamento atualizado com sucesso!')
+            return redirect('events:event_budget', event_id=event.id)
+    else:
+        # Preparar dados iniciais para garantir que a data seja exibida corretamente
+        initial_data = {
+            'code': budget_item.code,
+            'description': budget_item.description,
+            'date': budget_item.date,
+            'start_time': budget_item.start_time,
+            'end_time': budget_item.end_time,
+            'quantity': budget_item.quantity,
+            'unit_value': budget_item.unit_value,
+        }
+        form = EventBudgetItemForm(instance=budget_item, initial=initial_data)
+    
+    context = {
+        'event': event,
+        'form': form,
+        'budget_item': budget_item,
+    }
+    return render(request, 'events/event_budget_item_form.html', context)
+
+
+def event_budget_item_delete(request, event_id, item_id):
+    """View para excluir um item do orçamento"""
+    event = get_object_or_404(Event, pk=event_id)
+    budget_item = get_object_or_404(EventBudgetItem, pk=item_id, event=event)
+    
+    if request.method == 'POST':
+        budget_item.delete()
+        messages.success(request, 'Item do orçamento excluído com sucesso!')
+        return redirect('events:event_budget', event_id=event.id)
+    
+    context = {
+        'event': event,
+        'budget_item': budget_item,
+    }
+    return render(request, 'events/event_budget_item_confirm_delete.html', context)
+
+
+def event_budget_settings(request, event_id):
+    """View para configurar as opções do orçamento"""
+    event = get_object_or_404(Event, pk=event_id)
+    
+    # Obter ou criar configurações de orçamento
+    try:
+        budget_settings = BudgetSettings.objects.get(event=event)
+        is_new = False
+    except BudgetSettings.DoesNotExist:
+        # Criar a partir das configurações padrão
+        budget_settings = BudgetSettings.create_from_default(event)
+        is_new = True
+    
+    # Obter as configurações padrão
+    default_settings = DefaultBudgetSettings.get_default()
+    
+    # Verificar se algum campo está vazio e preencher com valor padrão
+    fields_updated = False
+    
+    if not budget_settings.payment_terms and default_settings.payment_terms:
+        budget_settings.payment_terms = default_settings.payment_terms
+        fields_updated = True
+    
+    if not budget_settings.validity_days and default_settings.validity_days:
+        budget_settings.validity_days = default_settings.validity_days
+        fields_updated = True
+    
+    if not budget_settings.client_responsibilities and default_settings.client_responsibilities:
+        budget_settings.client_responsibilities = default_settings.client_responsibilities
+        fields_updated = True
+    
+    if not budget_settings.additional_notes and default_settings.additional_notes:
+        budget_settings.additional_notes = default_settings.additional_notes
+        fields_updated = True
+    
+    # Se algum campo foi atualizado com valores padrão, salvar as alterações
+    if fields_updated or is_new:
+        budget_settings.save()
+    
+    if request.method == 'POST':
+        form = BudgetSettingsForm(request.POST, instance=budget_settings)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Configurações do orçamento atualizadas com sucesso!')
+            return redirect('events:event_budget', event_id=event.id)
+    else:
+        form = BudgetSettingsForm(instance=budget_settings)
+    
+    context = {
+        'event': event,
+        'form': form,
+        'using_default_values': fields_updated,
+    }
+    return render(request, 'events/event_budget_settings_form.html', context)
+
+
+def event_budget_pdf(request, event_id):
+    """View para gerar o PDF do orçamento"""
+    from django.http import HttpResponse
+    from django.template.loader import get_template
+    from xhtml2pdf import pisa
+    from io import BytesIO
+    from django.conf import settings
+    import os
+    
+    event = get_object_or_404(Event, pk=event_id)
+    budget_items = EventBudgetItem.objects.filter(event=event).order_by('date', 'start_time')
+    budget_settings, created = BudgetSettings.objects.get_or_create(event=event)
+    company = CompanySettings.get_default()
+    
+    # Obter configurações padrão para dados bancários se não estiverem definidos no orçamento específico
+    default_settings = DefaultBudgetSettings.get_default()
+    if not hasattr(budget_settings, 'bank_details') or not budget_settings.bank_details:
+        budget_settings.bank_details = default_settings.bank_details
+    
+    # Calcular o total do orçamento corretamente
+    total = sum(item.quantity * item.unit_value for item in budget_items)
+    
+    # Caminho absoluto para a logo
+    logo_path = os.path.join(settings.STATICFILES_DIRS[0], 'img', 'brand', 'logo_orcamento.jpg')
+    logo_exists = os.path.exists(logo_path)
+    
+    # Preparar o contexto para o template
+    context = {
+        'event': event,
+        'budget_items': budget_items,
+        'budget_settings': budget_settings,
+        'company': company,
+        'total': total,
+        'today': timezone.now().date(),
+        'STATIC_ROOT': settings.STATICFILES_DIRS[0],
+        'logo_path': logo_path if logo_exists else None,
+    }
+    
+    # Função para lidar com URLs em xhtml2pdf
+    def link_callback(uri, rel):
+        """
+        Converte URLs de HTML para caminhos absolutos para o PDF
+        """
+        # Caminho base para arquivos estáticos
+        sUrl = settings.STATIC_ROOT
+        
+        # Se a URI é um caminho absoluto de arquivo
+        if uri.startswith('/'):
+            path = os.path.join(settings.BASE_DIR, uri[1:])
+            return path
+        
+        # Se a URI é um caminho relativo
+        if uri.startswith('static/'):
+            path = os.path.join(settings.STATICFILES_DIRS[0], uri[7:])
+            return path
+            
+        # Se a URI é um caminho para a logo
+        if uri.startswith('file:///'):
+            return uri[8:]
+            
+        # Se a URI é um caminho para media
+        if uri.startswith('media/'):
+            path = os.path.join(settings.MEDIA_ROOT, uri[6:])
+            return path
+            
+        return uri
+    
+    # Renderizar o template HTML
+    template = get_template('events/event_budget_pdf.html')
+    html = template.render(context)
+    
+    # Criar o arquivo PDF
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result, link_callback=link_callback)
+    
+    if not pdf.err:
+        response = HttpResponse(result.getvalue(), content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="orcamento_{event.id}.pdf"'
+        return response
+    
+    return HttpResponse('Erro ao gerar PDF', status=400)
+
+# Default Budget Settings views
+def default_budget_settings(request):
+    """View para gerenciar as configurações padrão de orçamentos"""
+    default_settings = DefaultBudgetSettings.get_default()
+    
+    if request.method == 'POST':
+        form = DefaultBudgetSettingsForm(request.POST, instance=default_settings)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Configurações padrão de orçamento atualizadas com sucesso!')
+            return redirect('events:default_budget_settings')
+    else:
+        form = DefaultBudgetSettingsForm(instance=default_settings)
+    
+    context = {
+        'form': form,
+        'default_settings': default_settings,
+    }
+    return render(request, 'events/default_budget_settings.html', context)
+
+# Company Settings views
+def company_settings(request):
+    """View para gerenciar as configurações da empresa"""
+    company = CompanySettings.get_default()
+    
+    if request.method == 'POST':
+        form = CompanySettingsForm(request.POST, request.FILES, instance=company)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Configurações da empresa atualizadas com sucesso!')
+            return redirect('events:company_settings')
+    else:
+        form = CompanySettingsForm(instance=company)
+    
+    context = {
+        'form': form,
+        'company': company,
+    }
+    return render(request, 'events/company_settings.html', context)

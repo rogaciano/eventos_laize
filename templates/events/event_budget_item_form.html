@@ -1,0 +1,131 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{% if budget_item %}Editar Item{% else %}Adicionar Item{% endif %} - Orçamento - {{ event.title }} - Gerenciador de Eventos{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-lg leading-6 font-medium text-gray-900">
+                {% if budget_item %}Editar Item do Orçamento{% else %}Adicionar Item ao Orçamento{% endif %}
+            </h2>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">{{ event.title }}</p>
+        </div>
+        <div>
+            <a href="{% url 'events:event_budget' event.id %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-arrow-left mr-2"></i> Voltar
+            </a>
+        </div>
+    </div>
+
+    <div class="px-4 py-5 sm:p-6">
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <!-- Código -->
+                <div class="sm:col-span-1">
+                    <label for="{{ form.code.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.code.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.code }}
+                    </div>
+                    {% if form.code.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.code.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Descrição -->
+                <div class="sm:col-span-5">
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.description.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.description }}
+                    </div>
+                    {% if form.description.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.description.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Data -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.date.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.date.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.date }}
+                    </div>
+                    {% if form.date.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.date.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Horário Inicial -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.start_time.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.start_time.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.start_time }}
+                    </div>
+                    {% if form.start_time.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.start_time.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Horário Final -->
+                <div class="sm:col-span-2">
+                    <label for="{{ form.end_time.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.end_time.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.end_time }}
+                    </div>
+                    {% if form.end_time.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.end_time.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Quantidade -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.quantity.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.quantity.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.quantity }}
+                    </div>
+                    {% if form.quantity.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.quantity.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Valor Unitário -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.unit_value.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.unit_value.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.unit_value }}
+                    </div>
+                    {% if form.unit_value.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.unit_value.errors }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="pt-5">
+                <div class="flex justify-end">
+                    <a href="{% url 'events:event_budget' event.id %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

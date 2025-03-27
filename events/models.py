@@ -1,6 +1,12 @@
 from django.db import models
-from clients.models import Client
+from django.utils import timezone
+from django.core.validators import MinValueValidator
+from django.core.exceptions import ValidationError
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 from people.models import Person
+from clients.models import Client
+from .models_company import CompanySettings
 from django.db.models import Sum
 from decimal import Decimal
 

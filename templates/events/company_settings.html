@@ -1,0 +1,152 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Configurações da Empresa - Gerenciador de Eventos{% endblock %}
+
+{% block content %}
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6 flex justify-between items-center">
+        <div>
+            <h2 class="text-lg leading-6 font-medium text-gray-900">Configurações da Empresa</h2>
+            <p class="mt-1 max-w-2xl text-sm text-gray-500">Informações que serão utilizadas em documentos e relatórios</p>
+        </div>
+        <div>
+            <a href="{% url 'events:list' %}" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                <i class="fas fa-arrow-left mr-2"></i> Voltar
+            </a>
+        </div>
+    </div>
+
+    <div class="px-4 py-5 sm:p-6">
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="grid grid-cols-1 gap-y-6 gap-x-4 sm:grid-cols-6">
+                <!-- Nome da Empresa -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.name.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.name }}
+                    </div>
+                    {% if form.name.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.name.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- CNPJ -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.cnpj.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.cnpj.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.cnpj }}
+                    </div>
+                    {% if form.cnpj.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.cnpj.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Endereço -->
+                <div class="sm:col-span-6">
+                    <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.address.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.address }}
+                    </div>
+                    {% if form.address.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.address.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Telefone -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.phone.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.phone.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.phone }}
+                    </div>
+                    {% if form.phone.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.phone.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- E-mail -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.email.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.email.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.email }}
+                    </div>
+                    {% if form.email.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.email.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Logo -->
+                <div class="sm:col-span-6">
+                    <label for="{{ form.logo.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.logo.label }}
+                    </label>
+                    <div class="mt-1 flex items-center">
+                        {% if company.logo %}
+                        <div class="mr-4">
+                            <img src="{{ company.logo.url }}" alt="Logo da empresa" class="h-20 w-auto">
+                        </div>
+                        {% endif %}
+                        <div class="flex-1">
+                            {{ form.logo }}
+                        </div>
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">Recomendado: imagem de 150x60 pixels</p>
+                    {% if form.logo.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.logo.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Nome para Assinatura -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.signature_name.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.signature_name.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.signature_name }}
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">Nome que aparecerá nas assinaturas de documentos</p>
+                    {% if form.signature_name.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.signature_name.errors }}</p>
+                    {% endif %}
+                </div>
+                
+                <!-- Cargo/Título -->
+                <div class="sm:col-span-3">
+                    <label for="{{ form.signature_title.id_for_label }}" class="block text-sm font-medium text-gray-700">
+                        {{ form.signature_title.label }}
+                    </label>
+                    <div class="mt-1">
+                        {{ form.signature_title }}
+                    </div>
+                    <p class="mt-2 text-sm text-gray-500">Cargo ou título que aparecerá abaixo do nome nas assinaturas</p>
+                    {% if form.signature_title.errors %}
+                    <p class="mt-2 text-sm text-red-600">{{ form.signature_title.errors }}</p>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="pt-5">
+                <div class="flex justify-end">
+                    <a href="{% url 'events:list' %}" class="bg-white py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="ml-3 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                        Salvar
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

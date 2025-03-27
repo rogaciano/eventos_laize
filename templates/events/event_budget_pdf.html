@@ -1,0 +1,222 @@
+{% load event_filters %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Orçamento - {{ event.title }}</title>
+    <style>
+        @page {
+            size: a4 portrait;
+            margin: 2cm;
+        }
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <!-- Cabeçalho com logo à esquerda e dados da empresa à direita -->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td width="30%" align="left" valign="top">
+                {% if logo_path %}
+                <img src="file:///{{ logo_path }}" alt="Logo" width="150">
+                {% endif %}
+            </td>
+            <td width="70%" align="right" valign="top">
+                <h2>{{ company.name }}</h2>
+                <p>{{ company.address }}</p>
+                <p>{{ company.phone }} | {{ company.email }}</p>
+                {% if company.website %}<p>{{ company.website }}</p>{% endif %}
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Informações do cliente -->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px;">
+        <tr>
+            <td>
+                <h3>Cliente: {{ event.client }}</h3>
+                <p>Evento: {{ event.title }}</p>
+                <p>Data: {{ event.start_datetime|date:"d/m/Y" }}</p>
+                <p>Local: {{ event.location }}</p>
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Título da proposta -->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px;">
+        <tr>
+            <td align="center">
+                <h1>1. Do valor da proposta:</h1>
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Tabela de itens do orçamento -->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0">
+        <tr>
+            <td>
+                <table width="100%" border="1" cellpadding="5" cellspacing="0" style="border-collapse: collapse;">
+                    <!-- Cabeçalho da tabela -->
+                    <tr bgcolor="#f2f2f2">
+                        <td width="8%" align="center"><strong>Cód.</strong></td>
+                        <td width="64%" align="left"><strong>Descrição</strong></td>
+                        <td width="8%" align="center"><strong>Qtd.</strong></td>
+                        <td width="10%" align="right"><strong>Valor (R$)</strong></td>
+                        <td width="10%" align="right"><strong>Valor Total</strong></td>
+                    </tr>
+                    
+                    <!-- Itens do orçamento -->
+                    {% for item in budget_items %}
+                    <tr {% if forloop.counter|divisibleby:2 %}bgcolor="#f9f9f9"{% endif %}>
+                        <td width="8%" align="center">{{ item.code }}</td>
+                        <td width="64%" align="left">
+                            {{ item.description|linebreaks }}
+                            <div style="font-size: 11px; color: #666;">
+                                Data: {{ item.date|date:"d/m/Y" }} - 
+                                Horário: {{ item.start_time|time:"H:i" }} às {{ item.end_time|time:"H:i" }}
+                            </div>
+                        </td>
+                        <td width="8%" align="center">{{ item.quantity }}</td>
+                        <td width="10%" align="right">{{ item.unit_value|floatformat:2 }}</td>
+                        <td width="10%" align="right">{{ item.total_value|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                    
+                    <!-- Linha de total -->
+                    <tr>
+                        <td colspan="4" align="right"><strong>Total:</strong></td>
+                        <td width="10%" align="right"><strong>{{ total|floatformat:2 }}</strong></td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Condições de pagamento -->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px;">
+        <tr>
+            <td>
+                <h2>2. Condições de Pagamento:</h2>
+                <p>{{ budget_settings.payment_terms|linebreaks }}</p>
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Dados bancários -->
+    {% if budget_settings.bank_details %}
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 10px;">
+        <tr>
+            <td>
+                <div style="border: 1px solid #ddd; padding: 10px; background-color: #f9f9f9;">
+                    <h3 style="margin-top: 0; margin-bottom: 5px;">Dados Bancários:</h3>
+                    <p style="margin: 0;">{{ budget_settings.bank_details|linebreaks }}</p>
+                </div>
+            </td>
+        </tr>
+    </table>
+    {% endif %}
+    
+    <!-- Validade da proposta -->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px;">
+        <tr>
+            <td>
+                <h2>3. Validade da Proposta:</h2>
+                <p>Esta proposta tem validade de {{ budget_settings.validity_days }} dias a partir da data de emissão.</p>
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Responsabilidades do cliente -->
+    {% if budget_settings.client_responsibilities %}
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px;">
+        <tr>
+            <td>
+                <h2>4. Responsabilidades do Cliente:</h2>
+                <p>{{ budget_settings.client_responsibilities|linebreaks }}</p>
+            </td>
+        </tr>
+    </table>
+    {% endif %}
+    
+    <!-- Observações adicionais -->
+    {% if budget_settings.additional_notes %}
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px;">
+        <tr>
+            <td>
+                <h2>5. Observações Adicionais:</h2>
+                <p>{{ budget_settings.additional_notes|linebreaks }}</p>
+            </td>
+        </tr>
+    </table>
+    {% endif %}
+    
+    <!-- Rodapé com data e assinatura -->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 30px;">
+        <tr>
+            <td>
+                <p>Data de emissão: {{ today|date:"d/m/Y" }}</p>
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Formulário de aceite com espaçamento reduzido -->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 20px;">
+        <tr>
+            <td align="center">
+                <div style="border: 1px solid #000; padding: 10px; width: 80%; margin: 0 auto;">
+                    <h3 style="text-align: center; margin-top: 0; margin-bottom: 10px; text-decoration: underline;">ACEITE</h3>
+                    
+                    <table width="100%" border="0" cellspacing="0" cellpadding="3">
+                        <tr>
+                            <td width="20%" style="padding-bottom: 3px;"><strong>CLIENTE:</strong></td>
+                            <td width="80%" style="border-bottom: 1px solid #000; padding-bottom: 3px;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-bottom: 3px; padding-top: 3px;"><strong>CNPJ:</strong></td>
+                            <td style="border-bottom: 1px solid #000; padding-bottom: 3px; padding-top: 3px;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-bottom: 3px; padding-top: 3px;"><strong>CPF:</strong></td>
+                            <td style="border-bottom: 1px solid #000; padding-bottom: 3px; padding-top: 3px;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-bottom: 3px; padding-top: 3px;"><strong>ENDEREÇO:</strong></td>
+                            <td style="border-bottom: 1px solid #000; padding-bottom: 3px; padding-top: 3px;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-bottom: 3px; padding-top: 3px;"><strong>CONTATO:</strong></td>
+                            <td style="border-bottom: 1px solid #000; padding-bottom: 3px; padding-top: 3px;">&nbsp;</td>
+                        </tr>
+                        <tr>
+                            <td style="padding-bottom: 3px; padding-top: 3px;"><strong>EMAIL:</strong></td>
+                            <td style="border-bottom: 1px solid #000; padding-bottom: 3px; padding-top: 3px;">&nbsp;</td>
+                        </tr>
+                    </table>
+                    
+                    <p style="text-align: center; margin-top: 15px; margin-bottom: 15px;">
+                        Aprovado em: _____ de __________________ de {{ today|date:"Y" }}
+                    </p>
+                    
+                    <p style="text-align: center; margin-top: 15px; margin-bottom: 5px;">
+                        _______________________________________<br>
+                        Assinatura e Carimbo
+                    </p>
+                </div>
+            </td>
+        </tr>
+    </table>
+    
+    <!-- Rodapé final -->
+    <table width="100%" border="0" cellspacing="0" cellpadding="0" style="margin-top: 10px;">
+        <tr>
+            <td align="center">
+                <p style="font-size: 10px;">* Favor confirmar o pedido por: {{ company.phone }} / {{ company.email }}</p>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
