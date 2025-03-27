@@ -3,8 +3,8 @@ from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
-from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero, WhatsAppMessage
-from .forms import PersonForm, PersonContactForm
+from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero, WhatsAppMessage, ProfessionalCategory
+from .forms import PersonForm, PersonContactForm, ProfessionalCategoryForm
 import os
 from datetime import date, datetime
 from io import BytesIO
@@ -34,6 +34,8 @@ def person_list(request):
     cidade = request.GET.get('cidade', '')
     estado = request.GET.get('estado', '')
     manequim = request.GET.get('manequim', '')
+    status = request.GET.get('status', '')
+    professional_category_ids = request.GET.getlist('professional_categories', [])
     
     # Filtros de intervalo para características numéricas
     altura_min = request.GET.get('altura_min', '')
@@ -78,6 +80,13 @@ def person_list(request):
     if manequim:
         persons = persons.filter(manequim__iexact=manequim)
     
+    if status:
+        persons = persons.filter(status=status)
+    
+    if professional_category_ids:
+        # Filtrar pessoas que pertencem a pelo menos uma das categorias selecionadas
+        persons = persons.filter(professional_categories__id__in=professional_category_ids).distinct()
+    
     # Aplicar filtros de intervalo para características numéricas
     if altura_min:
         try:
@@ -108,7 +117,6 @@ def person_list(request):
             pass
     
     # Para idade, precisamos calcular com base na data de nascimento
-    from datetime import date
     hoje = date.today()
     
     if idade_min:
@@ -170,6 +178,7 @@ def person_list(request):
     cores_cabelo = CorCabelo.objects.all()
     cores_pele = CorPele.objects.all()
     generos = Genero.objects.all()
+    professional_categories = ProfessionalCategory.objects.all()
     
     # Obter lista única de cidades e estados para os dropdowns
     cidades = Person.objects.exclude(city__isnull=True).exclude(city='').values_list('city', flat=True).distinct().order_by('city')
@@ -185,6 +194,7 @@ def person_list(request):
         'cores_cabelo': cores_cabelo,
         'cores_pele': cores_pele,
         'generos': generos,
+        'professional_categories': professional_categories,
         'cidades': cidades,
         'estados': estados,
         'manequins': manequins,
@@ -192,9 +202,11 @@ def person_list(request):
         'cor_cabelo_id': cor_cabelo_id,
         'cor_pele_id': cor_pele_id,
         'genero_id': genero_id,
+        'professional_category_ids': professional_category_ids,
         'cidade': cidade,
         'estado': estado,
         'manequim': manequim,
+        'status': status,
         'altura_min': altura_min,
         'altura_max': altura_max,
         'peso_min': peso_min,
@@ -241,6 +253,19 @@ def person_create(request):
         form = PersonForm(post_data, request.FILES)
         if form.is_valid():
             person = form.save()
+            
+            # Processar novas categorias profissionais
+            new_categories = request.POST.getlist('new_categories', [])
+            if new_categories:
+                for category_name in new_categories:
+                    # Criar nova categoria se não existir
+                    category, created = ProfessionalCategory.objects.get_or_create(
+                        nome=category_name,
+                        defaults={'descricao': f'Categoria criada automaticamente a partir do cadastro de {person.name}'}
+                    )
+                    # Adicionar à pessoa
+                    person.professional_categories.add(category)
+            
             messages.success(request, 'Pessoa cadastrada com sucesso!')
             return redirect('people:detail', person_id=person.id)
     else:
@@ -283,6 +308,18 @@ def person_update(request, person_id):
             
             # Importante: salvar os campos many-to-many, se houver
             form.save_m2m()
+            
+            # Processar novas categorias profissionais
+            new_categories = request.POST.getlist('new_categories', [])
+            if new_categories:
+                for category_name in new_categories:
+                    # Criar nova categoria se não existir
+                    category, created = ProfessionalCategory.objects.get_or_create(
+                        nome=category_name,
+                        defaults={'descricao': f'Categoria criada automaticamente a partir da edição de {person.name}'}
+                    )
+                    # Adicionar à pessoa
+                    person.professional_categories.add(category)
             
             messages.success(request, 'Dados atualizados com sucesso!')
             return redirect('people:detail', person_id=person.id)
@@ -420,6 +457,7 @@ def generate_person_report_pdf(request):
     cidade = request.GET.get('cidade', '')
     estado = request.GET.get('estado', '')
     manequim = request.GET.get('manequim', '')
+    professional_category_id = request.GET.get('professional_category', '')
     
     # Filtros de intervalo para características numéricas
     altura_min = request.GET.get('altura_min', '')
@@ -444,6 +482,9 @@ def generate_person_report_pdf(request):
     
     if genero_id:
         persons = persons.filter(genero_id=genero_id)
+    
+    if professional_category_id:
+        persons = persons.filter(professional_category_id=professional_category_id)
     
     if cidade:
         persons = persons.filter(city__icontains=cidade)
@@ -872,3 +913,98 @@ def whatsapp_webhook(request):
     except Exception as e:
         logger.error(f"Error processing webhook: {e}")
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+# Views para Categorias Profissionais
+def professional_category_list(request):
+    categories = ProfessionalCategory.objects.all().order_by('name')
+    return render(request, 'people/professional_category_list.html', {
+        'categories': categories
+    })
+
+def update_person_status(request, person_id):
+    person = get_object_or_404(Person, pk=person_id)
+    
+    if request.method == 'POST':
+        new_status = request.POST.get('status')
+        reason = request.POST.get('reason')
+        
+        # Verificar se o status é válido
+        valid_statuses = [status[0] for status in Person.STATUS_CHOICES]
+        if new_status not in valid_statuses:
+            messages.error(request, f'Status inválido: {new_status}')
+            return redirect('people:detail', person_id=person.id)
+        
+        # Obter o nome do status para exibição
+        status_display = dict(Person.STATUS_CHOICES).get(new_status)
+        
+        # Salvar o status anterior para o registro de ocorrência
+        old_status_display = dict(Person.STATUS_CHOICES).get(person.status)
+        
+        # Atualizar o status da pessoa
+        person.status = new_status
+        person.save()
+        
+        # Criar uma ocorrência para registrar a mudança de status
+        from occurrences.models import Occurrence
+        
+        # Obter o nome do usuário que fez a alteração
+        user_name = request.user.username if request.user.is_authenticated else 'Usuário não autenticado'
+        
+        description = f"Status alterado de '{old_status_display}' para '{status_display}'.\n\nMotivo: {reason}"
+        
+        Occurrence.objects.create(
+            related_to='person',
+            person=person,
+            description=description,
+            status='resolved',  # Já marcamos como resolvido
+            created_by=user_name  # Registrar o usuário que fez a alteração
+        )
+        
+        messages.success(request, f'Status atualizado para: {status_display}')
+        
+    return redirect('people:detail', person_id=person.id)
+
+def professional_category_create(request):
+    if request.method == 'POST':
+        form = ProfessionalCategoryForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Categoria profissional criada com sucesso!')
+            return redirect('people:professional_category_list')
+    else:
+        form = ProfessionalCategoryForm()
+    
+    return render(request, 'people/professional_category_form.html', {
+        'form': form,
+        'title': 'Nova Categoria Profissional'
+    })
+
+def professional_category_update(request, category_id):
+    category = get_object_or_404(ProfessionalCategory, id=category_id)
+    
+    if request.method == 'POST':
+        form = ProfessionalCategoryForm(request.POST, instance=category)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Categoria profissional atualizada com sucesso!')
+            return redirect('people:professional_category_list')
+    else:
+        form = ProfessionalCategoryForm(instance=category)
+    
+    return render(request, 'people/professional_category_form.html', {
+        'form': form,
+        'category': category,
+        'title': 'Editar Categoria Profissional'
+    })
+
+def professional_category_delete(request, category_id):
+    category = get_object_or_404(ProfessionalCategory, id=category_id)
+    
+    if request.method == 'POST':
+        category.delete()
+        messages.success(request, 'Categoria profissional excluída com sucesso!')
+        return redirect('people:professional_category_list')
+    
+    return render(request, 'people/professional_category_confirm_delete.html', {
+        'category': category
+    })

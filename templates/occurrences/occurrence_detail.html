@@ -70,18 +70,25 @@
             </div>
             
             <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                <dt class="text-sm font-medium text-gray-500">Criado por</dt>
+                <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                    {{ occurrence.created_by|default:"Não informado" }}
+                </dd>
+            </div>
+            
+            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Data de Criação</dt>
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ occurrence.created_at|date:"d/m/Y H:i" }}</dd>
             </div>
             
             {% if occurrence.updated_at and occurrence.updated_at != occurrence.created_at %}
-            <div class="bg-white px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+            <div class="bg-gray-50 px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500">Última Atualização</dt>
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ occurrence.updated_at|date:"d/m/Y H:i" }}</dd>
             </div>
             {% endif %}
             
-            <div class="bg-gray-50 px-4 py-5 sm:px-6">
+            <div class="bg-white px-4 py-5 sm:px-6">
                 <dt class="text-sm font-medium text-gray-500 mb-2">Descrição</dt>
                 <dd class="mt-1 text-sm text-gray-900 sm:mt-0 whitespace-pre-wrap rounded-md bg-white p-4 border border-gray-200">{{ occurrence.description }}</dd>
             </div>

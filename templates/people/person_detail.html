@@ -6,12 +6,48 @@
 <div class="bg-white shadow overflow-hidden sm:rounded-lg">
     <div class="flex justify-between items-center px-4 py-5 sm:px-6">
         <div>
-            <h1 class="text-2xl font-bold text-gray-900">{{ person.name }}</h1>
+            <div class="flex items-center">
+                <h1 class="text-2xl font-bold text-gray-900">{{ person.name }}</h1>
+                <div class="ml-3">
+                    {% if person.status == 'ativo' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            Ativo
+                        </span>
+                    {% elif person.status == 'inativo' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                            Inativo
+                        </span>
+                    {% elif person.status == 'pendente' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                            Pendente
+                        </span>
+                    {% elif person.status == 'bloqueado' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                            Bloqueado
+                        </span>
+                    {% elif person.status == 'em_avaliacao' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                            Em Avaliação
+                        </span>
+                    {% elif person.status == 'licenca_temporaria' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                            Licença Temporária
+                        </span>
+                    {% elif person.status == 'arquivado' %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-500">
+                            Arquivado
+                        </span>
+                    {% endif %}
+                </div>
+            </div>
             <p class="mt-1 max-w-2xl text-sm text-gray-500">
                 {% if person.city %}{{ person.city }}{% if person.state %}, {{ person.state }}{% endif %}{% endif %}
             </p>
         </div>
         <div class="flex space-x-2">
+            <button type="button" onclick="openStatusModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-exchange-alt mr-2"></i>Mudar Situação
+            </button>
             <a href="{% url 'people:update' person.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
                 <i class="fas fa-edit mr-2"></i>Editar
             </a>
@@ -69,11 +105,29 @@
                         <dt class="text-sm font-medium text-gray-500">Documento</dt>
                         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ person.document_id|default:"Não informado" }}</dd>
                     </div>
+                    
                     <div class="bg-white px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">Categorias Profissionais</dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            {% if person.professional_categories.all %}
+                                <div class="flex flex-wrap gap-1">
+                                    {% for category in person.professional_categories.all %}
+                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                            {{ category.name }}
+                                        </span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <span class="text-gray-500">Nenhuma categoria atribuída</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+                    
+                    <div class="bg-gray-50 px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                         <dt class="text-sm font-medium text-gray-500">Chave Pix</dt>
                         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ person.pix|default:"Não informado" }}</dd>
                     </div>
-                    <div class="bg-gray-50 px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <div class="bg-white px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                         <dt class="text-sm font-medium text-gray-500">Endereço</dt>
                         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                             {{ person.address|default:"" }}
@@ -86,13 +140,13 @@
                             {% if person.zipcode %}<br>CEP: {{ person.zipcode }}{% endif %}
                         </dd>
                     </div>
-                    <div class="bg-white px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <div class="bg-gray-50 px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                         <dt class="text-sm font-medium text-gray-500">Observações</dt>
                         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ person.notes|linebreaks|default:"Sem observações" }}</dd>
                     </div>
                     
                     <!-- Características Físicas -->
-                    <div class="bg-gray-50 px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                    <div class="bg-white px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                         <dt class="text-sm font-medium text-gray-500">Características Físicas</dt>
                         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                             <div class="grid grid-cols-2 gap-x-4 gap-y-2">
@@ -437,4 +491,47 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Modal para mudar status -->
+<div id="status-modal" class="hidden fixed top-0 left-0 z-50 w-full h-full bg-gray-900 bg-opacity-75 flex items-center justify-center">
+    <div class="bg-white rounded-lg shadow-md p-6 w-1/2">
+        <h2 class="text-xl font-bold text-gray-900 mb-4">Mudar Situação</h2>
+        <form action="{% url 'people:update_status' person.id %}" method="post">
+            {% csrf_token %}
+            <div class="mb-4">
+                <label for="status" class="block text-sm font-medium text-gray-700">Selecione o novo status:</label>
+                <select id="status" name="status" class="block w-full py-2 pl-3 pr-10 text-base text-gray-700 border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm">
+                    <option value="ativo" {% if person.status == 'ativo' %}selected{% endif %}>Ativo</option>
+                    <option value="inativo" {% if person.status == 'inativo' %}selected{% endif %}>Inativo</option>
+                    <option value="pendente" {% if person.status == 'pendente' %}selected{% endif %}>Pendente</option>
+                    <option value="bloqueado" {% if person.status == 'bloqueado' %}selected{% endif %}>Bloqueado</option>
+                    <option value="em_avaliacao" {% if person.status == 'em_avaliacao' %}selected{% endif %}>Em Avaliação</option>
+                    <option value="licenca_temporaria" {% if person.status == 'licenca_temporaria' %}selected{% endif %}>Licença Temporária</option>
+                    <option value="arquivado" {% if person.status == 'arquivado' %}selected{% endif %}>Arquivado</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="reason" class="block text-sm font-medium text-gray-700">Motivo da mudança:</label>
+                <textarea id="reason" name="reason" rows="4" class="block w-full py-2 pl-3 pr-10 text-base text-gray-700 border-gray-300 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm" placeholder="Descreva o motivo da mudança de situação..." required></textarea>
+            </div>
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-exchange-alt mr-2"></i>Mudar Situação
+            </button>
+            <button type="button" onclick="closeStatusModal()" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm ml-4">
+                <i class="fas fa-times mr-2"></i>Cancelar
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    function openStatusModal() {
+        document.getElementById("status-modal").classList.remove("hidden");
+    }
+
+    function closeStatusModal() {
+        document.getElementById("status-modal").classList.add("hidden");
+    }
+</script>
+
 {% endblock %}

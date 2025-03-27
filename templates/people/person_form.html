@@ -21,6 +21,13 @@
         </div>
     </div>
     
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
     <div class="border-t border-gray-200">
         <form method="post" enctype="multipart/form-data" class="p-6" id="person-form">
             {% csrf_token %}
@@ -59,6 +66,31 @@
                     {% if form.document_id.errors %}
                     <p class="mt-1 text-sm text-red-600">{{ form.document_id.errors.0 }}</p>
                     {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.status.id_for_label }}" class="block text-sm font-bold text-gray-800 mb-1">
+                        Situação
+                    </label>
+                    <div class="mt-1">
+                        {{ form.status }}
+                    </div>
+                    {% if form.status.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                    {% endif %}
+                </div>
+                
+                <div class="mb-3">
+                    <label for="{{ form.professional_categories.id_for_label }}" class="block text-sm font-bold text-gray-800 mb-1">
+                        Categorias Profissionais
+                    </label>
+                    <div class="mt-1 bg-white rounded-md">
+                        {{ form.professional_categories }}
+                    </div>
+                    {% if form.professional_categories.errors %}
+                    <p class="mt-1 text-sm text-red-600">{{ form.professional_categories.errors.0 }}</p>
+                    {% endif %}
+                    <p class="mt-1 text-xs text-gray-500">Digite para buscar ou adicionar categorias. Pressione Enter para adicionar.</p>
                 </div>
                 
                 <div class="mb-3">
@@ -423,6 +455,37 @@
         margin-right: 0.25rem;
         color: #d1d5db; /* gray-300 */
     }
+    
+    .star-rating .star.filled {
+        color: #fbbf24; /* yellow-400 */
+    }
+    
+    /* Estilo para Select2 */
+    .select2-container {
+        width: 100% !important;
+        padding: 0.5rem;
+        border: 1px solid #d1d5db;
+        border-radius: 0.25rem;
+    }
+    
+    .select2-container--default .select2-selection--multiple {
+        background-color: #fff;
+        border: 1px solid #d1d5db;
+        padding: 0.5rem;
+    }
+    
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #3182fc;
+        color: #fff;
+        border: 1px solid #3182fc;
+        padding: 0.25rem 0.5rem;
+        margin: 0.25rem;
+    }
+    
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: #fff;
+        margin-right: 0.25rem;
+    }
 </style>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
@@ -460,6 +523,7 @@
                     stars[i].innerHTML = '&#9733;'; // Estrela preenchida
                     stars[i].classList.add('filled');
                 }
+                ratingText.textContent = `${currentValue} estrela${currentValue > 1 ? 's' : ''}`;
             }
             
             // Adiciona eventos de clique nas estrelas
@@ -507,6 +571,69 @@
                         stars[i].innerHTML = '&#9733;'; // Estrela preenchida
                     }
                 });
+            });
+        });
+        
+        // Adiciona funcionalidade de Select2 para o campo de categorias profissionais
+        const professionalCategoriesField = document.getElementById('{{ form.professional_categories.id_for_label }}');
+        $(professionalCategoriesField).select2({
+            placeholder: 'Digite para buscar ou adicionar categorias',
+            allowClear: true,
+            multiple: true,
+            tags: true,
+            tokenSeparators: [',', ' '],
+            theme: 'classic',
+            width: '100%',
+            selectionCssClass: 'bg-white text-gray-900',
+            dropdownCssClass: 'bg-white text-gray-900',
+            createTag: function(params) {
+                // Verifica se o termo já existe como uma opção
+                const term = params.term.trim();
+                if (term === '') return null;
+                
+                // Verifica se já existe esta opção
+                const existingOptions = $(professionalCategoriesField).find('option').map(function() {
+                    return this.text.toLowerCase();
+                }).get();
+                
+                if (existingOptions.includes(term.toLowerCase())) {
+                    return null;
+                }
+                
+                return {
+                    id: 'new:' + term,
+                    text: term + ' (Nova)',
+                    newTag: true
+                };
+            }
+        });
+        
+        // Ajusta o estilo do Select2 para manter consistência com o tema escuro
+        $('.select2-container--classic .select2-selection--multiple').css({
+            'background-color': '#fff',
+            'color': '#111827',
+            'border-color': '#d1d5db'
+        });
+        
+        // Adiciona evento para processar novas categorias antes de enviar o formulário
+        $('#person-form').on('submit', function(e) {
+            const newCategories = [];
+            $(professionalCategoriesField).find('option:selected').each(function() {
+                const value = $(this).val();
+                if (value.startsWith('new:')) {
+                    // Adiciona campo oculto para cada nova categoria
+                    const categoryName = value.substring(4);
+                    const hiddenInput = $('<input>')
+                        .attr('type', 'hidden')
+                        .attr('name', 'new_categories')
+                        .val(categoryName);
+                    $('#person-form').append(hiddenInput);
+                    
+                    // Remove a seleção original para evitar erros
+                    $(this).prop('selected', false);
+                    
+                    newCategories.push(categoryName);
+                }
             });
         });
     });

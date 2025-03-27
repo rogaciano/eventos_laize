@@ -157,6 +157,11 @@ def add_participant(request, event_id):
         if form.is_valid():
             person = form.cleaned_data['person']
             
+            # Verificar se a pessoa está ativa
+            if person.status != 'ativo':
+                messages.error(request, f'Não é possível adicionar {person.name} ao evento. Apenas pessoas com status "Ativo" podem ser adicionadas.')
+                return redirect('events:add_participant', event_id=event.id)
+            
             # Verificar conflitos de horário
             conflicting_events = Event.objects.filter(
                 eventparticipant__person=person,
@@ -183,10 +188,10 @@ def add_participant(request, event_id):
             messages.success(request, 'Participante adicionado com sucesso!')
             return redirect('events:detail', event_id=event.id)
     else:
-        # Get people who are not already participants
+        # Get people who are not already participants and estão ativos
         existing_participant_ids = event.eventparticipant_set.values_list('person_id', flat=True)
         form = EventParticipantForm()
-        form.fields['person'].queryset = Person.objects.exclude(id__in=existing_participant_ids)
+        form.fields['person'].queryset = Person.objects.filter(status='ativo').exclude(id__in=existing_participant_ids)
     
     return render(request, 'events/participant_form.html', {
         'form': form,
@@ -199,6 +204,13 @@ def confirm_add_participant(request, event_id):
     if request.method == 'POST':
         form = EventParticipantForm(request.POST)
         if form.is_valid():
+            person = form.cleaned_data['person']
+            
+            # Verificar se a pessoa está ativa
+            if person.status != 'ativo':
+                messages.error(request, f'Não é possível adicionar {person.name} ao evento. Apenas pessoas com status "Ativo" podem ser adicionadas.')
+                return redirect('events:detail', event_id=event.id)
+            
             participant = form.save(commit=False)
             participant.event = event
             participant.save()

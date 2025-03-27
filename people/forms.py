@@ -1,11 +1,12 @@
 from django import forms
-from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero
+from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero, ProfessionalCategory
 
 class PersonForm(forms.ModelForm):
     class Meta:
         model = Person
         fields = [
             'name', 'document_id', 'data_nascimento', 'photo',
+            'status', 'professional_categories',
             'address', 'address_number', 'address_complement', 
             'neighborhood', 'city', 'state', 'zipcode',
             'altura', 'peso', 'manequim', 'cor_olhos', 'cor_cabelo', 'cor_pele', 'genero',
@@ -18,6 +19,11 @@ class PersonForm(forms.ModelForm):
             'notes': forms.Textarea(attrs={'rows': 3}),
             'data_nascimento': forms.DateInput(attrs={'type': 'date'}),
             'photo': forms.FileInput(),
+            'status': forms.Select(attrs={'class': 'bg-white text-gray-900'}),
+            'professional_categories': forms.SelectMultiple(attrs={
+                'class': 'select2-categories bg-white text-gray-900',
+                'data-placeholder': 'Digite para buscar ou adicionar categorias'
+            }),
             'altura': forms.TextInput(attrs={'placeholder': 'Ex: 1,75'}),
             'peso': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
             'manequim': forms.TextInput(),
@@ -36,3 +42,12 @@ class PersonContactForm(forms.ModelForm):
     class Meta:
         model = PersonContact
         fields = ['type', 'value', 'label']
+
+class ProfessionalCategoryForm(forms.ModelForm):
+    class Meta:
+        model = ProfessionalCategory
+        fields = ['nome', 'descricao']
+        widgets = {
+            'nome': forms.TextInput(attrs={'class': 'shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md bg-white text-gray-900'}),
+            'descricao': forms.Textarea(attrs={'rows': 3, 'class': 'shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md bg-white text-gray-900'}),
+        }

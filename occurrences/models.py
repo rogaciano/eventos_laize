@@ -23,6 +23,7 @@ class Occurrence(models.Model):
     person = models.ForeignKey(Person, on_delete=models.CASCADE, null=True, blank=True, related_name='occurrences')
     description = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_by = models.CharField(max_length=100, blank=True, null=True, verbose_name='Criado por')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

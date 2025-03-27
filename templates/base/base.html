@@ -103,7 +103,6 @@
                         <a href="{% url 'people:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Pessoas</a>
                         <a href="{% url 'clients:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Clientes</a>
                         <a href="{% url 'occurrences:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Ocorrências</a>
-                        <a href="{% url 'events:funcao_list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Funções</a>
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800 flex items-center">
                                 <span>Financeiro</span>
@@ -209,14 +208,6 @@
                 <a href="{% url 'people:list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Pessoas</a>
                 <a href="{% url 'clients:list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Clientes</a>
                 <a href="{% url 'occurrences:list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Ocorrências</a>
-                <a href="{% url 'events:funcao_list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Funções</a>
-                
-                <a href="{% url 'landing:message_list' %}" @click="mobileMenuOpen = false" class="flex justify-between px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">
-                    <span>Mensagens</span>
-                    {% if unread_messages_count > 0 %}
-                    <span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">{{ unread_messages_count }}</span>
-                    {% endif %}
-                </a>
                 
                 <!-- Financeiro no menu mobile -->
                 <div x-data="{ openFinancial: false }">
@@ -239,6 +230,13 @@
                         <a href="{% url 'events:financial_report' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Relatório Financeiro</a>
                     </div>
                 </div>
+                
+                <a href="{% url 'landing:message_list' %}" @click="mobileMenuOpen = false" class="flex justify-between px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">
+                    <span>Mensagens</span>
+                    {% if unread_messages_count > 0 %}
+                    <span class="bg-red-600 text-white text-xs font-bold px-2 py-1 rounded-full">{{ unread_messages_count }}</span>
+                    {% endif %}
+                </a>
                 
                 {% if user.is_authenticated %}
                 <div class="border-t border-gray-700 pt-2 mt-2">

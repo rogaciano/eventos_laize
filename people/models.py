@@ -53,10 +53,34 @@ class Genero(models.Model):
         ordering = ['nome']
 
 
+class ProfessionalCategory(models.Model):
+    nome = models.CharField(max_length=100, unique=True, verbose_name="Nome")
+    descricao = models.TextField(blank=True, null=True, verbose_name="Descrição")
+    
+    def __str__(self):
+        return self.nome
+    
+    class Meta:
+        verbose_name = 'Categoria Profissional'
+        verbose_name_plural = 'Categorias Profissionais'
+        ordering = ['nome']
+
+
 class Person(models.Model):
+    STATUS_CHOICES = [
+        ('ativo', 'Ativo'),
+        ('inativo', 'Inativo'),
+        ('pendente', 'Pendente'),
+        ('bloqueado', 'Bloqueado'),
+        ('em_avaliacao', 'Em Avaliação'),
+        ('licenca_temporaria', 'Licença Temporária'),
+        ('arquivado', 'Arquivado'),
+    ]
+    
     name = models.CharField(max_length=255, verbose_name="Nome")
     document_id = models.CharField(max_length=20, blank=True, null=True, verbose_name="Documento (CPF/RG)")
     data_nascimento = models.DateField(blank=True, null=True, verbose_name="Nascimento")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pendente', verbose_name="Situação")
     address = models.CharField(max_length=255, blank=True, null=True, verbose_name="Logradouro")
     address_number = models.CharField(max_length=10, blank=True, null=True, verbose_name="Número")
     address_complement = models.CharField(max_length=100, blank=True, null=True, verbose_name="Complemento")
@@ -67,6 +91,9 @@ class Person(models.Model):
     pix = models.CharField(max_length=255, blank=True, null=True, verbose_name="Chave Pix")
     photo = models.ImageField(upload_to='people_photos/', blank=True, null=True, verbose_name="Foto")
     notes = models.TextField(blank=True, null=True, verbose_name="Observações")
+    
+    # Categorias profissionais
+    professional_categories = models.ManyToManyField(ProfessionalCategory, blank=True, verbose_name="Categorias Profissionais")
     
     # Características físicas
     altura = models.DecimalField(max_digits=3, decimal_places=2, blank=True, null=True, verbose_name="Altura (m)")

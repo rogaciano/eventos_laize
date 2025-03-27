@@ -1,0 +1,78 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Categorias Profissionais - Agência Atitude{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-white">Categorias Profissionais</h1>
+    <div class="flex space-x-2">
+        <a href="{% url 'people:professional_category_create' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-plus-circle mr-2"></i>Nova Categoria
+        </a>
+        <a href="{% url 'people:list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-arrow-left mr-2"></i>Voltar para Pessoas
+        </a>
+    </div>
+</div>
+
+{% if messages %}
+<div class="mb-4">
+    {% for message in messages %}
+    <div class="p-4 {% if message.tags == 'success' %}bg-green-100 text-green-800{% elif message.tags == 'error' %}bg-red-100 text-red-800{% else %}bg-blue-100 text-blue-800{% endif %} rounded-md">
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<!-- Listagem de categorias -->
+<div class="bg-white shadow overflow-hidden sm:rounded-lg">
+    <table class="min-w-full divide-y divide-gray-200">
+        <thead class="bg-gray-50">
+            <tr>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Nome
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Descrição
+                </th>
+                <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Pessoas
+                </th>
+                <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Ações
+                </th>
+            </tr>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200">
+            {% for category in categories %}
+            <tr>
+                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {{ category.nome }}
+                </td>
+                <td class="px-6 py-4 text-sm text-gray-500">
+                    {{ category.descricao|default:""|truncatechars:50 }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    {{ category.person_set.count }}
+                </td>
+                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                    <a href="{% url 'people:professional_category_update' category.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3">
+                        <i class="fas fa-edit"></i> Editar
+                    </a>
+                    <a href="{% url 'people:professional_category_delete' category.id %}" class="text-red-600 hover:text-red-900">
+                        <i class="fas fa-trash"></i> Excluir
+                    </a>
+                </td>
+            </tr>
+            {% empty %}
+            <tr>
+                <td colspan="4" class="px-6 py-4 text-center text-sm text-gray-500">
+                    Nenhuma categoria profissional cadastrada.
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
