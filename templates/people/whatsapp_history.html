@@ -1,0 +1,154 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Histórico de WhatsApp de {{ person.name }} - Gerenciador de Eventos{% endblock %}
+
+{% block content %}
+<div class="bg-gray-900 shadow overflow-hidden sm:rounded-lg">
+    <div class="flex justify-between items-center px-4 py-5 sm:px-6 bg-gray-800">
+        <div>
+            <h1 class="text-2xl font-bold text-white">Histórico de WhatsApp - {{ person.name }}</h1>
+            <p class="mt-1 max-w-2xl text-sm text-gray-300">
+                Histórico completo de mensagens enviadas
+            </p>
+        </div>
+        <div class="flex space-x-2">
+            <a href="{% url 'people:send_whatsapp' person.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fab fa-whatsapp mr-2"></i>Nova Mensagem
+            </a>
+            <a href="{% url 'people:detail' person.id %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-arrow-left mr-2"></i>Voltar
+            </a>
+        </div>
+    </div>
+    
+    <div class="border-t border-gray-700">
+        <!-- Explicação dos status -->
+        <div class="bg-white shadow overflow-hidden sm:rounded-lg mb-6 mx-4 mt-4">
+            <div class="px-4 py-3 sm:px-6 bg-gray-100">
+                <h3 class="text-lg leading-6 font-medium text-gray-900">Status das Mensagens</h3>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">Explicação dos diferentes status das mensagens WhatsApp</p>
+            </div>
+            <div class="border-t border-gray-200">
+                <dl>
+                    <div class="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">sent</span>
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            Mensagem enviada ao servidor do WhatsApp e aceita para processamento.
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">sending</span>
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            Mensagem em processo de envio.
+                        </dd>
+                    </div>
+                    <div class="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-purple-100 text-purple-800">delivered</span>
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            Mensagem entregue ao dispositivo do destinatário.
+                        </dd>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-orange-100 text-orange-800">read</span>
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            Mensagem lida pelo destinatário.
+                        </dd>
+                    </div>
+                    <div class="bg-white px-4 py-2 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <dt class="text-sm font-medium text-gray-500">
+                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">failed</span>
+                        </dt>
+                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                            Falha no envio da mensagem.
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+        
+        {% if messages_history %}
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-700">
+                    <thead class="bg-gray-800">
+                        <tr>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Data/Hora</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Contato</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Mensagem</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Status</th>
+                            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">Detalhes</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-gray-900 divide-y divide-gray-800">
+                        {% for msg in messages_history %}
+                        <tr>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {{ msg.sent_at|date:"d/m/Y H:i" }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                {{ msg.contact.value }}
+                                {% if msg.contact.label %}
+                                    <span class="text-gray-500">({{ msg.contact.label }})</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-6 py-4 text-sm text-gray-300">
+                                {{ msg.message }}
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap">
+                                <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                {% if msg.status == 'sent' %}bg-green-100 text-green-800
+                                {% elif msg.status == 'sending' %}bg-blue-100 text-blue-800
+                                {% elif msg.status == 'failed' %}bg-red-100 text-red-800
+                                {% elif msg.status == 'delivered' %}bg-purple-100 text-purple-800
+                                {% elif msg.status == 'read' %}bg-orange-100 text-orange-800
+                                {% else %}bg-gray-100 text-gray-800{% endif %}">
+                                    {{ msg.status }}
+                                </span>
+                            </td>
+                            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                                <button type="button" class="text-blue-400 hover:text-blue-300" 
+                                        onclick="toggleDetails('msg-{{ msg.id }}')">
+                                    <i class="fas fa-info-circle"></i> Detalhes
+                                </button>
+                            </td>
+                        </tr>
+                        <tr id="msg-{{ msg.id }}" class="hidden bg-white border border-gray-200">
+                            <td colspan="5" class="px-6 py-4">
+                                <div class="text-sm text-gray-600">
+                                    <h4 class="font-medium mb-2">Resposta da API:</h4>
+                                    <pre class="bg-gray-100 p-3 rounded overflow-x-auto">{{ msg.response_data|pprint }}</pre>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        {% else %}
+            <div class="p-6 text-center text-gray-400">
+                Nenhuma mensagem de WhatsApp enviada para esta pessoa
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    function toggleDetails(id) {
+        const element = document.getElementById(id);
+        if (element.classList.contains('hidden')) {
+            element.classList.remove('hidden');
+        } else {
+            element.classList.add('hidden');
+        }
+    }
+</script>
+{% endblock %}
+{% endblock %}

@@ -1,9 +1,18 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
+from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
-from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero
+from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero, WhatsAppMessage
 from .forms import PersonForm, PersonContactForm
 import os
+from datetime import date, datetime
+from io import BytesIO
+from .utils import send_whatsapp_message
+import json
+import logging
+
+logger = logging.getLogger(__name__)
 
 def person_list(request):
     # Verificar se estamos retornando de uma página de detalhes
@@ -202,6 +211,8 @@ def person_list(request):
     return render(request, 'people/person_list.html', context)
 
 def person_detail(request, person_id):
+    from django.conf import settings
+    
     person = get_object_or_404(Person, pk=person_id)
     # Adicionar um parâmetro para indicar que estamos voltando da página de detalhes
     back_url = f"{reverse('people:list')}?from_detail=true"
@@ -209,11 +220,15 @@ def person_detail(request, person_id):
     # Get all events that this person participated in
     events = person.events.all().order_by('-start_datetime')
     
+    # Debug para verificar o valor da variável ENABLE_WHATSAPP
+    print(f"ENABLE_WHATSAPP in view: {settings.ENABLE_WHATSAPP}")
+    
     return render(request, 'people/person_detail.html', {
         'person': person,
         'contacts': contacts,
         'events': events,
-        'back_url': back_url
+        'back_url': back_url,
+        'ENABLE_WHATSAPP': settings.ENABLE_WHATSAPP
     })
 
 def person_create(request):
@@ -702,3 +717,158 @@ def generate_person_report_pdf(request):
     response.write(pdf)
     
     return response
+
+def send_whatsapp(request, person_id, contact_id=None):
+    """
+    View to send a WhatsApp message to a person's contact.
+    If contact_id is provided, that specific contact will be used.
+    Otherwise, the first WhatsApp contact for the person will be used.
+    """
+    person = get_object_or_404(Person, pk=person_id)
+    
+    if request.method == 'POST':
+        message = request.POST.get('message', '').strip()
+        contact_id = request.POST.get('contact_id')
+        
+        if not message:
+            messages.error(request, "A mensagem não pode estar vazia.")
+            return redirect('people:detail', person_id=person_id)
+        
+        if contact_id:
+            contact = get_object_or_404(PersonContact, pk=contact_id, person=person)
+        else:
+            # Try to find a WhatsApp contact
+            contact = person.contacts.filter(type='whatsapp').first()
+            
+        if not contact or contact.type != 'whatsapp':
+            messages.error(request, "Nenhum contato de WhatsApp encontrado para esta pessoa.")
+            return redirect('people:detail', person_id=person_id)
+        
+        # Send the message
+        whatsapp_message = send_whatsapp_message(contact, message)
+        
+        if whatsapp_message and whatsapp_message.response_data and 'key' in whatsapp_message.response_data:
+            messages.success(request, "Mensagem enviada com sucesso!")
+        else:
+            messages.error(request, "Erro ao enviar mensagem. Verifique os logs para mais detalhes.")
+        
+        return redirect('people:detail', person_id=person_id)
+    
+    # GET request - display form
+    whatsapp_contacts = person.contacts.filter(type='whatsapp')
+    
+    return render(request, 'people/send_whatsapp.html', {
+        'person': person,
+        'whatsapp_contacts': whatsapp_contacts,
+        'selected_contact_id': contact_id
+    })
+
+def whatsapp_history(request, person_id):
+    """
+    View to display WhatsApp message history for a person
+    """
+    person = get_object_or_404(Person, pk=person_id)
+    messages_history = person.whatsapp_messages.all().order_by('-sent_at')
+    
+    return render(request, 'people/whatsapp_history.html', {
+        'person': person,
+        'messages_history': messages_history
+    })
+
+def send_whatsapp_ajax(request, person_id):
+    """
+    AJAX view to send a WhatsApp message and return JSON response
+    """
+    if request.method != 'POST':
+        return JsonResponse({'success': False, 'error': 'Method not allowed'}, status=405)
+    
+    person = get_object_or_404(Person, pk=person_id)
+    message = request.POST.get('message', '').strip()
+    contact_id = request.POST.get('contact_id')
+    
+    if not message:
+        return JsonResponse({'success': False, 'error': 'A mensagem não pode estar vazia'})
+    
+    if contact_id:
+        try:
+            contact = PersonContact.objects.get(pk=contact_id, person=person)
+        except PersonContact.DoesNotExist:
+            return JsonResponse({'success': False, 'error': 'Contato não encontrado'})
+    else:
+        # Try to find a WhatsApp contact
+        contact = person.contacts.filter(type='whatsapp').first()
+        
+    if not contact or contact.type != 'whatsapp':
+        return JsonResponse({'success': False, 'error': 'Nenhum contato de WhatsApp encontrado'})
+    
+    # Send the message
+    whatsapp_message = send_whatsapp_message(contact, message)
+    
+    if whatsapp_message and whatsapp_message.response_data and 'key' in whatsapp_message.response_data:
+        return JsonResponse({
+            'success': True, 
+            'message': 'Mensagem enviada com sucesso!',
+            'message_id': whatsapp_message.id,
+            'sent_at': whatsapp_message.sent_at.strftime('%d/%m/%Y %H:%M')
+        })
+    else:
+        error_msg = 'Erro ao enviar mensagem'
+        if whatsapp_message and whatsapp_message.response_data:
+            error_msg = whatsapp_message.response_data.get('error', error_msg)
+        
+        return JsonResponse({'success': False, 'error': error_msg})
+
+@csrf_exempt
+def whatsapp_webhook(request):
+    """
+    Webhook to receive status updates from WhatsApp API
+    """
+    if request.method != 'POST':
+        return JsonResponse({'status': 'error', 'message': 'Method not allowed'}, status=405)
+    
+    try:
+        data = json.loads(request.body)
+        
+        # Log the webhook data for debugging
+        logger.info(f"WhatsApp webhook received: {data}")
+        
+        # Check if this is a message status update
+        if 'ack' in data and 'id' in data:
+            message_id = data['id']
+            status_code = data['ack']
+            
+            # Map WhatsApp status codes to our status values
+            status_map = {
+                1: 'sent',      # Message sent to WhatsApp server
+                2: 'delivered', # Message delivered to recipient's device
+                3: 'read'       # Message read by recipient
+            }
+            
+            status = status_map.get(status_code, 'unknown')
+            
+            # Try to find the message in our database by the WhatsApp message ID
+            try:
+                # Look for the message ID in the response_data JSON
+                messages = WhatsAppMessage.objects.filter(
+                    response_data__key__id=message_id
+                )
+                
+                if messages.exists():
+                    for message in messages:
+                        message.status = status
+                        message.save()
+                        logger.info(f"Updated message {message.id} status to {status}")
+                    
+                    return JsonResponse({'status': 'success', 'message': 'Status updated'})
+                else:
+                    logger.warning(f"Message with ID {message_id} not found")
+            except Exception as e:
+                logger.error(f"Error updating message status: {e}")
+        
+        return JsonResponse({'status': 'success', 'message': 'Webhook received'})
+    
+    except json.JSONDecodeError:
+        return JsonResponse({'status': 'error', 'message': 'Invalid JSON'}, status=400)
+    except Exception as e:
+        logger.error(f"Error processing webhook: {e}")
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)

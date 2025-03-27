@@ -161,3 +161,20 @@ class PersonContact(models.Model):
         verbose_name = 'Contato'
         verbose_name_plural = 'Contatos'
         ordering = ['person__name', 'type']
+
+
+class WhatsAppMessage(models.Model):
+    person = models.ForeignKey(Person, related_name='whatsapp_messages', on_delete=models.CASCADE)
+    contact = models.ForeignKey(PersonContact, related_name='whatsapp_messages', on_delete=models.CASCADE)
+    message = models.TextField(verbose_name="Mensagem")
+    status = models.CharField(max_length=50, blank=True, null=True, verbose_name="Status")
+    response_data = models.JSONField(blank=True, null=True, verbose_name="Dados da resposta")
+    sent_at = models.DateTimeField(auto_now_add=True, verbose_name="Enviado em")
+    
+    def __str__(self):
+        return f"Mensagem para {self.person.name} em {self.sent_at.strftime('%d/%m/%Y %H:%M')}"
+    
+    class Meta:
+        verbose_name = 'Mensagem WhatsApp'
+        verbose_name_plural = 'Mensagens WhatsApp'
+        ordering = ['-sent_at']

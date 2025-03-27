@@ -13,4 +13,10 @@ urlpatterns = [
     path('<int:person_id>/contacts/<int:contact_id>/edit/', views.person_contact_edit, name='contact_edit'),
     path('<int:person_id>/contacts/<int:contact_id>/delete/', views.person_contact_delete, name='contact_delete'),
     path('report/pdf/', views.generate_person_report_pdf, name='report_pdf'),
+    # WhatsApp
+    path('person/<int:person_id>/whatsapp/', views.send_whatsapp, name='send_whatsapp'),
+    path('person/<int:person_id>/whatsapp/<int:contact_id>/', views.send_whatsapp, name='send_whatsapp_contact'),
+    path('person/<int:person_id>/whatsapp-history/', views.whatsapp_history, name='whatsapp_history'),
+    path('person/<int:person_id>/whatsapp-ajax/', views.send_whatsapp_ajax, name='send_whatsapp_ajax'),
+    path('whatsapp-webhook/', views.whatsapp_webhook, name='whatsapp_webhook'),
 ]

@@ -18,6 +18,7 @@
     }
     .fc-toolbar-title {
         font-size: 1.5em !important;
+        color: #FFFFFF !important;
     }
     .calendar-container {
         margin-top: 20px;
@@ -51,19 +52,51 @@
     .legend-container {
         display: flex;
         flex-wrap: wrap;
+        margin-top: 15px;
         margin-bottom: 15px;
         padding: 10px;
-        background-color: #f8f9fa;
+        background-color: #f5f5f5;
         border-radius: 5px;
-        /* Reduzindo o tamanho da legenda */
-        max-width: 95%;
-        margin-left: auto;
-        margin-right: auto;
-        font-size: 0.9em;
     }
-    .legend-text {
-        color: #333; /* Cor escura para o texto da legenda */
-        font-weight: 500; /* Texto semi-negrito para melhor legibilidade */
+    
+    /* Ajustes para melhorar a legibilidade no tema escuro */
+    .fc-col-header-cell-cushion {
+        color: #FFFFFF !important;
+    }
+    .fc-daygrid-day-number {
+        color: #FFFFFF !important;
+    }
+    .fc-day-today {
+        background-color: rgba(255, 255, 255, 0.1) !important;
+    }
+    .fc-scrollgrid-sync-inner a {
+        color: #FFFFFF !important;
+    }
+    .fc-daygrid-day.fc-day-past {
+        background-color: rgba(0, 0, 0, 0.2);
+    }
+    .fc-daygrid-day.fc-day-future {
+        background-color: rgba(0, 0, 0, 0.1);
+    }
+    .fc-daygrid-day.fc-day-other {
+        background-color: rgba(0, 0, 0, 0.3);
+    }
+    .fc-daygrid-day.fc-day-other .fc-daygrid-day-number {
+        color: #AAAAAA !important;
+    }
+    .fc-list-day-cushion {
+        background-color: #2C3E50 !important;
+    }
+    .fc-list-day-text, .fc-list-day-side-text {
+        color: #FFFFFF !important;
+    }
+    .fc-button-primary {
+        background-color: #3498DB !important;
+        border-color: #3498DB !important;
+    }
+    .fc-button-primary:hover {
+        background-color: #2980B9 !important;
+        border-color: #2980B9 !important;
     }
     
     /* Garantindo que os dias da semana sejam visíveis */

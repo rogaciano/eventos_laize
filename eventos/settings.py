@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+
+# Carregar variáveis de ambiente do arquivo .env
+load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -72,6 +77,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'landing.context_processors.unread_messages_count',
+                'people.context_processors.whatsapp_settings',
             ],
         },
     },
@@ -121,9 +127,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.0/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'pt-br'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'America/Recife'
 
 USE_I18N = True
 
@@ -163,3 +169,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
 # EMAIL_HOST_USER = 'your-email@example.com'
 # EMAIL_HOST_PASSWORD = 'your-password'
 # DEFAULT_FROM_EMAIL = 'your-email@example.com'
+
+# Configurações do WhatsApp
+ENABLE_WHATSAPP_VALUE = os.getenv('ENABLE_WHATSAPP', '0')
+print(f"ENABLE_WHATSAPP raw value: {ENABLE_WHATSAPP_VALUE}")
+ENABLE_WHATSAPP = ENABLE_WHATSAPP_VALUE.lower() in ('true', 't', '1', 'yes', 'y')
+print(f"ENABLE_WHATSAPP processed value: {ENABLE_WHATSAPP}")
+WHATSAPP_API_URL = os.getenv('WHATSAPP_API_URL', 'http://149.28.249.146:3000/api/sendText')
