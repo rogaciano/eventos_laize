@@ -23,7 +23,7 @@
             
             <div class="bg-gray-800 p-8 rounded-lg shadow-md">
                 <div class="prose prose-lg max-w-none text-gray-300">
-                    {{ post.content|linebreaksbr }}
+                    {{ post.content|safe }}
                 </div>
             </div>
             
@@ -71,7 +71,7 @@
                 <div class="p-6">
                     <p class="text-sm text-gray-400 mb-2">{{ related_post.published_at|date:"d/m/Y" }}</p>
                     <h3 class="text-xl font-bold text-white mb-3">{{ related_post.title }}</h3>
-                    <p class="text-gray-300 mb-4">{{ related_post.content|truncatechars:100 }}</p>
+                    <p class="text-gray-300 mb-4">{{ related_post.content|striptags|truncatechars:100 }}</p>
                     <a href="{% url 'landing:post_detail' related_post.slug %}" class="text-white hover:text-gray-300 font-semibold">
                         Leia mais <i class="fas fa-arrow-right ml-1"></i>
                     </a>
