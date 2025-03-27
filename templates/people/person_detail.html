@@ -44,14 +44,20 @@
                 {% if person.city %}{{ person.city }}{% if person.state %}, {{ person.state }}{% endif %}{% endif %}
             </p>
         </div>
-        <div class="flex space-x-2">
+        <div class="mt-4 md:mt-0 flex flex-wrap gap-2">
             <button type="button" onclick="openStatusModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
                 <i class="fas fa-exchange-alt mr-2"></i>Mudar Situação
             </button>
-            <a href="{% url 'people:update' person.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <!-- Botão de galeria -->
+            <a href="{% url 'people:person_gallery' person.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-images mr-2"></i>Galeria
+            </a>
+            <!-- Botão de editar visível apenas em desktop -->
+            <a href="{% url 'people:update' person.id %}" class="hidden md:inline-flex bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
                 <i class="fas fa-edit mr-2"></i>Editar
             </a>
-            <a href="{% url 'people:delete' person.id %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <!-- Botão de excluir visível apenas em desktop -->
+            <a href="{% url 'people:delete' person.id %}" class="hidden md:inline-flex bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm">
                 <i class="fas fa-trash mr-2"></i>Excluir
             </a>
             <!-- Debug: {{ ENABLE_WHATSAPP }} -->
@@ -89,13 +95,6 @@
                         {% endif %}
                     {% endwith %}
                 {% endif %}
-                
-                <div class="mt-2 flex justify-center">
-                    <a href="{% url 'people:person_gallery' person.id %}" class="text-indigo-600 hover:text-indigo-800 text-sm flex items-center">
-                        <i class="fas fa-images mr-1"></i> Galeria de Fotos
-                        <span class="ml-1 text-xs text-gray-500">({{ person.gallery.count }})</span>
-                    </a>
-                </div>
                 
                 {% if person.rating %}
                 <div class="mt-2 flex justify-center">

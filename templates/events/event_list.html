@@ -5,17 +5,18 @@
 {% block content %}
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold">Eventos</h1>
-    <div class="flex space-x-2">
+    <div class="flex flex-wrap gap-2">
         <a href="{% url 'events:calendar' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
             <i class="fas fa-calendar-alt mr-2"></i>Calendário
         </a>
         <a href="{% url 'events:create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
             <i class="fas fa-plus-circle mr-2"></i>Novo Evento
         </a>
-        <a href="{% url 'events:type_list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
+        <!-- Botões visíveis apenas em desktop -->
+        <a href="{% url 'events:type_list' %}" class="hidden md:inline-flex bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
             <i class="fas fa-tags mr-2"></i>Tipos de Evento
         </a>
-        <a href="{% url 'events:funcao_list' %}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md shadow-sm">
+        <a href="{% url 'events:funcao_list' %}" class="hidden md:inline-flex bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md shadow-sm">
             <i class="fas fa-user-tag mr-2"></i>Funções
         </a>
     </div>
@@ -236,13 +237,14 @@
                 </span>
                 {% endif %}
             </a>
-            <a href="{% url 'events:update' event.id %}" class="text-blue-600 hover:text-blue-900 flex items-center">
+            <!-- Botões de editar e excluir visíveis apenas em desktop -->
+            <a href="{% url 'events:update' event.id %}" class="hidden md:flex text-blue-600 hover:text-blue-900 items-center">
                 <i class="fas fa-edit mr-1"></i> Editar
             </a>
             <a href="{% url 'events:status_history' event.id %}" class="text-purple-600 hover:text-purple-900 flex items-center">
                 <i class="fas fa-history mr-1"></i> Histórico
             </a>
-            <a href="{% url 'events:delete' event.id %}" class="text-red-600 hover:text-red-900 flex items-center">
+            <a href="{% url 'events:delete' event.id %}" class="hidden md:flex text-red-600 hover:text-red-900 items-center">
                 <i class="fas fa-trash mr-1"></i> Excluir
             </a>
         </div>

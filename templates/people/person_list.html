@@ -5,11 +5,12 @@
 {% block content %}
 <div class="flex justify-between items-center mb-6">
     <h1 class="text-2xl font-bold text-white">Pessoas</h1>
-    <div class="flex space-x-2">
+    <div class="flex flex-wrap gap-2">
         <a href="{% url 'people:create' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
             <i class="fas fa-plus-circle mr-2"></i>Adicionar Pessoa
         </a>
-        <a href="{% url 'people:professional_category_list' %}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md shadow-sm">
+        <!-- Botão visível apenas em desktop -->
+        <a href="{% url 'people:professional_category_list' %}" class="hidden md:inline-flex bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md shadow-sm">
             <i class="fas fa-tags mr-2"></i>Categorias Profissionais
         </a>
         <a href="{% url 'people:report_pdf' %}?{{ request.GET.urlencode }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm">
@@ -374,6 +375,14 @@
                     <a href="{% url 'people:detail' person.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3">
                         <i class="fas fa-eye"></i>
                     </a>
+                    <a href="{% url 'people:person_gallery' person.id %}" class="{% if person.gallery.count > 0 %}text-amber-600 hover:text-amber-900{% else %}text-gray-400 hover:text-gray-600{% endif %} mr-3 relative">
+                        <i class="fas {% if person.gallery.count > 0 %}fa-images{% else %}fa-image{% endif %}"></i>
+                        {% if person.gallery.count > 0 %}
+                        <span class="absolute -top-2 -right-2 bg-amber-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center" style="font-size: 0.6rem;">
+                            {{ person.gallery.count }}
+                        </span>
+                        {% endif %}
+                    </a>
                     <a href="{% url 'people:update' person.id %}" class="text-blue-600 hover:text-blue-900 mr-3">
                         <i class="fas fa-edit"></i>
                     </a>
@@ -472,10 +481,19 @@
             <a href="{% url 'people:detail' person.id %}" class="text-indigo-600 hover:text-indigo-900 flex items-center">
                 <i class="fas fa-eye mr-1"></i> Ver
             </a>
+            <a href="{% url 'people:person_gallery' person.id %}" class="{% if person.gallery.count > 0 %}text-amber-600 hover:text-amber-900{% else %}text-gray-400 hover:text-gray-600{% endif %} flex items-center relative">
+                <i class="fas {% if person.gallery.count > 0 %}fa-images{% else %}fa-image{% endif %} mr-1"></i> Galeria
+                {% if person.gallery.count > 0 %}
+                <span class="absolute -top-2 -right-2 bg-amber-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
+                    {{ person.gallery.count }}
+                </span>
+                {% endif %}
+            </a>
             <a href="{% url 'people:update' person.id %}" class="text-blue-600 hover:text-blue-900 flex items-center">
                 <i class="fas fa-edit mr-1"></i> Editar
             </a>
-            <a href="{% url 'people:delete' person.id %}" class="text-red-600 hover:text-red-900 flex items-center">
+            <!-- Botão de excluir visível apenas em desktop -->
+            <a href="{% url 'people:delete' person.id %}" class="hidden md:flex text-red-600 hover:text-red-900 items-center">
                 <i class="fas fa-trash mr-1"></i> Excluir
             </a>
         </div>
