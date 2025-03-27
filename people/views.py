@@ -916,7 +916,7 @@ def whatsapp_webhook(request):
 
 # Views para Categorias Profissionais
 def professional_category_list(request):
-    categories = ProfessionalCategory.objects.all().order_by('name')
+    categories = ProfessionalCategory.objects.all().order_by('nome')
     return render(request, 'people/professional_category_list.html', {
         'categories': categories
     })
