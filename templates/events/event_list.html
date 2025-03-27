@@ -138,11 +138,11 @@
                     <a href="{% url 'events:detail' event.id %}" class="text-indigo-600 hover:text-indigo-900 mx-1" title="Visualizar">
                         <i class="fas fa-eye"></i>
                     </a>
-                    <a href="{% url 'events:event_gallery' event.id %}" class="{% if event.has_gallery %}text-amber-600 hover:text-amber-900{% else %}text-gray-400 hover:text-gray-600{% endif %} mx-1 relative" title="{% if event.has_gallery %}Galeria de Fotos ({{ event.gallery_count }} fotos){% else %}Adicionar Fotos à Galeria{% endif %}">
-                        <i class="fas {% if event.has_gallery %}fa-images{% else %}fa-image{% endif %}"></i>
-                        {% if event.has_gallery %}
+                    <a href="{% url 'events:event_gallery' event.id %}?source=list" class="{% if event.gallery.count > 0 %}text-amber-600 hover:text-amber-900{% else %}text-gray-400 hover:text-gray-600{% endif %} mx-1 relative" title="{% if event.gallery.count > 0 %}Galeria de Fotos ({{ event.gallery.count }} fotos){% else %}Adicionar Fotos à Galeria{% endif %}">
+                        <i class="fas {% if event.gallery.count > 0 %}fa-images{% else %}fa-image{% endif %}"></i>
+                        {% if event.gallery.count > 0 %}
                         <span class="absolute -top-2 -right-2 bg-amber-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                            {{ event.gallery_count }}
+                            {{ event.gallery.count }}
                         </span>
                         {% endif %}
                     </a>
@@ -229,11 +229,11 @@
             <a href="{% url 'events:detail' event.id %}" class="text-indigo-600 hover:text-indigo-900 flex items-center">
                 <i class="fas fa-eye mr-1"></i> Ver
             </a>
-            <a href="{% url 'events:event_gallery' event.id %}" class="{% if event.has_gallery %}text-amber-600 hover:text-amber-900{% else %}text-gray-400 hover:text-gray-600{% endif %} flex items-center relative" title="{% if event.has_gallery %}Galeria de Fotos ({{ event.gallery_count }} fotos){% else %}Adicionar Fotos à Galeria{% endif %}">
-                <i class="fas {% if event.has_gallery %}fa-images{% else %}fa-image{% endif %} mr-1"></i> {% if event.has_gallery %}Galeria{% else %}Adicionar Fotos{% endif %}
-                {% if event.has_gallery %}
+            <a href="{% url 'events:event_gallery' event.id %}?source=list" class="{% if event.gallery.count > 0 %}text-amber-600 hover:text-amber-900{% else %}text-gray-400 hover:text-gray-600{% endif %} flex items-center relative" title="{% if event.gallery.count > 0 %}Galeria de Fotos ({{ event.gallery.count }} fotos){% else %}Adicionar Fotos à Galeria{% endif %}">
+                <i class="fas {% if event.gallery.count > 0 %}fa-images{% else %}fa-image{% endif %} mr-1"></i> {% if event.gallery.count > 0 %}Galeria{% else %}Adicionar Fotos{% endif %}
+                {% if event.gallery.count > 0 %}
                 <span class="absolute -top-2 -right-2 bg-amber-600 text-white text-xs rounded-full h-4 w-4 flex items-center justify-center">
-                    {{ event.gallery_count }}
+                    {{ event.gallery.count }}
                 </span>
                 {% endif %}
             </a>

@@ -4,11 +4,12 @@
 
 {% block content %}
 <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-    <div class="flex justify-between items-center px-4 py-5 sm:px-6">
-        <div>
-            <div class="flex items-center">
+    <!-- Cabeçalho com nome e status -->
+    <div class="px-4 py-5 sm:px-6">
+        <div class="flex flex-col">
+            <div>
                 <h1 class="text-2xl font-bold text-gray-900">{{ person.name }}</h1>
-                <div class="ml-3">
+                <div class="mt-1">
                     {% if person.status == 'ativo' %}
                         <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                             Ativo
@@ -40,280 +41,308 @@
                     {% endif %}
                 </div>
             </div>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                {% if person.city %}{{ person.city }}{% if person.state %}, {{ person.state }}{% endif %}{% endif %}
-            </p>
-        </div>
-        <div class="mt-4 md:mt-0 flex flex-wrap gap-2">
-            <button type="button" onclick="openStatusModal()" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
-                <i class="fas fa-exchange-alt mr-2"></i>Mudar Situação
-            </button>
-            <!-- Botão de galeria -->
-            <a href="{% url 'people:person_gallery' person.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
-                <i class="fas fa-images mr-2"></i>Galeria
-            </a>
-            <!-- Botão de editar visível apenas em desktop -->
-            <a href="{% url 'people:update' person.id %}" class="hidden md:inline-flex bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
-                <i class="fas fa-edit mr-2"></i>Editar
-            </a>
-            <!-- Botão de excluir visível apenas em desktop -->
-            <a href="{% url 'people:delete' person.id %}" class="hidden md:inline-flex bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm">
-                <i class="fas fa-trash mr-2"></i>Excluir
-            </a>
-            <!-- Debug: {{ ENABLE_WHATSAPP }} -->
-            {% if ENABLE_WHATSAPP == True %}
-                {% with has_whatsapp=person.contacts.all %}
-                {% for contact in has_whatsapp %}
-                    {% if contact.type == 'whatsapp' %}
-                    <a href="{% url 'people:send_whatsapp' person.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm">
-                        <i class="fab fa-whatsapp mr-2"></i>WhatsApp
-                    </a>
-                    {% endif %}
-                {% endfor %}
-                {% endwith %}
-            {% endif %}
-            <a href="{{ back_url }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
-                <i class="fas fa-arrow-left mr-2"></i>Voltar
-            </a>
+            
+            <!-- Botões para desktop -->
+            <div class="hidden md:flex mt-4 space-x-2">
+                <button type="button" onclick="openStatusModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-exchange-alt mr-2"></i>Mudar Situação
+                </button>
+                <a href="{% url 'people:person_gallery' person.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-images mr-2"></i>Galeria
+                    {% if person.gallery.count > 0 %}<span class="ml-1">({{ person.gallery.count }})</span>{% endif %}
+                </a>
+                <a href="{% url 'people:update' person.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-edit mr-2"></i>Editar
+                </a>
+                <a href="{% url 'people:delete' person.id %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-trash mr-2"></i>Excluir
+                </a>
+                <a href="{{ back_url }}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-arrow-left mr-2"></i>Voltar
+                </a>
+            </div>
+            
+            <!-- Botões para mobile -->
+            <div class="md:hidden mt-4 grid grid-cols-3 gap-2">
+                <a href="{% url 'people:person_gallery' person.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded text-xs text-center">
+                    Galeria
+                </a>
+                <button type="button" onclick="openStatusModal()" class="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs text-center">
+                    Status
+                </button>
+                <a href="{{ back_url }}" class="bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded text-xs text-center">
+                    Voltar
+                </a>
+                <a href="{% url 'people:update' person.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs text-center">
+                    Editar
+                </a>
+                {% if ENABLE_WHATSAPP == True %}
+                    {% with has_whatsapp=person.contacts.all %}
+                    {% for contact in has_whatsapp %}
+                        {% if contact.type == 'whatsapp' %}
+                        <a href="{% url 'people:send_whatsapp' person.id %}" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs text-center">
+                            WhatsApp
+                        </a>
+                        {% endif %}
+                    {% endfor %}
+                    {% endwith %}
+                {% endif %}
+            </div>
         </div>
     </div>
     
     <div class="border-t border-gray-200">
-        <div class="px-4 py-5 sm:px-6 flex items-start">
-            <!-- Foto -->
-            <div class="mr-6 flex-shrink-0">
-                {% if person.photo %}
-                    <img class="h-48 w-48 rounded-md object-cover shadow-md" src="{{ person.photo.url }}" alt="{{ person.name }}">
-                {% else %}
-                    {% with primary_photo=person.gallery.all|dictsort:"order"|first %}
-                        {% if primary_photo %}
-                            <img class="h-48 w-48 rounded-md object-cover shadow-md" src="{{ primary_photo.image.url }}" alt="{{ person.name }}">
-                        {% else %}
-                            <div class="h-48 w-48 rounded-md bg-gray-200 flex items-center justify-center shadow-md">
-                                <i class="fas fa-user text-gray-400 text-6xl"></i>
-                            </div>
-                        {% endif %}
-                    {% endwith %}
-                {% endif %}
-                
-                {% if person.rating %}
-                <div class="mt-2 flex justify-center">
-                    {% for i in "12345" %}
-                        {% if forloop.counter <= person.rating|floatformat:"0"|add:"0" %}
-                            <i class="fas fa-star text-yellow-400"></i>
-                        {% else %}
-                            <i class="far fa-star text-gray-300"></i>
-                        {% endif %}
-                    {% endfor %}
-                    <span class="ml-2 text-sm text-gray-600">({{ person.rating|floatformat:"1" }})</span>
+        <!-- Layout responsivo para foto e informações -->
+        <div class="px-4 py-5 sm:px-6">
+            <div class="flex flex-col md:flex-row md:items-start">
+                <!-- Foto -->
+                <div class="flex justify-center md:justify-start mb-6 md:mb-0 md:mr-6 md:flex-shrink-0">
+                    {% if person.photo %}
+                        <img class="h-48 w-48 rounded-md object-cover shadow-md" src="{{ person.photo.url }}" alt="{{ person.name }}">
+                    {% else %}
+                        {% with primary_photo=person.gallery.all|dictsort:"order"|first %}
+                            {% if primary_photo %}
+                                <img class="h-48 w-48 rounded-md object-cover shadow-md" src="{{ primary_photo.image.url }}" alt="{{ person.name }}">
+                            {% else %}
+                                <div class="h-48 w-48 rounded-md bg-gray-200 flex items-center justify-center shadow-md">
+                                    <i class="fas fa-user text-gray-400 text-6xl"></i>
+                                </div>
+                            {% endif %}
+                        {% endwith %}
+                    {% endif %}
+                    
+                    {% if person.rating %}
+                    <div class="mt-2 flex justify-center">
+                        {% for i in "12345" %}
+                            {% if forloop.counter <= person.rating|floatformat:"0"|add:"0" %}
+                                <i class="fas fa-star text-yellow-400"></i>
+                            {% else %}
+                                <i class="far fa-star text-gray-300"></i>
+                            {% endif %}
+                        {% endfor %}
+                        <span class="ml-2 text-sm text-gray-600">({{ person.rating|floatformat:"1" }})</span>
+                    </div>
+                    {% endif %}
                 </div>
-                {% endif %}
-            </div>
-            
-            <!-- Informações pessoais -->
-            <div class="flex-grow">
-                <dl>
-                    <div class="bg-gray-50 px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-t-lg">
-                        <dt class="text-sm font-medium text-gray-500">Documento</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ person.document_id|default:"Não informado" }}</dd>
-                    </div>
-                    
-                    <div class="bg-white px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">Categorias Profissionais</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            {% if person.professional_categories.all %}
-                                <div class="flex flex-wrap gap-2">
-                                    {% for category in person.professional_categories.all %}
-                                        <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-blue-100 text-blue-800">
-                                            {{ category.name }}
-                                        </span>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <span class="text-gray-500">Nenhuma categoria atribuída</span>
-                            {% endif %}
-                        </dd>
-                    </div>
-                    
-                    <div class="bg-gray-50 px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">Chave Pix</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ person.pix|default:"Não informado" }}</dd>
-                    </div>
-                    <div class="bg-white px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">Endereço</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            {{ person.address|default:"" }}
-                            {% if person.address_number %}, {{ person.address_number }}{% endif %}
-                            {% if person.address_complement %} - {{ person.address_complement }}{% endif %}
-                            {% if person.neighborhood %}<br>{{ person.neighborhood }}{% endif %}
-                            {% if person.city %}
-                                <br>{{ person.city }}{% if person.state %} - {{ person.state }}{% endif %}
-                            {% endif %}
-                            {% if person.zipcode %}<br>CEP: {{ person.zipcode }}{% endif %}
-                        </dd>
-                    </div>
-                    <div class="bg-gray-50 px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">Observações</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ person.notes|linebreaks|default:"Sem observações" }}</dd>
-                    </div>
-                    
-                    <!-- Características Físicas -->
-                    <div class="bg-white px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
-                        <dt class="text-sm font-medium text-gray-500">Características Físicas</dt>
-                        <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
-                            <div class="grid grid-cols-2 gap-x-4 gap-y-2">
-                                <div>
-                                    <span class="text-gray-500">Nascimento:</span> 
-                                    {% if person.data_nascimento %}{{ person.data_nascimento|date:"d/m/Y" }}{% else %}-{% endif %}
-                                </div>
-                                <div>
-                                    <span class="text-gray-500">Idade:</span> 
-                                    {% if person.idade %}{{ person.idade }} anos{% else %}-{% endif %}
-                                </div>
-                                <div>
-                                    <span class="text-gray-500">Altura:</span> 
-                                    {% if person.altura %}{{ person.altura }} m{% else %}-{% endif %}
-                                </div>
-                                <div>
-                                    <span class="text-gray-500">Peso:</span> 
-                                    {% if person.peso %}{{ person.peso }} kg{% else %}-{% endif %}
-                                </div>
-                                <div>
-                                    <span class="text-gray-500">Manequim:</span> 
-                                    {% if person.manequim %}{{ person.manequim }}{% else %}-{% endif %}
-                                </div>
-                                <div>
-                                    <span class="text-gray-500">Gênero:</span> 
-                                    {% if person.genero %}{{ person.genero.nome }}{% else %}-{% endif %}
-                                </div>
-                                <div>
-                                    <span class="text-gray-500">Cor da pele:</span> 
-                                    {% if person.cor_pele %}{{ person.cor_pele.nome }}{% else %}-{% endif %}
-                                </div>
-                                <div>
-                                    <span class="text-gray-500">Cor dos olhos:</span> 
-                                    {% if person.cor_olhos %}{{ person.cor_olhos.nome }}{% else %}-{% endif %}
-                                </div>
-                                <div>
-                                    <span class="text-gray-500">Cor do cabelo:</span> 
-                                    {% if person.cor_cabelo %}{{ person.cor_cabelo.nome }}{% else %}-{% endif %}
-                                </div>
-                            </div>
-                        </dd>
-                    </div>
-                </dl>
-            </div>
-            
-            <!-- Avaliações -->
-            <div class="ml-6 w-64">
-                <div class="mb-4">
-                    <div class="flex items-center mb-2">
-                        <div class="w-32 text-sm font-medium text-gray-500">Eficiência:</div>
-                        <div class="flex">
-                            {% if person.efficiency %}
-                                {% for i in "12345" %}
-                                    {% if forloop.counter <= person.efficiency %}
-                                        <span class="text-yellow-500">&#9733;</span>
-                                    {% else %}
-                                        <span class="text-gray-300">&#9734;</span>
-                                    {% endif %}
-                                {% endfor %}
-                            {% else %}
-                                <span class="text-sm text-gray-500">Não avaliado</span>
-                            {% endif %}
+                
+                <!-- Informações pessoais -->
+                <div class="flex-grow">
+                    <dl>
+                        <div class="bg-gray-50 px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6 rounded-t-lg">
+                            <dt class="text-sm font-medium text-gray-500">Documento</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ person.document_id|default:"Não informado" }}</dd>
                         </div>
-                    </div>
-                    
-                    <div class="flex items-center mb-2">
-                        <div class="w-32 text-sm font-medium text-gray-500">Proatividade:</div>
-                        <div class="flex">
-                            {% if person.proactivity %}
-                                {% for i in "12345" %}
-                                    {% if forloop.counter <= person.proactivity %}
-                                        <span class="text-yellow-500">&#9733;</span>
-                                    {% else %}
-                                        <span class="text-gray-300">&#9734;</span>
-                                    {% endif %}
-                                {% endfor %}
-                            {% else %}
-                                <span class="text-sm text-gray-500">Não avaliado</span>
-                            {% endif %}
+                        
+                        <div class="bg-white px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Categorias Profissionais</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                {% if person.professional_categories.all %}
+                                    <div class="flex flex-wrap gap-2">
+                                        {% for category in person.professional_categories.all %}
+                                            <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-blue-100 text-blue-800">
+                                                {{ category.name }}
+                                            </span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <span class="text-gray-500">Nenhuma categoria atribuída</span>
+                                {% endif %}
+                            </dd>
                         </div>
-                    </div>
-                    
-                    <div class="flex items-center mb-2">
-                        <div class="w-32 text-sm font-medium text-gray-500">Comunicação:</div>
-                        <div class="flex">
-                            {% if person.communication %}
-                                {% for i in "12345" %}
-                                    {% if forloop.counter <= person.communication %}
-                                        <span class="text-yellow-500">&#9733;</span>
-                                    {% else %}
-                                        <span class="text-gray-300">&#9734;</span>
-                                    {% endif %}
-                                {% endfor %}
-                            {% else %}
-                                <span class="text-sm text-gray-500">Não avaliado</span>
-                            {% endif %}
+                        
+                        <div class="bg-gray-50 px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Chave Pix</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ person.pix|default:"Não informado" }}</dd>
                         </div>
-                    </div>
-                    
-                    <div class="flex items-center mb-2">
-                        <div class="w-32 text-sm font-medium text-gray-500">Pontualidade:</div>
-                        <div class="flex">
-                            {% if person.punctuality %}
-                                {% for i in "12345" %}
-                                    {% if forloop.counter <= person.punctuality %}
-                                        <span class="text-yellow-500">&#9733;</span>
-                                    {% else %}
-                                        <span class="text-gray-300">&#9734;</span>
-                                    {% endif %}
-                                {% endfor %}
-                            {% else %}
-                                <span class="text-sm text-gray-500">Não avaliado</span>
-                            {% endif %}
+                        <div class="bg-white px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Endereço</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                {{ person.address|default:"" }}
+                                {% if person.address_number %}, {{ person.address_number }}{% endif %}
+                                {% if person.address_complement %} - {{ person.address_complement }}{% endif %}
+                                {% if person.neighborhood %}<br>{{ person.neighborhood }}{% endif %}
+                                {% if person.city %}
+                                    <br>{{ person.city }}{% if person.state %} - {{ person.state }}{% endif %}
+                                {% endif %}
+                                {% if person.zipcode %}<br>CEP: {{ person.zipcode }}{% endif %}
+                            </dd>
                         </div>
-                    </div>
-                    
-                    <div class="flex items-center mb-2">
-                        <div class="w-32 text-sm font-medium text-gray-500">Aparência:</div>
-                        <div class="flex">
-                            {% if person.appearance %}
-                                {% for i in "12345" %}
-                                    {% if forloop.counter <= person.appearance %}
-                                        <span class="text-yellow-500">&#9733;</span>
-                                    {% else %}
-                                        <span class="text-gray-300">&#9734;</span>
-                                    {% endif %}
-                                {% endfor %}
-                            {% else %}
-                                <span class="text-sm text-gray-500">Não avaliado</span>
-                            {% endif %}
+                        <div class="bg-gray-50 px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Observações</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ person.notes|linebreaks|default:"Sem observações" }}</dd>
                         </div>
-                    </div>
-                    
-                    <div class="flex items-center pt-2 border-t border-gray-200">
-                        <div class="w-32 text-sm font-medium text-gray-500">Média Geral:</div>
-                        <div class="flex">
-                            {% with avg_rating=person.get_average_rating %}
-                                {% if avg_rating %}
-                                    {% with full_stars=avg_rating|floatformat:0|add:"0" %}
+                        
+                        <!-- Características Físicas -->
+                        <div class="bg-white px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Características Físicas</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">
+                                    <div>
+                                        <span class="text-gray-500">Nascimento:</span> 
+                                        {% if person.data_nascimento %}{{ person.data_nascimento|date:"d/m/Y" }}{% else %}-{% endif %}
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Idade:</span> 
+                                        {% if person.idade %}{{ person.idade }} anos{% else %}-{% endif %}
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Altura:</span> 
+                                        {% if person.altura %}{{ person.altura }} m{% else %}-{% endif %}
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Peso:</span> 
+                                        {% if person.peso %}{{ person.peso }} kg{% else %}-{% endif %}
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Manequim:</span> 
+                                        {% if person.manequim %}{{ person.manequim }}{% else %}-{% endif %}
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Gênero:</span> 
+                                        {% if person.genero %}{{ person.genero.nome }}{% else %}-{% endif %}
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Cor da pele:</span> 
+                                        {% if person.cor_pele %}{{ person.cor_pele.nome }}{% else %}-{% endif %}
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Cor dos olhos:</span> 
+                                        {% if person.cor_olhos %}{{ person.cor_olhos.nome }}{% else %}-{% endif %}
+                                    </div>
+                                    <div>
+                                        <span class="text-gray-500">Cor do cabelo:</span> 
+                                        {% if person.cor_cabelo %}{{ person.cor_cabelo.nome }}{% else %}-{% endif %}
+                                    </div>
+                                </div>
+                            </dd>
+                        </div>
+                    </dl>
+                </div>
+                
+                <!-- Avaliações em seção separada para mobile -->
+                <div class="mt-6 border-t border-gray-200 pt-6">
+                    <h3 class="text-lg font-medium text-gray-900 mb-4">Avaliações</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+                            <div class="flex items-center mb-2">
+                                <div class="w-full sm:w-32 text-sm font-medium text-gray-500">Eficiência:</div>
+                                <div class="flex ml-auto">
+                                    {% if person.efficiency %}
                                         {% for i in "12345" %}
-                                            {% if forloop.counter <= full_stars %}
+                                            {% if forloop.counter <= person.efficiency %}
                                                 <span class="text-yellow-500">&#9733;</span>
-                                            {% elif forloop.counter|add:"-0.75" <= avg_rating %}
-                                                <span class="text-yellow-500">&#9733;</span>
-                                            {% elif forloop.counter|add:"-1.25" <= avg_rating %}
-                                                <span class="text-yellow-500">&#9734;</span>
                                             {% else %}
                                                 <span class="text-gray-300">&#9734;</span>
                                             {% endif %}
                                         {% endfor %}
+                                    {% else %}
+                                        <span class="text-sm text-gray-500">Não avaliado</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+                            <div class="flex items-center mb-2">
+                                <div class="w-full sm:w-32 text-sm font-medium text-gray-500">Proatividade:</div>
+                                <div class="flex ml-auto">
+                                    {% if person.proactivity %}
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= person.proactivity %}
+                                                <span class="text-yellow-500">&#9733;</span>
+                                            {% else %}
+                                                <span class="text-gray-300">&#9734;</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-sm text-gray-500">Não avaliado</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+                            <div class="flex items-center mb-2">
+                                <div class="w-full sm:w-32 text-sm font-medium text-gray-500">Comunicação:</div>
+                                <div class="flex ml-auto">
+                                    {% if person.communication %}
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= person.communication %}
+                                                <span class="text-yellow-500">&#9733;</span>
+                                            {% else %}
+                                                <span class="text-gray-300">&#9734;</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-sm text-gray-500">Não avaliado</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+                            <div class="flex items-center mb-2">
+                                <div class="w-full sm:w-32 text-sm font-medium text-gray-500">Pontualidade:</div>
+                                <div class="flex ml-auto">
+                                    {% if person.punctuality %}
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= person.punctuality %}
+                                                <span class="text-yellow-500">&#9733;</span>
+                                            {% else %}
+                                                <span class="text-gray-300">&#9734;</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-sm text-gray-500">Não avaliado</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+                            <div class="flex items-center mb-2">
+                                <div class="w-full sm:w-32 text-sm font-medium text-gray-500">Aparência:</div>
+                                <div class="flex ml-auto">
+                                    {% if person.appearance %}
+                                        {% for i in "12345" %}
+                                            {% if forloop.counter <= person.appearance %}
+                                                <span class="text-yellow-500">&#9733;</span>
+                                            {% else %}
+                                                <span class="text-gray-300">&#9734;</span>
+                                            {% endif %}
+                                        {% endfor %}
+                                    {% else %}
+                                        <span class="text-sm text-gray-500">Não avaliado</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+                            <div class="flex items-center mb-2">
+                                <div class="w-full sm:w-32 text-sm font-medium text-gray-500">Média Geral:</div>
+                                <div class="flex ml-auto">
+                                    {% with avg_rating=person.get_average_rating %}
+                                        {% if avg_rating %}
+                                            {% with full_stars=avg_rating|floatformat:0|add:"0" %}
+                                                {% for i in "12345" %}
+                                                    {% if forloop.counter <= full_stars %}
+                                                        <span class="text-yellow-500">&#9733;</span>
+                                                    {% elif forloop.counter|add:"-0.75" <= avg_rating %}
+                                                        <span class="text-yellow-500">&#9733;</span>
+                                                    {% elif forloop.counter|add:"-1.25" <= avg_rating %}
+                                                        <span class="text-yellow-500">&#9734;</span>
+                                                    {% else %}
+                                                        <span class="text-gray-300">&#9734;</span>
+                                                    {% endif %}
+                                                {% endfor %}
+                                            {% endwith %}
+                                        {% else %}
+                                            <span class="text-sm text-gray-500">Não avaliado</span>
+                                        {% endif %}
                                     {% endwith %}
-                                {% else %}
-                                    <span class="text-sm text-gray-500">Não avaliado</span>
-                                {% endif %}
-                            {% endwith %}
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>

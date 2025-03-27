@@ -15,6 +15,7 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from io import BytesIO
 from django.utils import timezone
+from django.urls import reverse
 
 # Event views
 def event_list(request):
@@ -548,17 +549,24 @@ def event_gallery(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
     gallery_items = EventGallery.objects.filter(event=event).order_by('order', 'created_at')
     
+    # Verificar se a origem é da listagem ou da página de detalhes
+    source = request.GET.get('source', 'detail')
+    
     context = {
         'event': event,
         'gallery_items': gallery_items,
         'title': f'Galeria de Fotos: {event.title}',
-        'subtitle': 'Gerenciar fotos da galeria'
+        'subtitle': 'Gerenciar fotos da galeria',
+        'source': source  # Adiciona a origem à context
     }
     return render(request, 'events/event_gallery.html', context)
 
 def event_gallery_add(request, event_id):
     """View para adicionar uma nova foto à galeria"""
     event = get_object_or_404(Event, pk=event_id)
+    
+    # Preservar a origem
+    source = request.GET.get('source', 'detail')
     
     if request.method == 'POST':
         form = EventGalleryForm(request.POST, request.FILES)
@@ -567,7 +575,7 @@ def event_gallery_add(request, event_id):
             gallery_item.event = event
             gallery_item.save()
             messages.success(request, "Foto adicionada à galeria com sucesso!")
-            return redirect('events:event_gallery', event_id=event.id)
+            return redirect(f'{reverse("events:event_gallery", args=[event.id])}?source={source}')
     else:
         form = EventGalleryForm()
     
@@ -575,7 +583,8 @@ def event_gallery_add(request, event_id):
         'form': form,
         'event': event,
         'title': f'Adicionar Foto: {event.title}',
-        'subtitle': 'Adicionar nova foto à galeria'
+        'subtitle': 'Adicionar nova foto à galeria',
+        'source': source  # Adiciona a origem à context
     }
     return render(request, 'events/event_gallery_form.html', context)
 
@@ -584,12 +593,15 @@ def event_gallery_edit(request, event_id, gallery_id):
     event = get_object_or_404(Event, pk=event_id)
     gallery_item = get_object_or_404(EventGallery, pk=gallery_id, event=event)
     
+    # Preservar a origem
+    source = request.GET.get('source', 'detail')
+    
     if request.method == 'POST':
         form = EventGalleryForm(request.POST, request.FILES, instance=gallery_item)
         if form.is_valid():
             form.save()
             messages.success(request, "Foto da galeria atualizada com sucesso!")
-            return redirect('events:event_gallery', event_id=event.id)
+            return redirect(f'{reverse("events:event_gallery", args=[event.id])}?source={source}')
     else:
         form = EventGalleryForm(instance=gallery_item)
     
@@ -598,7 +610,8 @@ def event_gallery_edit(request, event_id, gallery_id):
         'event': event,
         'gallery_item': gallery_item,
         'title': f'Editar Foto: {event.title}',
-        'subtitle': 'Atualizar informações da foto'
+        'subtitle': 'Atualizar informações da foto',
+        'source': source  # Adiciona a origem à context
     }
     return render(request, 'events/event_gallery_form.html', context)
 
@@ -607,16 +620,20 @@ def event_gallery_delete(request, event_id, gallery_id):
     event = get_object_or_404(Event, pk=event_id)
     gallery_item = get_object_or_404(EventGallery, pk=gallery_id, event=event)
     
+    # Preservar a origem
+    source = request.GET.get('source', 'detail')
+    
     if request.method == 'POST':
         gallery_item.delete()
         messages.success(request, "Foto removida da galeria com sucesso!")
-        return redirect('events:event_gallery', event_id=event.id)
+        return redirect(f'{reverse("events:event_gallery", args=[event.id])}?source={source}')
     
     context = {
         'event': event,
         'gallery_item': gallery_item,
         'title': f'Excluir Foto: {event.title}',
-        'subtitle': 'Confirmar exclusão da foto'
+        'subtitle': 'Confirmar exclusão da foto',
+        'source': source  # Adiciona a origem à context
     }
     return render(request, 'events/event_gallery_confirm_delete.html', context)
 

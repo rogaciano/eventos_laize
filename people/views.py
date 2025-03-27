@@ -1,8 +1,9 @@
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
-from django.views.decorators.csrf import csrf_exempt
+from django.http import JsonResponse, HttpResponse
+from django.db.models import Q, Count
 from django.urls import reverse
+from django.views.decorators.csrf import csrf_exempt
 from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero, WhatsAppMessage, ProfessionalCategory, PersonGallery
 from .forms import PersonForm, PersonContactForm, ProfessionalCategoryForm, PersonGalleryForm
 import os
@@ -1017,17 +1018,24 @@ def person_gallery(request, person_id):
     person = get_object_or_404(Person, pk=person_id)
     gallery_items = PersonGallery.objects.filter(person=person).order_by('order', 'created_at')
     
+    # Verificar se a origem é da listagem ou da página de detalhes
+    source = request.GET.get('source', 'detail')
+    
     context = {
         'person': person,
         'gallery_items': gallery_items,
         'title': f'Galeria de Fotos: {person.name}',
-        'subtitle': 'Gerenciar fotos da galeria'
+        'subtitle': 'Gerenciar fotos da galeria',
+        'source': source  # Adiciona a origem à context
     }
     return render(request, 'people/person_gallery.html', context)
 
 def person_gallery_add(request, person_id):
     """View para adicionar uma nova foto à galeria"""
     person = get_object_or_404(Person, pk=person_id)
+    
+    # Preservar a origem
+    source = request.GET.get('source', 'detail')
     
     if request.method == 'POST':
         form = PersonGalleryForm(request.POST, request.FILES)
@@ -1036,7 +1044,7 @@ def person_gallery_add(request, person_id):
             gallery_item.person = person
             gallery_item.save()
             messages.success(request, "Foto adicionada à galeria com sucesso!")
-            return redirect('people:person_gallery', person_id=person.id)
+            return redirect(f'{reverse("people:person_gallery", args=[person.id])}?source={source}')
     else:
         form = PersonGalleryForm()
     
@@ -1044,7 +1052,8 @@ def person_gallery_add(request, person_id):
         'form': form,
         'person': person,
         'title': f'Adicionar Foto: {person.name}',
-        'subtitle': 'Adicionar nova foto à galeria'
+        'subtitle': 'Adicionar nova foto à galeria',
+        'source': source  # Adiciona a origem à context
     }
     return render(request, 'people/person_gallery_form.html', context)
 
@@ -1053,12 +1062,15 @@ def person_gallery_edit(request, person_id, gallery_id):
     person = get_object_or_404(Person, pk=person_id)
     gallery_item = get_object_or_404(PersonGallery, pk=gallery_id, person=person)
     
+    # Preservar a origem
+    source = request.GET.get('source', 'detail')
+    
     if request.method == 'POST':
         form = PersonGalleryForm(request.POST, request.FILES, instance=gallery_item)
         if form.is_valid():
             form.save()
             messages.success(request, "Foto da galeria atualizada com sucesso!")
-            return redirect('people:person_gallery', person_id=person.id)
+            return redirect(f'{reverse("people:person_gallery", args=[person.id])}?source={source}')
     else:
         form = PersonGalleryForm(instance=gallery_item)
     
@@ -1067,7 +1079,8 @@ def person_gallery_edit(request, person_id, gallery_id):
         'person': person,
         'gallery_item': gallery_item,
         'title': f'Editar Foto: {person.name}',
-        'subtitle': 'Atualizar informações da foto'
+        'subtitle': 'Atualizar informações da foto',
+        'source': source  # Adiciona a origem à context
     }
     return render(request, 'people/person_gallery_form.html', context)
 
@@ -1076,15 +1089,19 @@ def person_gallery_delete(request, person_id, gallery_id):
     person = get_object_or_404(Person, pk=person_id)
     gallery_item = get_object_or_404(PersonGallery, pk=gallery_id, person=person)
     
+    # Preservar a origem
+    source = request.GET.get('source', 'detail')
+    
     if request.method == 'POST':
         gallery_item.delete()
         messages.success(request, "Foto removida da galeria com sucesso!")
-        return redirect('people:person_gallery', person_id=person.id)
+        return redirect(f'{reverse("people:person_gallery", args=[person.id])}?source={source}')
     
     context = {
         'person': person,
         'gallery_item': gallery_item,
         'title': f'Excluir Foto: {person.name}',
-        'subtitle': 'Confirmar exclusão da foto'
+        'subtitle': 'Confirmar exclusão da foto',
+        'source': source  # Adiciona a origem à context
     }
     return render(request, 'people/person_gallery_confirm_delete.html', context)

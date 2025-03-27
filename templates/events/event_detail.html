@@ -4,35 +4,61 @@
 
 {% block content %}
 <div class="bg-white shadow overflow-hidden sm:rounded-lg">
-    <div class="flex justify-between items-center px-4 py-5 sm:px-6">
-        <div>
-            <h1 class="text-2xl font-bold text-gray-900">{{ event.title }}</h1>
-            <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                {{ event.start_datetime|date:"d/m/Y" }} • {{ event.start_datetime|time:"H:i" }} até {{ event.end_datetime|time:"H:i" }}
-            </p>
-        </div>
-        <div class="flex space-x-2">
-            <a href="{% url 'events:event_gallery' event.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
-                <i class="fas fa-images mr-2"></i>Galeria
-            </a>
-            <a href="{% url 'events:event_budget' event.id %}" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md shadow-sm">
-                <i class="fas fa-file-invoice-dollar mr-2"></i>Orçamento
-            </a>
-            <a href="{% url 'events:event_costs' event.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm">
-                <i class="fas fa-money-bill-wave mr-2"></i>Custos
-            </a>
-            <a href="{% url 'events:change_status' event.id %}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md shadow-sm">
-                <i class="fas fa-exchange-alt mr-2"></i>Alterar Status
-            </a>
-            <a href="{% url 'events:update' event.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
-                <i class="fas fa-edit mr-2"></i>Editar
-            </a>
-            <a href="{% url 'events:delete' event.id %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm">
-                <i class="fas fa-trash mr-2"></i>Excluir
-            </a>
-            <a href="{% url 'events:list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
-                <i class="fas fa-arrow-left mr-2"></i>Voltar
-            </a>
+    <div class="px-4 py-5 sm:px-6">
+        <div class="flex flex-col">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">{{ event.title }}</h1>
+                <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                    {{ event.start_datetime|date:"d/m/Y" }} • {{ event.start_datetime|time:"H:i" }} até {{ event.end_datetime|time:"H:i" }}
+                </p>
+            </div>
+            
+            <!-- Botões para desktop -->
+            <div class="hidden md:flex mt-4 space-x-2">
+                <a href="{% url 'events:event_gallery' event.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-images mr-2"></i>Galeria
+                </a>
+                <a href="{% url 'events:event_budget' event.id %}" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-file-invoice-dollar mr-2"></i>Orçamento
+                </a>
+                <a href="{% url 'events:event_costs' event.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-money-bill-wave mr-2"></i>Custos
+                </a>
+                <a href="{% url 'events:change_status' event.id %}" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-exchange-alt mr-2"></i>Alterar Status
+                </a>
+                <a href="{% url 'events:update' event.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-edit mr-2"></i>Editar
+                </a>
+                <a href="{% url 'events:delete' event.id %}" class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-trash mr-2"></i>Excluir
+                </a>
+                <a href="{% url 'events:list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-arrow-left mr-2"></i>Voltar
+                </a>
+            </div>
+            
+            <!-- Botões para mobile -->
+            <div class="md:hidden mt-4 grid grid-cols-3 gap-2">
+                <a href="{% url 'events:event_gallery' event.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-2 py-1 rounded text-xs text-center">
+                    Galeria
+                </a>
+                <a href="{% url 'events:event_budget' event.id %}" class="bg-amber-600 hover:bg-amber-700 text-white px-2 py-1 rounded text-xs text-center">
+                    Orçamento
+                </a>
+                <a href="{% url 'events:event_costs' event.id %}" class="bg-green-600 hover:bg-green-700 text-white px-2 py-1 rounded text-xs text-center">
+                    Custos
+                </a>
+                <a href="{% url 'events:change_status' event.id %}" class="bg-purple-600 hover:bg-purple-700 text-white px-2 py-1 rounded text-xs text-center">
+                    Status
+                </a>
+                <a href="{% url 'events:list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-2 py-1 rounded text-xs text-center">
+                    Voltar
+                </a>
+                <a href="{% url 'events:update' event.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-2 py-1 rounded text-xs text-center">
+                    Editar
+                </a>
+            </div>
         </div>
     </div>
     
