@@ -1,0 +1,258 @@
+{% extends 'landing/base.html' %}
+
+{% block title %}{{ title }} - {{ site_settings.site_name }}{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section text-white py-20">
+    <div class="container mx-auto px-4 text-center">
+        <h1 class="text-4xl md:text-5xl font-bold mb-4">{{ title }}</h1>
+        <p class="text-xl md:text-2xl mb-6 max-w-3xl mx-auto">{{ subtitle }}</p>
+    </div>
+</section>
+
+<!-- Registration Form Section -->
+<section class="py-16 bg-gray-900">
+    <div class="container mx-auto px-4">
+        <div class="max-w-4xl mx-auto bg-gray-800 p-8 rounded-lg shadow-lg">
+            {% if form_sent %}
+                <div class="bg-green-600 text-white p-4 rounded-lg mb-6">
+                    <h3 class="text-xl font-bold mb-2">Cadastro Realizado com Sucesso!</h3>
+                    <p>Seu cadastro foi recebido e está em análise. Entraremos em contato em breve.</p>
+                </div>
+            {% elif form_error %}
+                <div class="bg-red-600 text-white p-4 rounded-lg mb-6">
+                    <h3 class="text-xl font-bold mb-2">Erro ao Processar Cadastro</h3>
+                    <p>Ocorreu um erro ao processar seu cadastro. Por favor, tente novamente ou entre em contato conosco.</p>
+                </div>
+            {% endif %}
+
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Informações Pessoais -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-white mb-4 pb-2 border-b border-gray-700">Informações Pessoais</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.name.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Nome Completo *</label>
+                            {{ form.name }}
+                            {% if form.name.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.name.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.photo.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Foto</label>
+                            {{ form.photo }}
+                            <p class="text-gray-400 text-xs mt-1">Envie uma foto profissional sua.</p>
+                            {% if form.photo.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.photo.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <div>
+                            <label for="{{ form.contact_email.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Email para Contato *</label>
+                            {{ form.contact_email }}
+                            {% if form.contact_email.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.contact_email.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.contact_phone.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Telefone/WhatsApp *</label>
+                            {{ form.contact_phone }}
+                            {% if form.contact_phone.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.contact_phone.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Categorias Profissionais -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-white mb-4 pb-2 border-b border-gray-700">Categorias Profissionais</h3>
+                    
+                    <div>
+                        <label for="{{ form.professional_categories.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Selecione suas categorias profissionais *</label>
+                        {{ form.professional_categories }}
+                        <p class="text-gray-400 text-xs mt-1">Selecione uma ou mais categorias que você atua.</p>
+                        {% if form.professional_categories.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.professional_categories.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Endereço Completo -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-white mb-4 pb-2 border-b border-gray-700">Endereço Completo</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="md:col-span-2">
+                            <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Logradouro</label>
+                            {{ form.address }}
+                            {% if form.address.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.address.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.address_number.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Número</label>
+                            {{ form.address_number }}
+                            {% if form.address_number.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.address_number.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
+                        <div>
+                            <label for="{{ form.address_complement.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Complemento</label>
+                            {{ form.address_complement }}
+                            {% if form.address_complement.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.address_complement.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.neighborhood.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Bairro</label>
+                            {{ form.neighborhood }}
+                            {% if form.neighborhood.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.neighborhood.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
+                        <div>
+                            <label for="{{ form.city.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Cidade</label>
+                            {{ form.city }}
+                            {% if form.city.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.city.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.state.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Estado (UF)</label>
+                            {{ form.state }}
+                            {% if form.state.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.state.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.zipcode.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">CEP</label>
+                            {{ form.zipcode }}
+                            {% if form.zipcode.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.zipcode.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Características Físicas -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-white mb-4 pb-2 border-b border-gray-700">Características Físicas</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div>
+                            <label for="{{ form.altura.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Altura (m)</label>
+                            {{ form.altura }}
+                            {% if form.altura.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.altura.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.peso.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Peso (kg)</label>
+                            {{ form.peso }}
+                            {% if form.peso.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.peso.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.manequim.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Manequim</label>
+                            {{ form.manequim }}
+                            {% if form.manequim.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.manequim.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mt-4">
+                        <div>
+                            <label for="{{ form.cor_olhos.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Cor dos Olhos</label>
+                            {{ form.cor_olhos }}
+                            {% if form.cor_olhos.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.cor_olhos.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.cor_cabelo.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Cor do Cabelo</label>
+                            {{ form.cor_cabelo }}
+                            {% if form.cor_cabelo.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.cor_cabelo.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.cor_pele.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Cor da Pele</label>
+                            {{ form.cor_pele }}
+                            {% if form.cor_pele.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.cor_pele.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.genero.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Gênero</label>
+                            {{ form.genero }}
+                            {% if form.genero.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.genero.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Observações -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-white mb-4 pb-2 border-b border-gray-700">Observações</h3>
+                    
+                    <div>
+                        <label for="{{ form.notes.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Observações Adicionais</label>
+                        {{ form.notes }}
+                        <p class="text-gray-400 text-xs mt-1">Compartilhe informações adicionais, experiências, habilidades ou qualquer outra informação relevante.</p>
+                        {% if form.notes.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.notes.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="flex justify-center">
+                    <button type="submit" class="bg-white hover:bg-gray-200 text-black font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
+                        Enviar Cadastro
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</section>
+
+<!-- Script para inicializar o Select2 -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar Select2 para o campo de categorias profissionais
+        if (typeof jQuery !== 'undefined' && typeof jQuery.fn.select2 !== 'undefined') {
+            jQuery('#{{ form.professional_categories.id_for_label }}').select2({
+                theme: 'default',
+                placeholder: 'Selecione suas categorias profissionais',
+                allowClear: true
+            });
+        }
+    });
+</script>
+{% endblock %}

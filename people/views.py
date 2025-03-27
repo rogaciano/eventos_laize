@@ -3,8 +3,8 @@ from django.http import JsonResponse, HttpResponse
 from django.contrib import messages
 from django.views.decorators.csrf import csrf_exempt
 from django.urls import reverse
-from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero, WhatsAppMessage, ProfessionalCategory
-from .forms import PersonForm, PersonContactForm, ProfessionalCategoryForm
+from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero, WhatsAppMessage, ProfessionalCategory, PersonGallery
+from .forms import PersonForm, PersonContactForm, ProfessionalCategoryForm, PersonGalleryForm
 import os
 from datetime import date, datetime
 from io import BytesIO
@@ -1002,9 +1002,89 @@ def professional_category_delete(request, category_id):
     
     if request.method == 'POST':
         category.delete()
-        messages.success(request, 'Categoria profissional excluída com sucesso!')
+        messages.success(request, "Categoria profissional excluída com sucesso!")
         return redirect('people:professional_category_list')
     
     return render(request, 'people/professional_category_confirm_delete.html', {
-        'category': category
+        'category': category,
+        'title': 'Excluir Categoria',
+        'subtitle': f'Confirmar exclusão de: {category.nome}'
     })
+
+# Gallery views
+def person_gallery(request, person_id):
+    """View para exibir e gerenciar a galeria de fotos de uma pessoa"""
+    person = get_object_or_404(Person, pk=person_id)
+    gallery_items = PersonGallery.objects.filter(person=person).order_by('order', 'created_at')
+    
+    context = {
+        'person': person,
+        'gallery_items': gallery_items,
+        'title': f'Galeria de Fotos: {person.name}',
+        'subtitle': 'Gerenciar fotos da galeria'
+    }
+    return render(request, 'people/person_gallery.html', context)
+
+def person_gallery_add(request, person_id):
+    """View para adicionar uma nova foto à galeria"""
+    person = get_object_or_404(Person, pk=person_id)
+    
+    if request.method == 'POST':
+        form = PersonGalleryForm(request.POST, request.FILES)
+        if form.is_valid():
+            gallery_item = form.save(commit=False)
+            gallery_item.person = person
+            gallery_item.save()
+            messages.success(request, "Foto adicionada à galeria com sucesso!")
+            return redirect('people:person_gallery', person_id=person.id)
+    else:
+        form = PersonGalleryForm()
+    
+    context = {
+        'form': form,
+        'person': person,
+        'title': f'Adicionar Foto: {person.name}',
+        'subtitle': 'Adicionar nova foto à galeria'
+    }
+    return render(request, 'people/person_gallery_form.html', context)
+
+def person_gallery_edit(request, person_id, gallery_id):
+    """View para editar uma foto da galeria"""
+    person = get_object_or_404(Person, pk=person_id)
+    gallery_item = get_object_or_404(PersonGallery, pk=gallery_id, person=person)
+    
+    if request.method == 'POST':
+        form = PersonGalleryForm(request.POST, request.FILES, instance=gallery_item)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Foto da galeria atualizada com sucesso!")
+            return redirect('people:person_gallery', person_id=person.id)
+    else:
+        form = PersonGalleryForm(instance=gallery_item)
+    
+    context = {
+        'form': form,
+        'person': person,
+        'gallery_item': gallery_item,
+        'title': f'Editar Foto: {person.name}',
+        'subtitle': 'Atualizar informações da foto'
+    }
+    return render(request, 'people/person_gallery_form.html', context)
+
+def person_gallery_delete(request, person_id, gallery_id):
+    """View para excluir uma foto da galeria"""
+    person = get_object_or_404(Person, pk=person_id)
+    gallery_item = get_object_or_404(PersonGallery, pk=gallery_id, person=person)
+    
+    if request.method == 'POST':
+        gallery_item.delete()
+        messages.success(request, "Foto removida da galeria com sucesso!")
+        return redirect('people:person_gallery', person_id=person.id)
+    
+    context = {
+        'person': person,
+        'gallery_item': gallery_item,
+        'title': f'Excluir Foto: {person.name}',
+        'subtitle': 'Confirmar exclusão da foto'
+    }
+    return render(request, 'people/person_gallery_confirm_delete.html', context)

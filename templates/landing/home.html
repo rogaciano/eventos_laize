@@ -15,6 +15,9 @@
             <a href="{% url 'landing:services' %}" class="bg-transparent hover:bg-white/10 text-white font-bold py-3 px-8 rounded-lg border-2 border-white transition duration-300 text-lg">
                 Nossos Serviços
             </a>
+            <a href="{% url 'landing:register' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
+                Cadastre-se em Nossa Equipe
+            </a>
         </div>
     </div>
 </section>
@@ -151,14 +154,30 @@
     </div>
 </section>
 
+<!-- Registration CTA Section -->
+<section class="py-16 bg-indigo-900 text-white">
+    <div class="container mx-auto px-4 text-center">
+        <h2 class="text-3xl font-bold mb-6">Faça Parte da Nossa Equipe</h2>
+        <p class="text-xl mb-10 max-w-2xl mx-auto">Quer trabalhar em eventos? Cadastre-se em nosso banco de talentos e participe de nossos eventos.</p>
+        <a href="{% url 'landing:register' %}" class="inline-block bg-white text-indigo-900 hover:bg-gray-200 font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
+            Cadastre-se Agora
+        </a>
+    </div>
+</section>
+
 <!-- CTA Section -->
 <section class="py-20 bg-black text-white">
     <div class="container mx-auto px-4 text-center">
         <h2 class="text-3xl font-bold mb-6">Pronto para Transformar seu Evento?</h2>
         <p class="text-xl mb-10 max-w-2xl mx-auto">Entre em contato conosco hoje mesmo e descubra como podemos ajudar a tornar seu evento um sucesso.</p>
-        <a href="{% url 'landing:contact' %}" class="inline-block bg-white text-black hover:bg-gray-200 font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
-            Fale Conosco
-        </a>
+        <div class="flex flex-col sm:flex-row justify-center gap-4">
+            <a href="{% url 'landing:contact' %}" class="inline-block bg-white text-black hover:bg-gray-200 font-bold py-3 px-8 rounded-lg transition duration-300 text-lg">
+                Fale Conosco
+            </a>
+            <a href="{% url 'landing:register' %}" class="inline-block bg-transparent hover:bg-white/10 text-white font-bold py-3 px-8 rounded-lg border-2 border-white transition duration-300 text-lg">
+                Cadastre-se
+            </a>
+        </div>
     </div>
 </section>
 {% endblock %}

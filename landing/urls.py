@@ -10,6 +10,7 @@ urlpatterns = [
     path('novidades/', views.blog, name='blog'),
     path('novidades/<slug:slug>/', views.post_detail, name='post_detail'),
     path('contato/', views.contact, name='contact'),
+    path('cadastro/', views.register, name='register'),
     
     # URLs para gerenciamento de mensagens
     path('mensagens/', views.message_list, name='message_list'),

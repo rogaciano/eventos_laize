@@ -79,10 +79,23 @@
                 {% if person.photo %}
                     <img class="h-48 w-48 rounded-md object-cover shadow-md" src="{{ person.photo.url }}" alt="{{ person.name }}">
                 {% else %}
-                    <div class="h-48 w-48 rounded-md bg-gray-200 flex items-center justify-center shadow-md">
-                        <i class="fas fa-user text-gray-400 text-6xl"></i>
-                    </div>
+                    {% with primary_photo=person.gallery.all|dictsort:"order"|first %}
+                        {% if primary_photo %}
+                            <img class="h-48 w-48 rounded-md object-cover shadow-md" src="{{ primary_photo.image.url }}" alt="{{ person.name }}">
+                        {% else %}
+                            <div class="h-48 w-48 rounded-md bg-gray-200 flex items-center justify-center shadow-md">
+                                <i class="fas fa-user text-gray-400 text-6xl"></i>
+                            </div>
+                        {% endif %}
+                    {% endwith %}
                 {% endif %}
+                
+                <div class="mt-2 flex justify-center">
+                    <a href="{% url 'people:person_gallery' person.id %}" class="text-indigo-600 hover:text-indigo-800 text-sm flex items-center">
+                        <i class="fas fa-images mr-1"></i> Galeria de Fotos
+                        <span class="ml-1 text-xs text-gray-500">({{ person.gallery.count }})</span>
+                    </a>
+                </div>
                 
                 {% if person.rating %}
                 <div class="mt-2 flex justify-center">
@@ -110,9 +123,9 @@
                         <dt class="text-sm font-medium text-gray-500">Categorias Profissionais</dt>
                         <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                             {% if person.professional_categories.all %}
-                                <div class="flex flex-wrap gap-1">
+                                <div class="flex flex-wrap gap-2">
                                     {% for category in person.professional_categories.all %}
-                                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                        <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-blue-100 text-blue-800">
                                             {{ category.name }}
                                         </span>
                                     {% endfor %}

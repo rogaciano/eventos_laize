@@ -21,9 +21,15 @@ urlpatterns = [
     path('person/<int:person_id>/whatsapp-ajax/', views.send_whatsapp_ajax, name='send_whatsapp_ajax'),
     path('whatsapp-webhook/', views.whatsapp_webhook, name='whatsapp_webhook'),
     
-    # Categorias Profissionais
+    # Professional Category URLs
     path('professional-categories/', views.professional_category_list, name='professional_category_list'),
     path('professional-categories/add/', views.professional_category_create, name='professional_category_create'),
     path('professional-categories/<int:category_id>/edit/', views.professional_category_update, name='professional_category_update'),
     path('professional-categories/<int:category_id>/delete/', views.professional_category_delete, name='professional_category_delete'),
+    
+    # Gallery URLs
+    path('person/<int:person_id>/gallery/', views.person_gallery, name='person_gallery'),
+    path('person/<int:person_id>/gallery/add/', views.person_gallery_add, name='person_gallery_add'),
+    path('person/<int:person_id>/gallery/<int:gallery_id>/edit/', views.person_gallery_edit, name='person_gallery_edit'),
+    path('person/<int:person_id>/gallery/<int:gallery_id>/delete/', views.person_gallery_delete, name='person_gallery_delete'),
 ]

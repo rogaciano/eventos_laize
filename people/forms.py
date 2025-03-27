@@ -1,5 +1,5 @@
 from django import forms
-from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero, ProfessionalCategory
+from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero, ProfessionalCategory, PersonGallery
 
 class PersonForm(forms.ModelForm):
     class Meta:
@@ -50,4 +50,15 @@ class ProfessionalCategoryForm(forms.ModelForm):
         widgets = {
             'nome': forms.TextInput(attrs={'class': 'shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md bg-white text-gray-900'}),
             'descricao': forms.Textarea(attrs={'rows': 3, 'class': 'shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md bg-white text-gray-900'}),
+        }
+
+class PersonGalleryForm(forms.ModelForm):
+    class Meta:
+        model = PersonGallery
+        fields = ['image', 'title', 'description', 'is_primary', 'order']
+        widgets = {
+            'image': forms.FileInput(attrs={'class': 'shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md bg-white text-gray-900'}),
+            'title': forms.TextInput(attrs={'class': 'shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md bg-white text-gray-900'}),
+            'description': forms.Textarea(attrs={'rows': 3, 'class': 'shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md bg-white text-gray-900'}),
+            'order': forms.NumberInput(attrs={'min': 0, 'class': 'shadow-sm focus:ring-black focus:border-black block w-full sm:text-sm border-gray-300 rounded-md bg-white text-gray-900'}),
         }

@@ -116,6 +116,39 @@ class Event(models.Model):
             return None
         return (profit / self.value) * 100
 
+    def get_profit_margin_percentage(self):
+        """Retorna a margem de lucro em percentual"""
+        total_expenses = self.get_total_expenses()
+        if total_expenses and self.value:
+            return ((self.value - total_expenses) / self.value) * 100
+        return None
+
+
+class EventGallery(models.Model):
+    """Model to store photos for an event's gallery"""
+    event = models.ForeignKey(Event, related_name='gallery', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='events_gallery/', verbose_name="Imagem")
+    title = models.CharField(max_length=100, blank=True, null=True, verbose_name="Título")
+    description = models.TextField(blank=True, null=True, verbose_name="Descrição")
+    is_primary = models.BooleanField(default=False, verbose_name="Imagem Principal")
+    order = models.PositiveIntegerField(default=0, verbose_name="Ordem")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Foto de {self.event.title} - {self.title or 'Sem título'}"
+    
+    def save(self, *args, **kwargs):
+        # If this image is set as primary, unset all other primary images for this event
+        if self.is_primary:
+            EventGallery.objects.filter(event=self.event, is_primary=True).update(is_primary=False)
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        verbose_name = 'Foto da Galeria do Evento'
+        verbose_name_plural = 'Fotos da Galeria do Evento'
+        ordering = ['event__title', 'order', 'created_at']
+
 
 class EventStatusHistory(models.Model):
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='status_history')

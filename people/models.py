@@ -205,3 +205,29 @@ class WhatsAppMessage(models.Model):
         verbose_name = 'Mensagem WhatsApp'
         verbose_name_plural = 'Mensagens WhatsApp'
         ordering = ['-sent_at']
+
+
+class PersonGallery(models.Model):
+    """Model to store additional photos for a person's gallery"""
+    person = models.ForeignKey(Person, related_name='gallery', on_delete=models.CASCADE)
+    image = models.ImageField(upload_to='people_gallery/', verbose_name="Imagem")
+    title = models.CharField(max_length=100, blank=True, null=True, verbose_name="Título")
+    description = models.TextField(blank=True, null=True, verbose_name="Descrição")
+    is_primary = models.BooleanField(default=False, verbose_name="Imagem Principal")
+    order = models.PositiveIntegerField(default=0, verbose_name="Ordem")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"Foto de {self.person.name} - {self.title or 'Sem título'}"
+    
+    def save(self, *args, **kwargs):
+        # If this image is set as primary, unset all other primary images for this person
+        if self.is_primary:
+            PersonGallery.objects.filter(person=self.person, is_primary=True).update(is_primary=False)
+        super().save(*args, **kwargs)
+    
+    class Meta:
+        verbose_name = 'Foto da Galeria'
+        verbose_name_plural = 'Fotos da Galeria'
+        ordering = ['person__name', 'order', 'created_at']

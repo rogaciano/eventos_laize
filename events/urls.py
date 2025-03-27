@@ -41,4 +41,16 @@ urlpatterns = [
     
     # Incluir URLs de gestão de custos
     path('cost/', include('events.urls_cost')),
+    
+    # Cost URLs
+    path('event/<int:event_id>/costs/', views.event_costs, name='event_costs'),
+    path('event/<int:event_id>/cost/add/', views.event_cost_add, name='event_cost_add'),
+    path('event/<int:event_id>/cost/<int:cost_id>/edit/', views.event_cost_edit, name='event_cost_edit'),
+    path('event/<int:event_id>/cost/<int:cost_id>/delete/', views.event_cost_delete, name='event_cost_delete'),
+    
+    # Gallery URLs
+    path('event/<int:event_id>/gallery/', views.event_gallery, name='event_gallery'),
+    path('event/<int:event_id>/gallery/add/', views.event_gallery_add, name='event_gallery_add'),
+    path('event/<int:event_id>/gallery/<int:gallery_id>/edit/', views.event_gallery_edit, name='event_gallery_edit'),
+    path('event/<int:event_id>/gallery/<int:gallery_id>/delete/', views.event_gallery_delete, name='event_gallery_delete'),
 ]

@@ -3,38 +3,68 @@ from django.contrib import messages
 from django.http import HttpResponse, JsonResponse
 from django.core import serializers
 import json
-from .models import Event, EventType, EventParticipant, Funcao, EventStatusHistory
+from .models import Event, EventType, EventParticipant, Funcao, EventStatusHistory, EventGallery
 from people.models import Person
-from .forms import EventForm, EventTypeForm, EventParticipantForm, FuncaoForm, EventStatusHistoryForm
-from django.db.models import ProtectedError, Q
+from .forms import EventForm, EventTypeForm, EventParticipantForm, FuncaoForm, EventStatusHistoryForm, EventGalleryForm, EventCostForm
+from .models_cost import EventCost, CostCategory
+from django.db.models import ProtectedError, Q, Count
+from django.core.paginator import Paginator
 
 # Event views
 def event_list(request):
-    events = Event.objects.all().order_by('-start_datetime')
-    event_types = EventType.objects.all()
-    
-    # Processar filtros
-    search = request.GET.get('search', '')
-    type_id = request.GET.get('type', '')
+    """View para listar eventos"""
+    # Filtros
+    search_query = request.GET.get('search', '')
+    event_type_id = request.GET.get('type', '')
     status = request.GET.get('status', '')
     
-    if search:
+    # Query base
+    events = Event.objects.all().order_by('-start_datetime')
+    
+    # Aplicar filtros
+    if search_query:
         events = events.filter(
-            Q(title__icontains=search) | 
-            Q(client__name__icontains=search) |
-            Q(location__icontains=search)
+            Q(title__icontains=search_query) | 
+            Q(description__icontains=search_query) |
+            Q(client__name__icontains=search_query)
         )
     
-    if type_id:
-        events = events.filter(event_type_id=type_id)
+    if event_type_id:
+        events = events.filter(event_type_id=event_type_id)
     
     if status:
         events = events.filter(status=status)
     
-    return render(request, 'events/event_list.html', {
-        'events': events,
-        'event_types': event_types
-    })
+    # Prefetch related para otimizar consultas
+    events = events.select_related('client', 'event_type')
+    
+    # Obter todos os eventos que têm fotos na galeria
+    events_with_gallery = set(EventGallery.objects.values_list('event_id', flat=True).distinct())
+    
+    # Contar o número de fotos por evento
+    gallery_counts = {}
+    for event_id, count in EventGallery.objects.values_list('event_id').annotate(count=Count('id')):
+        gallery_counts[event_id] = count
+    
+    # Paginação
+    paginator = Paginator(events, 10)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    # Adicionar informações da galeria aos eventos
+    for event in page_obj:
+        event.has_gallery = event.id in events_with_gallery
+        event.gallery_count = gallery_counts.get(event.id, 0)
+    
+    # Tipos de evento para o filtro
+    event_types = EventType.objects.all().order_by('name')
+    
+    context = {
+        'events': page_obj,
+        'event_types': event_types,
+        'page_obj': page_obj,
+    }
+    return render(request, 'events/event_list.html', context)
 
 def event_detail(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
@@ -337,6 +367,83 @@ def funcao_delete(request, funcao_id):
     
     return render(request, 'events/funcao_confirm_delete.html', {'funcao': funcao})
 
+# Cost views
+def event_costs(request, event_id):
+    """View para exibir os custos de um evento"""
+    event = get_object_or_404(Event, pk=event_id)
+    costs = EventCost.objects.filter(event=event).order_by('-created_at')
+    
+    context = {
+        'event': event,
+        'costs': costs,
+        'title': f'Custos: {event.title}',
+        'subtitle': 'Gerenciar custos do evento'
+    }
+    return render(request, 'events/event_costs.html', context)
+
+def event_cost_add(request, event_id):
+    """View para adicionar um novo custo ao evento"""
+    event = get_object_or_404(Event, pk=event_id)
+    
+    if request.method == 'POST':
+        form = EventCostForm(request.POST)
+        if form.is_valid():
+            cost = form.save(commit=False)
+            cost.event = event
+            cost.save()
+            messages.success(request, "Custo adicionado com sucesso!")
+            return redirect('events:event_costs', event_id=event.id)
+    else:
+        form = EventCostForm()
+    
+    context = {
+        'form': form,
+        'event': event,
+        'title': f'Adicionar Custo: {event.title}',
+        'subtitle': 'Adicionar novo custo ao evento'
+    }
+    return render(request, 'events/event_cost_form.html', context)
+
+def event_cost_edit(request, event_id, cost_id):
+    """View para editar um custo de evento"""
+    event = get_object_or_404(Event, pk=event_id)
+    cost = get_object_or_404(EventCost, pk=cost_id, event=event)
+    
+    if request.method == 'POST':
+        form = EventCostForm(request.POST, instance=cost)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Custo atualizado com sucesso!")
+            return redirect('events:event_costs', event_id=event.id)
+    else:
+        form = EventCostForm(instance=cost)
+    
+    context = {
+        'form': form,
+        'event': event,
+        'cost': cost,
+        'title': f'Editar Custo: {event.title}',
+        'subtitle': 'Atualizar informações do custo'
+    }
+    return render(request, 'events/event_cost_form.html', context)
+
+def event_cost_delete(request, event_id, cost_id):
+    """View para excluir um custo de evento"""
+    event = get_object_or_404(Event, pk=event_id)
+    cost = get_object_or_404(EventCost, pk=cost_id, event=event)
+    
+    if request.method == 'POST':
+        cost.delete()
+        messages.success(request, "Custo excluído com sucesso!")
+        return redirect('events:event_costs', event_id=event.id)
+    
+    return render(request, 'events/event_cost_confirm_delete.html', {
+        'event': event,
+        'cost': cost,
+        'title': 'Excluir Custo',
+        'subtitle': f'Confirmar exclusão do custo: {cost.description}'
+    })
+
 # Event Status History views
 def event_status_history(request, event_id):
     event = get_object_or_404(Event, pk=event_id)
@@ -428,3 +535,81 @@ def event_calendar_data(request):
         })
     
     return JsonResponse(calendar_events, safe=False)
+
+# Gallery views
+def event_gallery(request, event_id):
+    """View para exibir e gerenciar a galeria de fotos de um evento"""
+    event = get_object_or_404(Event, pk=event_id)
+    gallery_items = EventGallery.objects.filter(event=event).order_by('order', 'created_at')
+    
+    context = {
+        'event': event,
+        'gallery_items': gallery_items,
+        'title': f'Galeria de Fotos: {event.title}',
+        'subtitle': 'Gerenciar fotos da galeria'
+    }
+    return render(request, 'events/event_gallery.html', context)
+
+def event_gallery_add(request, event_id):
+    """View para adicionar uma nova foto à galeria"""
+    event = get_object_or_404(Event, pk=event_id)
+    
+    if request.method == 'POST':
+        form = EventGalleryForm(request.POST, request.FILES)
+        if form.is_valid():
+            gallery_item = form.save(commit=False)
+            gallery_item.event = event
+            gallery_item.save()
+            messages.success(request, "Foto adicionada à galeria com sucesso!")
+            return redirect('events:event_gallery', event_id=event.id)
+    else:
+        form = EventGalleryForm()
+    
+    context = {
+        'form': form,
+        'event': event,
+        'title': f'Adicionar Foto: {event.title}',
+        'subtitle': 'Adicionar nova foto à galeria'
+    }
+    return render(request, 'events/event_gallery_form.html', context)
+
+def event_gallery_edit(request, event_id, gallery_id):
+    """View para editar uma foto da galeria"""
+    event = get_object_or_404(Event, pk=event_id)
+    gallery_item = get_object_or_404(EventGallery, pk=gallery_id, event=event)
+    
+    if request.method == 'POST':
+        form = EventGalleryForm(request.POST, request.FILES, instance=gallery_item)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Foto da galeria atualizada com sucesso!")
+            return redirect('events:event_gallery', event_id=event.id)
+    else:
+        form = EventGalleryForm(instance=gallery_item)
+    
+    context = {
+        'form': form,
+        'event': event,
+        'gallery_item': gallery_item,
+        'title': f'Editar Foto: {event.title}',
+        'subtitle': 'Atualizar informações da foto'
+    }
+    return render(request, 'events/event_gallery_form.html', context)
+
+def event_gallery_delete(request, event_id, gallery_id):
+    """View para excluir uma foto da galeria"""
+    event = get_object_or_404(Event, pk=event_id)
+    gallery_item = get_object_or_404(EventGallery, pk=gallery_id, event=event)
+    
+    if request.method == 'POST':
+        gallery_item.delete()
+        messages.success(request, "Foto removida da galeria com sucesso!")
+        return redirect('events:event_gallery', event_id=event.id)
+    
+    context = {
+        'event': event,
+        'gallery_item': gallery_item,
+        'title': f'Excluir Foto: {event.title}',
+        'subtitle': 'Confirmar exclusão da foto'
+    }
+    return render(request, 'events/event_gallery_confirm_delete.html', context)

@@ -12,6 +12,9 @@
             </p>
         </div>
         <div class="flex space-x-2">
+            <a href="{% url 'events:event_gallery' event.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+                <i class="fas fa-images mr-2"></i>Galeria
+            </a>
             <a href="{% url 'events:event_costs' event.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm">
                 <i class="fas fa-money-bill-wave mr-2"></i>Custos
             </a>

@@ -1,0 +1,105 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ title }} | Agência Atitude{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="flex justify-between items-center mb-6">
+        <div>
+            <h1 class="text-2xl font-bold text-white">{{ title }}</h1>
+            <p class="text-gray-400">{{ subtitle }}</p>
+        </div>
+        <a href="{% url 'people:person_gallery' person.id %}" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md">
+            <i class="fas fa-arrow-left mr-2"></i> Voltar à Galeria
+        </a>
+    </div>
+
+    <div class="bg-gray-800 rounded-lg shadow-lg p-6">
+        <form method="post" enctype="multipart/form-data" class="space-y-6">
+            {% csrf_token %}
+            
+            {% if form.non_field_errors %}
+            <div class="bg-red-700 text-white p-4 rounded-md mb-4">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+            
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="space-y-4">
+                    <div>
+                        <label for="{{ form.image.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">
+                            {{ form.image.label }} {% if form.image.field.required %}*{% endif %}
+                        </label>
+                        {{ form.image }}
+                        {% if form.image.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.image.errors }}</p>
+                        {% endif %}
+                        {% if gallery_item and gallery_item.image %}
+                        <div class="mt-2">
+                            <p class="text-sm text-gray-400 mb-2">Imagem atual:</p>
+                            <img src="{{ gallery_item.image.url }}" alt="Imagem atual" class="h-32 object-cover rounded-md">
+                        </div>
+                        {% endif %}
+                    </div>
+                    
+                    <div>
+                        <label for="{{ form.title.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">
+                            {{ form.title.label }} {% if form.title.field.required %}*{% endif %}
+                        </label>
+                        {{ form.title }}
+                        {% if form.title.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.title.errors }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div class="space-y-4">
+                    <div>
+                        <label for="{{ form.description.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">
+                            {{ form.description.label }} {% if form.description.field.required %}*{% endif %}
+                        </label>
+                        {{ form.description }}
+                        {% if form.description.errors %}
+                        <p class="text-red-500 text-xs mt-1">{{ form.description.errors }}</p>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label for="{{ form.order.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">
+                                {{ form.order.label }} {% if form.order.field.required %}*{% endif %}
+                            </label>
+                            {{ form.order }}
+                            {% if form.order.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.order.errors }}</p>
+                            {% endif %}
+                            <p class="text-gray-500 text-xs mt-1">Ordem de exibição (menor primeiro)</p>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="flex items-start mt-6">
+                                {{ form.is_primary }}
+                                <label for="{{ form.is_primary.id_for_label }}" class="ml-2 text-sm text-gray-300">
+                                    {{ form.is_primary.label }}
+                                </label>
+                            </div>
+                            {% if form.is_primary.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.is_primary.errors }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex justify-end space-x-3 pt-4 border-t border-gray-700">
+                <a href="{% url 'people:person_gallery' person.id %}" class="bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-md">
+                    Cancelar
+                </a>
+                <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md">
+                    {% if gallery_item %}Atualizar{% else %}Adicionar{% endif %} Foto
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

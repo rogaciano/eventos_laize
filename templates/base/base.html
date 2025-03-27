@@ -92,7 +92,7 @@
             <div class="flex justify-between h-16">
                 <div class="flex">
                     <div class="flex-shrink-0 flex items-center">
-                        <a href="{% url 'dashboard:dashboard' %}" class="font-bold text-xl flex items-center">
+                        <a href="{% url 'landing:home' %}" class="font-bold text-xl flex items-center">
                             <img src="/static/img/brand/logo-atitude-white.png" alt="Agência Atitude" class="h-8 mr-2">
                             Agência Atitude
                         </a>
@@ -203,6 +203,7 @@
              x-transition:leave-end="opacity-0 transform scale-90"
              class="md:hidden bg-gray-900 border-t border-gray-800">
             <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+                <a href="{% url 'landing:home' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Agência Atitude</a>
                 <a href="{% url 'dashboard:dashboard' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Dashboard</a>
                 <a href="{% url 'events:list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Eventos</a>
                 <a href="{% url 'people:list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Pessoas</a>

@@ -4,8 +4,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .models import Service, Testimonial, Post, SiteSettings, Message
-from .forms import ContactForm
+from .forms import ContactForm, RegistrationForm
 from django.db.models import Q
+from people.models import Person, PersonContact, ProfessionalCategory
 
 def get_site_settings():
     """Retorna as configurações do site ou cria um padrão se não existir"""
@@ -105,6 +106,68 @@ def contact(request):
         'form_error': form_error
     }
     return render(request, 'landing/contact.html', context)
+
+def register(request):
+    """View para a página de cadastro de pessoas"""
+    site_settings = get_site_settings()
+    form_sent = False
+    form_error = False
+    
+    # Obter categorias profissionais para o formulário
+    professional_categories = ProfessionalCategory.objects.all()
+    
+    if request.method == 'POST':
+        # Converter vírgula para ponto no campo altura
+        post_data = request.POST.copy()
+        if 'altura' in post_data and post_data['altura']:
+            post_data['altura'] = post_data['altura'].replace(',', '.')
+            
+        form = RegistrationForm(post_data, request.FILES)
+        if form.is_valid():
+            try:
+                # Salvar pessoa com status pendente
+                person = form.save(commit=False)
+                person.status = 'pendente'
+                person.save()
+                
+                # Salvar categorias profissionais
+                form.save_m2m()
+                
+                # Adicionar contatos
+                if form.cleaned_data['contact_email']:
+                    PersonContact.objects.create(
+                        person=person,
+                        type='email',
+                        value=form.cleaned_data['contact_email'],
+                        label='Principal'
+                    )
+                
+                if form.cleaned_data['contact_phone']:
+                    PersonContact.objects.create(
+                        person=person,
+                        type='whatsapp',
+                        value=form.cleaned_data['contact_phone'],
+                        label='Principal'
+                    )
+                
+                form_sent = True
+                form = RegistrationForm()  # Limpar o formulário
+            except Exception as e:
+                form_error = True
+                print(f"Erro ao salvar registro: {e}")
+    else:
+        form = RegistrationForm()
+    
+    context = {
+        'form': form,
+        'site_settings': site_settings,
+        'form_sent': form_sent,
+        'form_error': form_error,
+        'professional_categories': professional_categories,
+        'title': 'Cadastre-se',
+        'subtitle': 'Faça parte do nosso time de profissionais'
+    }
+    return render(request, 'landing/register.html', context)
 
 @login_required
 def message_list(request):
