@@ -17,4 +17,11 @@ urlpatterns = [
     path('mensagens/<int:pk>/', views.message_detail, name='message_detail'),
     path('mensagens/<int:pk>/marcar-como-lida/', views.message_mark_as_read, name='message_mark_as_read'),
     path('mensagens/<int:pk>/marcar-como-nao-lida/', views.message_mark_as_unread, name='message_mark_as_unread'),
+    
+    # URLs para gerenciamento de blog
+    path('blog/', views.post_list, name='post_list'),
+    path('blog/novo/', views.post_create, name='post_create'),
+    path('blog/<int:pk>/editar/', views.post_update, name='post_update'),
+    path('blog/<int:pk>/excluir/', views.post_delete, name='post_delete'),
+    path('blog/<int:pk>/preview/', views.post_detail_preview, name='post_detail_preview'),
 ]

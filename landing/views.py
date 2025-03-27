@@ -4,8 +4,9 @@ from django.contrib import messages
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from .models import Service, Testimonial, Post, SiteSettings, Message
-from .forms import ContactForm, RegistrationForm
+from .forms import ContactForm, RegistrationForm, PostForm
 from django.db.models import Q
+from django.core.paginator import Paginator
 from people.models import Person, PersonContact, ProfessionalCategory
 
 def get_site_settings():
@@ -262,3 +263,106 @@ def message_mark_as_unread(request, pk):
 def get_unread_messages_count():
     """Função auxiliar para obter o número de mensagens não lidas"""
     return Message.objects.filter(is_read=False).count()
+
+# Views para gerenciamento de posts do blog
+@login_required
+def post_list(request):
+    """View para listar e gerenciar posts do blog"""
+    search_query = request.GET.get('search', '')
+    status_filter = request.GET.get('status', '')
+    
+    posts = Post.objects.all().order_by('-published_at')
+    
+    # Aplicar filtros
+    if search_query:
+        posts = posts.filter(
+            Q(title__icontains=search_query) | 
+            Q(content__icontains=search_query)
+        )
+    
+    if status_filter:
+        if status_filter == 'published':
+            posts = posts.filter(is_published=True)
+        elif status_filter == 'draft':
+            posts = posts.filter(is_published=False)
+    
+    # Paginação
+    paginator = Paginator(posts, 10)  # 10 posts por página
+    page_number = request.GET.get('page', 1)
+    posts_page = paginator.get_page(page_number)
+    
+    context = {
+        'posts': posts_page,
+        'search_query': search_query,
+        'status_filter': status_filter,
+    }
+    return render(request, 'landing/post_list.html', context)
+
+@login_required
+def post_create(request):
+    """View para criar um novo post"""
+    if request.method == 'POST':
+        form = PostForm(request.POST, request.FILES)
+        if form.is_valid():
+            post = form.save()
+            messages.success(request, 'Post criado com sucesso!')
+            return redirect('landing:post_list')
+    else:
+        form = PostForm(initial={'published_at': timezone.now()})
+    
+    context = {
+        'form': form,
+    }
+    return render(request, 'landing/post_form.html', context)
+
+@login_required
+def post_update(request, pk):
+    """View para atualizar um post existente"""
+    post = get_object_or_404(Post, pk=pk)
+    
+    if request.method == 'POST':
+        # Verificar se deve remover a imagem
+        if 'remove_image' in request.POST and post.image:
+            post.image.delete()
+        
+        form = PostForm(request.POST, request.FILES, instance=post)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Post atualizado com sucesso!')
+            return redirect('landing:post_list')
+    else:
+        form = PostForm(instance=post)
+    
+    context = {
+        'form': form,
+        'post': post,
+    }
+    return render(request, 'landing/post_form.html', context)
+
+@login_required
+def post_delete(request, pk):
+    """View para excluir um post"""
+    post = get_object_or_404(Post, pk=pk)
+    
+    if request.method == 'POST':
+        post.delete()
+        messages.success(request, 'Post excluído com sucesso!')
+        return redirect('landing:post_list')
+    
+    context = {
+        'post': post,
+    }
+    return render(request, 'landing/post_confirm_delete.html', context)
+
+@login_required
+def post_detail_preview(request, pk):
+    """View para visualizar um post (preview interno)"""
+    post = get_object_or_404(Post, pk=pk)
+    site_settings = get_site_settings()
+    
+    context = {
+        'post': post,
+        'site_settings': site_settings,
+        'is_preview': True,
+    }
+    return render(request, 'landing/post_detail.html', context)

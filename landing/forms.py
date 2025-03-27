@@ -142,3 +142,35 @@ class RegistrationForm(forms.ModelForm):
             'placeholder': 'Seu telefone/WhatsApp'
         })
     )
+
+class PostForm(forms.ModelForm):
+    """Formulário para gerenciamento de posts do blog."""
+    
+    class Meta:
+        model = Post
+        fields = ['title', 'slug', 'content', 'image', 'is_published', 'published_at']
+        widgets = {
+            'title': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white',
+                'placeholder': 'Título do post'
+            }),
+            'slug': forms.TextInput(attrs={
+                'class': 'w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white',
+                'placeholder': 'slug-do-post'
+            }),
+            'content': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white',
+                'placeholder': 'Conteúdo do post',
+                'rows': 10
+            }),
+            'image': forms.FileInput(attrs={
+                'class': 'w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white'
+            }),
+            'is_published': forms.CheckboxInput(attrs={
+                'class': 'h-4 w-4 rounded border-gray-600 text-indigo-600 focus:ring-indigo-500'
+            }),
+            'published_at': forms.DateTimeInput(attrs={
+                'class': 'w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white',
+                'type': 'datetime-local'
+            }),
+        }

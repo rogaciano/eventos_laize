@@ -91,7 +91,7 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-bold text-white mb-1">Endereço</h3>
-                            <p class="text-gray-300">{{ site_settings.address|default:"Av. Exemplo, 123 - Centro, Cidade - Estado, 12345-678" }}</p>
+                            <p class="text-gray-300">Rua Tracunhaém 185 Boa Vista 2 CEP: 55.038-550</p>
                         </div>
                     </div>
                     
@@ -101,7 +101,7 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-bold text-white mb-1">Telefone</h3>
-                            <p class="text-gray-300">{{ site_settings.phone|default:"(00) 1234-5678" }}</p>
+                            <p class="text-gray-300">(81) 9.9420-0102</p>
                         </div>
                     </div>
                     
@@ -111,7 +111,7 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-bold text-white mb-1">Email</h3>
-                            <p class="text-gray-300">{{ site_settings.email|default:"contato@exemplo.com" }}</p>
+                            <p class="text-gray-300">agenciaatitudecaruaru@gmail.com</p>
                         </div>
                     </div>
                     
@@ -121,43 +121,16 @@
                         </div>
                         <div>
                             <h3 class="text-lg font-bold text-white mb-1">Horário de Atendimento</h3>
-                            <p class="text-gray-300">{{ site_settings.business_hours|default:"Segunda a Sexta: 9h às 18h" }}</p>
+                            <p class="text-gray-300">Segunda a Sexta: 8h às 18h</p>
                         </div>
                     </div>
                     
                     <!-- Social Media -->
                     <div>
-                        <h3 class="text-lg font-bold text-white mb-3">Redes Sociais</h3>
+                        <h3 class="text-lg font-bold text-white mb-3">Rede Social</h3>
                         <div class="flex space-x-4">
-                            {% if site_settings.facebook_url %}
-                            <a href="{{ site_settings.facebook_url }}" target="_blank" class="text-white hover:text-gray-300 text-2xl">
-                                <i class="fab fa-facebook-f"></i>
-                            </a>
-                            {% endif %}
-                            
-                            {% if site_settings.instagram_url %}
-                            <a href="{{ site_settings.instagram_url }}" target="_blank" class="text-white hover:text-gray-300 text-2xl">
-                                <i class="fab fa-instagram"></i>
-                            </a>
-                            {% endif %}
-                            
-                            {% if site_settings.twitter_url %}
-                            <a href="{{ site_settings.twitter_url }}" target="_blank" class="text-white hover:text-gray-300 text-2xl">
-                                <i class="fab fa-twitter"></i>
-                            </a>
-                            {% endif %}
-                            
-                            {% if site_settings.linkedin_url %}
-                            <a href="{{ site_settings.linkedin_url }}" target="_blank" class="text-white hover:text-gray-300 text-2xl">
-                                <i class="fab fa-linkedin-in"></i>
-                            </a>
-                            {% endif %}
-                            
-                            {% if site_settings.youtube_url %}
-                            <a href="{{ site_settings.youtube_url }}" target="_blank" class="text-white hover:text-gray-300 text-2xl">
-                                <i class="fab fa-youtube"></i>
-                            </a>
-                            {% endif %}
+                            <a href="https://www.instagram.com/atitudeagencia" target="_blank" class="text-white hover:text-gray-300 text-2xl">
+                                <i class="fab fa-instagram"></i> Instagram  </a>                            
                         </div>
                     </div>
                 </div>
@@ -166,21 +139,6 @@
     </div>
 </section>
 
-<!-- Map Section -->
-<section class="py-16 bg-gray-800">
-    <div class="container mx-auto px-4">
-        <h2 class="text-3xl font-bold text-white mb-12 text-center">Nossa Localização</h2>
-        
-        <div class="bg-gray-700 p-4 rounded-lg shadow-md">
-            <!-- Placeholder for Google Maps iframe -->
-            <div class="w-full h-96 bg-gray-600 rounded-lg flex items-center justify-center">
-                <!-- Replace this with actual Google Maps embed code -->
-                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3675.3564349262383!2d-43.17916548503453!3d-22.90575438501438!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x997f58a6a00a9d%3A0x3f251d85272f76f7!2sCentro%2C%20Rio%20de%20Janeiro%20-%20RJ!5e0!3m2!1spt-BR!2sbr!4v1620160000000!5m2!1spt-BR!2sbr" 
-                width="100%" height="100%" style="border:0;" allowfullscreen="" loading="lazy" class="rounded-lg"></iframe>
-            </div>
-        </div>
-    </div>
-</section>
 
 <!-- FAQ Section -->
 <section class="py-16 bg-gray-900">

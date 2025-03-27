@@ -1,0 +1,162 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Gerenciamento de Blog - Agência Atitude{% endblock %}
+
+{% block content %}
+<div class="bg-gray-800 shadow-md rounded-lg overflow-hidden">
+    <div class="flex justify-between items-center px-6 py-4 bg-gray-900">
+        <h1 class="text-xl font-bold text-white">Gerenciamento de Blog</h1>
+        <a href="{% url 'landing:post_create' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-plus mr-2"></i>Novo Post
+        </a>
+    </div>
+    
+    <!-- Filtros e busca -->
+    <div class="px-6 py-4 border-b border-gray-700">
+        <form method="get" class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+                <input type="text" name="search" placeholder="Buscar posts..." value="{{ request.GET.search|default:'' }}" 
+                       class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white">
+            </div>
+            <div class="w-full md:w-48">
+                <select name="status" class="w-full px-4 py-2 bg-gray-700 border border-gray-600 rounded-md text-white">
+                    <option value="">Todos os status</option>
+                    <option value="published" {% if request.GET.status == 'published' %}selected{% endif %}>Publicados</option>
+                    <option value="draft" {% if request.GET.status == 'draft' %}selected{% endif %}>Rascunhos</option>
+                </select>
+            </div>
+            <div>
+                <button type="submit" class="w-full md:w-auto px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md">
+                    <i class="fas fa-search mr-2"></i>Filtrar
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Lista de posts -->
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-700">
+            <thead class="bg-gray-700">
+                <tr>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Título
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Status
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Data de Publicação
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Última Atualização
+                    </th>
+                    <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-300 uppercase tracking-wider">
+                        Ações
+                    </th>
+                </tr>
+            </thead>
+            <tbody class="bg-gray-800 divide-y divide-gray-700">
+                {% for post in posts %}
+                <tr>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            {% if post.image %}
+                            <div class="flex-shrink-0 h-10 w-10">
+                                <img class="h-10 w-10 rounded-md object-cover" src="{{ post.image.url }}" alt="{{ post.title }}">
+                            </div>
+                            {% else %}
+                            <div class="flex-shrink-0 h-10 w-10 bg-gray-700 rounded-md flex items-center justify-center">
+                                <i class="fas fa-newspaper text-gray-500"></i>
+                            </div>
+                            {% endif %}
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-white">
+                                    {{ post.title }}
+                                </div>
+                                <div class="text-sm text-gray-400">
+                                    {{ post.content|truncatechars:50 }}
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if post.is_published %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">
+                            Publicado
+                        </span>
+                        {% else %}
+                        <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-gray-100 text-gray-800">
+                            Rascunho
+                        </span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        {{ post.published_at|date:"d/m/Y H:i" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
+                        {{ post.updated_at|date:"d/m/Y H:i" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex justify-end space-x-2">
+                            <a href="{% url 'landing:post_update' post.id %}" class="text-indigo-400 hover:text-indigo-300">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'landing:post_detail_preview' post.id %}" class="text-blue-400 hover:text-blue-300">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'landing:post_delete' post.id %}" class="text-red-400 hover:text-red-300" 
+                               onclick="return confirm('Tem certeza que deseja excluir este post?')">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="px-6 py-10 text-center text-gray-400">
+                        <p class="text-lg">Nenhum post encontrado</p>
+                        <p class="mt-2">Comece criando um novo post para o blog.</p>
+                        <a href="{% url 'landing:post_create' %}" class="mt-4 inline-block bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md">
+                            <i class="fas fa-plus mr-2"></i>Criar Novo Post
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Paginação -->
+    {% if posts.paginator.num_pages > 1 %}
+    <div class="px-6 py-4 bg-gray-900 border-t border-gray-700">
+        <div class="flex justify-between">
+            {% if posts.has_previous %}
+            <a href="?page={{ posts.previous_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" 
+               class="px-3 py-1 bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600">
+                <i class="fas fa-chevron-left mr-1"></i> Anterior
+            </a>
+            {% else %}
+            <span class="px-3 py-1 bg-gray-800 text-gray-500 rounded-md cursor-not-allowed">
+                <i class="fas fa-chevron-left mr-1"></i> Anterior
+            </span>
+            {% endif %}
+            
+            <span class="text-gray-300">
+                Página {{ posts.number }} de {{ posts.paginator.num_pages }}
+            </span>
+            
+            {% if posts.has_next %}
+            <a href="?page={{ posts.next_page_number }}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}" 
+               class="px-3 py-1 bg-gray-700 text-gray-300 rounded-md hover:bg-gray-600">
+                Próxima <i class="fas fa-chevron-right ml-1"></i>
+            </a>
+            {% else %}
+            <span class="px-3 py-1 bg-gray-800 text-gray-500 rounded-md cursor-not-allowed">
+                Próxima <i class="fas fa-chevron-right ml-1"></i>
+            </span>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

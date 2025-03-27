@@ -103,6 +103,7 @@
                         <a href="{% url 'people:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Pessoas</a>
                         <a href="{% url 'clients:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Clientes</a>
                         <a href="{% url 'occurrences:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Ocorrências</a>
+                        <a href="{% url 'landing:post_list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Blog</a>
                         <div class="relative" x-data="{ open: false }">
                             <button @click="open = !open" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800 flex items-center">
                                 <span>Financeiro</span>
@@ -211,6 +212,7 @@
                 <a href="{% url 'people:list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Pessoas</a>
                 <a href="{% url 'clients:list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Clientes</a>
                 <a href="{% url 'occurrences:list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Ocorrências</a>
+                <a href="{% url 'landing:post_list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Blog</a>
                 
                 <!-- Financeiro no menu mobile -->
                 <div x-data="{ openFinancial: false }">
