@@ -24,6 +24,7 @@ class LoginRequiredMiddleware:
             reverse('landing:services'),
             reverse('landing:blog'),
             reverse('landing:contact'),
+            reverse('landing:register'),  # Adicionando a URL de registro
             '/',  # Root URL
         ]
         # Add password reset confirm URL pattern (can't use reverse with parameters)
