@@ -29,6 +29,8 @@ class LoginRequiredMiddleware:
         self.public_patterns = [
             '/reset/',
             '/blog/post/',  # Para detalhes de posts do blog
+            '/novidades/',  # Para acessar a página de blog
+            '/landing/',    # Todas as URLs que começam com /landing/
         ]
 
     def __call__(self, request):
