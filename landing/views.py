@@ -138,6 +138,7 @@ def register(request):
                 # Salvar pessoa com status pendente
                 person = form.save(commit=False)
                 person.status = 'pendente'
+                person.origem_cadastro = 'externo'
                 person.save()
                 
                 # Salvar categorias profissionais

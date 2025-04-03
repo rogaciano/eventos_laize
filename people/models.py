@@ -77,10 +77,16 @@ class Person(models.Model):
         ('arquivado', 'Arquivado'),
     ]
     
+    ORIGEM_CHOICES = [
+        ('interno', 'Interno (Escritório)'),
+        ('externo', 'Externo (Site)'),
+    ]
+    
     name = models.CharField(max_length=255, verbose_name="Nome")
     document_id = models.CharField(max_length=20, blank=True, null=True, verbose_name="Documento (CPF/RG)")
     data_nascimento = models.DateField(blank=True, null=True, verbose_name="Nascimento")
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pendente', verbose_name="Situação")
+    origem_cadastro = models.CharField(max_length=20, choices=ORIGEM_CHOICES, default='interno', verbose_name="Origem do Cadastro")
     address = models.CharField(max_length=255, blank=True, null=True, verbose_name="Logradouro")
     address_number = models.CharField(max_length=10, blank=True, null=True, verbose_name="Número")
     address_complement = models.CharField(max_length=100, blank=True, null=True, verbose_name="Complemento")

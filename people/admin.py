@@ -9,13 +9,13 @@ class PersonContactInline(admin.TabularInline):
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ('name', 'average_rating', 'created_at')
+    list_display = ('name', 'origem_cadastro', 'average_rating', 'created_at')
     search_fields = ('name', 'address')
-    list_filter = ('created_at', 'genero', 'cor_olhos', 'cor_cabelo', 'cor_pele')
+    list_filter = ('origem_cadastro', 'created_at', 'genero', 'cor_olhos', 'cor_cabelo', 'cor_pele')
     inlines = [PersonContactInline]
     fieldsets = (
         (None, {
-            'fields': ('name', 'document_id', 'photo')
+            'fields': ('name', 'document_id', 'photo', 'status', 'origem_cadastro')
         }),
         ('Endereço', {
             'fields': ('address', 'address_number', 'address_complement', 'neighborhood', 'city', 'state', 'zipcode')

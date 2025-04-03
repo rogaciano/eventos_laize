@@ -24,6 +24,9 @@ def dashboard(request):
     total_people_count = Person.objects.count()
     total_clients_count = Client.objects.count()
     
+    # Count pending people
+    pending_people_count = Person.objects.filter(status='pendente').count()
+    
     # Count active and dormant clients
     # Active clients: with events in the last 12 months
     active_clients = Client.objects.filter(
@@ -128,6 +131,7 @@ def dashboard(request):
         'total_clients_count': total_clients_count,
         'active_clients': active_clients,
         'dormant_clients': dormant_clients,
+        'pending_people_count': pending_people_count,
         'top_rated_people': top_rated_people,
         'months_labels_json': json.dumps(months_labels),
         'counts_data_json': json.dumps(counts_data),
