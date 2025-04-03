@@ -151,10 +151,27 @@
                         </div>
                         
                         <div class="bg-gray-50 px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                            <dt class="text-sm font-medium text-gray-500">Origem do Cadastro</dt>
+                            <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
+                                {% if person.origem_cadastro == 'interno' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-purple-100 text-purple-800">
+                                        Interno (Escritório)
+                                    </span>
+                                {% elif person.origem_cadastro == 'externo' %}
+                                    <span class="inline-flex items-center px-3 py-1 rounded-md text-sm font-medium bg-amber-100 text-amber-800">
+                                        Externo (Site)
+                                    </span>
+                                {% else %}
+                                    <span class="text-gray-500">Não especificado</span>
+                                {% endif %}
+                            </dd>
+                        </div>
+                        
+                        <div class="bg-white px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium text-gray-500">Chave Pix</dt>
                             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ person.pix|default:"Não informado" }}</dd>
                         </div>
-                        <div class="bg-white px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <div class="bg-gray-50 px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium text-gray-500">Endereço</dt>
                             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                                 {{ person.address|default:"" }}
@@ -167,13 +184,13 @@
                                 {% if person.zipcode %}<br>CEP: {{ person.zipcode }}{% endif %}
                             </dd>
                         </div>
-                        <div class="bg-gray-50 px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <div class="bg-white px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium text-gray-500">Observações</dt>
                             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">{{ person.notes|linebreaks|default:"Sem observações" }}</dd>
                         </div>
                         
                         <!-- Características Físicas -->
-                        <div class="bg-white px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
+                        <div class="bg-gray-50 px-4 py-3 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6">
                             <dt class="text-sm font-medium text-gray-500">Características Físicas</dt>
                             <dd class="mt-1 text-sm text-gray-900 sm:mt-0 sm:col-span-2">
                                 <div class="grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2">

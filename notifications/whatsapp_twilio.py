@@ -1,50 +1,52 @@
-import requests
-import json
+"""
+Módulo para envio de mensagens WhatsApp usando a API do Twilio.
+Esta é uma alternativa à API personalizada que não está funcionando.
+"""
+
 import os
+from twilio.rest import Client
 from django.conf import settings
 from people.models import Person, PersonContact, WhatsAppMessage
 
-class WhatsAppManager:
+class WhatsAppTwilioManager:
     """
-    Gerenciador de envio de mensagens WhatsApp usando a API de WhatsApp QR Code.
+    Gerenciador para envio de mensagens WhatsApp usando a API do Twilio.
+    Requer uma conta no Twilio e um número de WhatsApp Business.
     """
     
     def __init__(self):
         """
-        Inicializa o gerenciador com as configurações da API.
+        Inicializa o gerenciador com as configurações do settings.py
         """
-        from django.conf import settings
-        
-        # Configurações da API
-        self.api_url = getattr(settings, 'WHATSAPP_API_URL', None)
-        self.api_user_id = getattr(settings, 'WHATSAPP_API_USER_ID', None)
-        self.api_token = getattr(settings, 'WHATSAPP_API_TOKEN', None)
-        
-        # Configurações do gestor
+        self.account_sid = getattr(settings, 'TWILIO_ACCOUNT_SID', os.environ.get('TWILIO_ACCOUNT_SID'))
+        self.auth_token = getattr(settings, 'TWILIO_AUTH_TOKEN', os.environ.get('TWILIO_AUTH_TOKEN'))
+        self.from_number = getattr(settings, 'TWILIO_WHATSAPP_NUMBER', os.environ.get('TWILIO_WHATSAPP_NUMBER'))
         self.manager_whatsapp = getattr(settings, 'MANAGER_WHATSAPP', None)
         self.manager_id = getattr(settings, 'MANAGER_ID', None)
-        
-        # Flags de notificação
         self.notify_on_registration = getattr(settings, 'NOTIFY_ON_REGISTRATION', False)
         self.notify_on_contact = getattr(settings, 'NOTIFY_ON_CONTACT', False)
+        
+        self.client = None
+        if self.account_sid and self.auth_token:
+            self.client = Client(self.account_sid, self.auth_token)
     
     @property
     def is_configured(self):
         """
-        Verifica se todas as configurações necessárias estão presentes.
+        Verifica se as configurações necessárias estão presentes.
         """
-        return all([self.api_url, self.api_user_id, self.api_token])
-        
+        return self.client is not None and self.from_number is not None
+    
     def format_phone_number(self, phone_number):
         """
-        Formata o número de telefone para o formato internacional.
+        Formata o número de telefone para o formato esperado pelo Twilio.
         Remove caracteres não numéricos e adiciona o código do país se necessário.
         
         Args:
             phone_number: Número de telefone a ser formatado
             
         Returns:
-            Número formatado (formato: 5511999999999)
+            Número formatado para o Twilio (formato: whatsapp:+XXXXXXXXXXX)
         """
         # Remover todos os caracteres não numéricos
         digits_only = ''.join(filter(str.isdigit, phone_number))
@@ -58,103 +60,52 @@ class WhatsAppManager:
             print(f"AVISO: Número de telefone {phone_number} parece estar incompleto após formatação: {digits_only}")
             
         print(f"DEBUG - Número original: {phone_number}")
-        print(f"DEBUG - Número formatado: {digits_only}")
+        print(f"DEBUG - Número formatado: whatsapp:+{digits_only}")
         
-        return digits_only
+        return f"whatsapp:+{digits_only}"
     
     def send_message(self, to_number, message):
         """
-        Envia uma mensagem WhatsApp usando a API de WhatsApp QR Code.
+        Envia uma mensagem WhatsApp usando a API do Twilio.
         
         Args:
             to_number: Número de telefone do destinatário
             message: Texto da mensagem
             
         Returns:
-            Objeto de resposta da API ou None em caso de erro
+            Dicionário com o resultado da operação
         """
         if not self.is_configured:
-            return {'error': 'API não configurada corretamente'}
+            return {'success': False, 'error': 'API do Twilio não configurada corretamente'}
         
         try:
             # Formatar números
-            sender_formatted = self.format_phone_number(self.manager_whatsapp)
-            recipient_formatted = self.format_phone_number(to_number)
+            from_formatted = self.format_phone_number(self.from_number)
+            to_formatted = self.format_phone_number(to_number)
             
-            # Preparar URL
-            url = self.api_url
-            print(f"DEBUG - URL completa: {url}")
-            print(f"DEBUG - API URL: {self.api_url}")
-            print(f"DEBUG - User ID: {self.api_user_id}")
-            print(f"DEBUG - Token: {'Configurado' if self.api_token else 'Não configurado'}")
+            print(f"Enviando mensagem de {from_formatted} para {to_formatted}...")
             
-            # Preparar parâmetros da requisição
-            params = {
-                'telefone_remetente': sender_formatted,
-                'telefone_destinatario': recipient_formatted,
-                'conteudo_mensagem': message
-            }
+            # Enviar mensagem via Twilio
+            message_obj = self.client.messages.create(
+                from_=from_formatted,
+                body=message,
+                to=to_formatted
+            )
             
-            # Configurar headers com token de autenticação
-            headers = {
-                'Authorization': f'Bearer {self.api_token}'
-            }
+            print(f"Mensagem enviada com sucesso! SID: {message_obj.sid}")
             
-            print(f"DEBUG - Parâmetros: {params}")
-            print(f"DEBUG - Headers: {headers}")
-            
-            # Enviar requisição
-            print(f"DEBUG - Enviando requisição para: {url}")
-            response = requests.get(url, headers=headers, params=params, timeout=30)
-            print(f"DEBUG - Status code: {response.status_code}")
-            print(f"DEBUG - Resposta: {response.text}")
-            
-            # Processar resposta
-            if response.status_code == 200:
-                try:
-                    response_data = response.json()
-                    return {
-                        'success': True,
-                        'status': 'sent',
-                        'response': response_data
-                    }
-                except:
-                    return {
-                        'success': True,
-                        'status': 'sent',
-                        'response': {'raw_text': response.text}
-                    }
-            else:
-                error_message = f"Erro {response.status_code}: "
-                try:
-                    error_data = response.json()
-                    error_message += str(error_data)
-                except:
-                    error_message += response.text if response.text else "Sem detalhes do erro"
-                
-                print(f"DEBUG - Erro: {error_message}")
-                return {
-                    'success': False,
-                    'status': 'error',
-                    'error': error_message
+            return {
+                'success': True,
+                'status': 'sent',
+                'response': {
+                    'sid': message_obj.sid,
+                    'status': message_obj.status,
+                    'date_created': str(message_obj.date_created)
                 }
-                
-        except requests.exceptions.Timeout:
-            print(f"DEBUG - Erro: Timeout ao conectar com a API")
-            return {
-                'success': False,
-                'status': 'timeout',
-                'error': 'Timeout ao conectar com a API. O servidor demorou muito para responder.'
             }
-        except requests.exceptions.ConnectionError as e:
-            print(f"DEBUG - Erro de conexão: {str(e)}")
-            return {
-                'success': False,
-                'status': 'connection_error',
-                'error': f'Erro de conexão com a API: {str(e)}'
-            }
+            
         except Exception as e:
-            print(f"DEBUG - Erro ao preparar requisição: {str(e)}")
+            print(f"Erro ao enviar mensagem: {str(e)}")
             return {
                 'success': False,
                 'status': 'error',
@@ -183,7 +134,7 @@ class WhatsAppManager:
             status="sending"
         )
         
-        # Enviar mensagem via API
+        # Enviar mensagem via Twilio
         response = self.send_message(contact.value, message)
         
         # Atualizar o registro com a resposta
@@ -311,20 +262,3 @@ Data: {contact_message.created_at.strftime('%d/%m/%Y %H:%M')}
         whatsapp_message = self.send_whatsapp_to_contact(manager_contact, message)
         
         return whatsapp_message and whatsapp_message.status == "sent"
-
-
-# Função auxiliar para envio de mensagem WhatsApp
-def send_whatsapp_message(contact, message):
-    """
-    Função auxiliar para enviar uma mensagem WhatsApp.
-    Mantém a mesma assinatura da função original para compatibilidade.
-    
-    Args:
-        contact: Objeto PersonContact (deve ser do tipo 'whatsapp')
-        message: Texto da mensagem
-        
-    Returns:
-        Objeto WhatsAppMessage
-    """
-    manager = WhatsAppManager()
-    return manager.send_whatsapp_to_contact(contact, message)

@@ -1,40 +1,39 @@
-import requests
-import json
+"""
+Módulo para envio de mensagens WhatsApp usando a API de WhatsApp QR Code.
+Esta é uma alternativa à API personalizada anterior.
+
+Endpoint: https://app.talkiachat.com.br/external_api/mensagens/whatsapp_qr_code/enviar
+"""
+
 import os
+import json
+import requests
 from django.conf import settings
 from people.models import Person, PersonContact, WhatsAppMessage
 
-class WhatsAppManager:
+class WhatsAppQRCodeManager:
     """
-    Gerenciador de envio de mensagens WhatsApp usando a API de WhatsApp QR Code.
+    Gerenciador para envio de mensagens WhatsApp usando a API de WhatsApp QR Code.
     """
     
     def __init__(self):
         """
-        Inicializa o gerenciador com as configurações da API.
+        Inicializa o gerenciador com as configurações do settings.py
         """
-        from django.conf import settings
-        
-        # Configurações da API
-        self.api_url = getattr(settings, 'WHATSAPP_API_URL', None)
-        self.api_user_id = getattr(settings, 'WHATSAPP_API_USER_ID', None)
-        self.api_token = getattr(settings, 'WHATSAPP_API_TOKEN', None)
-        
-        # Configurações do gestor
-        self.manager_whatsapp = getattr(settings, 'MANAGER_WHATSAPP', None)
+        self.api_url = getattr(settings, 'WHATSAPP_API_URL', os.environ.get('WHATSAPP_API_URL'))
+        self.api_token = getattr(settings, 'WHATSAPP_API_TOKEN', os.environ.get('WHATSAPP_API_TOKEN'))
+        self.sender_number = getattr(settings, 'MANAGER_WHATSAPP', os.environ.get('MANAGER_WHATSAPP'))
         self.manager_id = getattr(settings, 'MANAGER_ID', None)
-        
-        # Flags de notificação
         self.notify_on_registration = getattr(settings, 'NOTIFY_ON_REGISTRATION', False)
         self.notify_on_contact = getattr(settings, 'NOTIFY_ON_CONTACT', False)
     
     @property
     def is_configured(self):
         """
-        Verifica se todas as configurações necessárias estão presentes.
+        Verifica se as configurações necessárias estão presentes.
         """
-        return all([self.api_url, self.api_user_id, self.api_token])
-        
+        return self.api_url and self.api_token and self.sender_number
+    
     def format_phone_number(self, phone_number):
         """
         Formata o número de telefone para o formato internacional.
@@ -71,22 +70,15 @@ class WhatsAppManager:
             message: Texto da mensagem
             
         Returns:
-            Objeto de resposta da API ou None em caso de erro
+            Dicionário com o resultado da operação
         """
         if not self.is_configured:
-            return {'error': 'API não configurada corretamente'}
+            return {'success': False, 'error': 'API não configurada corretamente'}
         
         try:
             # Formatar números
-            sender_formatted = self.format_phone_number(self.manager_whatsapp)
+            sender_formatted = self.format_phone_number(self.sender_number)
             recipient_formatted = self.format_phone_number(to_number)
-            
-            # Preparar URL
-            url = self.api_url
-            print(f"DEBUG - URL completa: {url}")
-            print(f"DEBUG - API URL: {self.api_url}")
-            print(f"DEBUG - User ID: {self.api_user_id}")
-            print(f"DEBUG - Token: {'Configurado' if self.api_token else 'Não configurado'}")
             
             # Preparar parâmetros da requisição
             params = {
@@ -100,12 +92,15 @@ class WhatsAppManager:
                 'Authorization': f'Bearer {self.api_token}'
             }
             
+            print(f"DEBUG - URL da API: {self.api_url}")
+            print(f"DEBUG - Token: {'Configurado' if self.api_token else 'Não configurado'}")
+            print(f"DEBUG - Remetente: {sender_formatted}")
+            print(f"DEBUG - Destinatário: {recipient_formatted}")
             print(f"DEBUG - Parâmetros: {params}")
-            print(f"DEBUG - Headers: {headers}")
             
-            # Enviar requisição
-            print(f"DEBUG - Enviando requisição para: {url}")
-            response = requests.get(url, headers=headers, params=params, timeout=30)
+            # Enviar requisição para a API
+            response = requests.get(self.api_url, headers=headers, params=params, timeout=30)
+            
             print(f"DEBUG - Status code: {response.status_code}")
             print(f"DEBUG - Resposta: {response.text}")
             
@@ -132,7 +127,6 @@ class WhatsAppManager:
                 except:
                     error_message += response.text if response.text else "Sem detalhes do erro"
                 
-                print(f"DEBUG - Erro: {error_message}")
                 return {
                     'success': False,
                     'status': 'error',
@@ -154,7 +148,7 @@ class WhatsAppManager:
                 'error': f'Erro de conexão com a API: {str(e)}'
             }
         except Exception as e:
-            print(f"DEBUG - Erro ao preparar requisição: {str(e)}")
+            print(f"DEBUG - Erro desconhecido: {str(e)}")
             return {
                 'success': False,
                 'status': 'error',
@@ -218,9 +212,9 @@ class WhatsAppManager:
                 pass
         
         # Se tiver o número do gestor, buscar qualquer contato com esse número
-        if self.manager_whatsapp:
+        if self.sender_number:
             # Formatar o número para busca
-            formatted_phone = ''.join(filter(str.isdigit, self.manager_whatsapp))
+            formatted_phone = ''.join(filter(str.isdigit, self.sender_number))
             contact = PersonContact.objects.filter(
                 type='whatsapp',
                 value__contains=formatted_phone
@@ -253,6 +247,7 @@ class WhatsAppManager:
 
 Nome: {person.name}
 Status: {person.get_status_display()}
+Origem: {person.get_origem_cadastro_display()}
 """
         
         # Adicionar contatos se disponíveis
@@ -311,20 +306,3 @@ Data: {contact_message.created_at.strftime('%d/%m/%Y %H:%M')}
         whatsapp_message = self.send_whatsapp_to_contact(manager_contact, message)
         
         return whatsapp_message and whatsapp_message.status == "sent"
-
-
-# Função auxiliar para envio de mensagem WhatsApp
-def send_whatsapp_message(contact, message):
-    """
-    Função auxiliar para enviar uma mensagem WhatsApp.
-    Mantém a mesma assinatura da função original para compatibilidade.
-    
-    Args:
-        contact: Objeto PersonContact (deve ser do tipo 'whatsapp')
-        message: Texto da mensagem
-        
-    Returns:
-        Objeto WhatsAppMessage
-    """
-    manager = WhatsAppManager()
-    return manager.send_whatsapp_to_contact(contact, message)
