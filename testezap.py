@@ -25,10 +25,7 @@ def test_direct_api_message():
     Não requer um contato no banco de dados.
     """
     # Número de telefone para teste
-    default_number = os.getenv('TEST_WHATSAPP_NUMBER', '558199216560')
-    test_number = input(f"Digite o número de telefone para teste (ou pressione Enter para usar {default_number}): ").strip()
-    if not test_number:
-        test_number = default_number
+    test_number = os.getenv('TEST_WHATSAPP_NUMBER', '558199216560')
     
     # Mensagem de teste
     message = "Olá! Esta é uma mensagem de teste enviada pela API personalizada. 🚀"
@@ -140,21 +137,27 @@ if __name__ == "__main__":
     print(f"User ID (do .env): {os.environ.get('WHATSAPP_API_USER_ID')}")
     print(f"Endpoint: /messages")
     print(f"Autenticação: Bearer Token")
-    print("")
+    print("\n")
     
-    # Escolha qual teste executar
-    test_option = input("""
-Escolha uma opção de teste:
-1. Envio direto via API
-2. Envio para contato do banco de dados
-3. Notificação para o gestor
-Opção (1-3): """).strip()
+    # Executar diretamente a opção 1 (envio direto via API)
+    print("Executando teste de envio direto via API...")
+    test_direct_api_message()
     
-    if test_option == '1':
+    # Comentado o menu interativo
+    """
+    print("Escolha uma opção de teste:")
+    print("1. Envio direto via API")
+    print("2. Envio para contato do banco de dados")
+    print("3. Notificação para o gestor")
+    
+    option = input("Opção (1-3): ")
+    
+    if option == "1":
         test_direct_api_message()
-    elif test_option == '2':
-        test_contact_message()
-    elif test_option == '3':
+    elif option == "2":
+        test_database_contact()
+    elif option == "3":
         test_manager_notification()
     else:
-        print("❌ Opção inválida.")
+        print("Opção inválida!")
+    """

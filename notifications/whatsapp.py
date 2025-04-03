@@ -38,25 +38,29 @@ class WhatsAppManager:
     def format_phone_number(self, phone_number):
         """
         Formata o número de telefone para o formato esperado pela API.
+        Remove caracteres não numéricos e adiciona o código do país se necessário.
         
         Args:
             phone_number: Número de telefone a ser formatado
             
         Returns:
-            Número formatado para a API
+            Número formatado
         """
-        # Remover caracteres não numéricos
-        clean_number = ''.join(filter(str.isdigit, phone_number))
+        # Remover todos os caracteres não numéricos
+        digits_only = ''.join(filter(str.isdigit, phone_number))
         
-        # Garantir que o número comece com o código do país (Brasil = 55)
-        if not clean_number.startswith('55'):
-            clean_number = '55' + clean_number
+        # Se não começar com 55 (Brasil), adicionar
+        if not digits_only.startswith('55'):
+            digits_only = '55' + digits_only
             
-        # Remover o 9 inicial do número se ele tiver 13 dígitos (55 + DDD + 9 + número)
-        if len(clean_number) == 13 and clean_number[4] == '9':
-            clean_number = clean_number[:4] + clean_number[5:]
+        # Garantir que o número tenha pelo menos 10 dígitos (DDD + número)
+        if len(digits_only) < 12:
+            print(f"AVISO: Número de telefone {phone_number} parece estar incompleto após formatação: {digits_only}")
+            
+        print(f"DEBUG - Número original: {phone_number}")
+        print(f"DEBUG - Número formatado: {digits_only}")
         
-        return clean_number
+        return digits_only
     
     def send_message(self, to_number, message):
         """
@@ -83,15 +87,18 @@ class WhatsAppManager:
             print(f"DEBUG - User ID: {self.api_user_id}")
             print(f"DEBUG - Token: {'Configurado' if self.api_token else 'Não configurado'}")
             
-            # Preparar payload como string conforme exemplo da documentação
-            payload = f"""{{
-    "text": "{message}",
-    "type": "chat",
-    "contactId": "{contact_id}",
-    "userId": "{self.api_user_id}",
-    "dontOpenTicket": "true",
-    "origin": "bot"
-}}"""
+            # Criar payload como objeto Python e converter para JSON
+            payload_data = {
+                "text": message,
+                "type": "chat",
+                "contactId": contact_id,
+                "userId": self.api_user_id,
+                "dontOpenTicket": "true",
+                "origin": "bot"
+            }
+            
+            # Converter para JSON corretamente
+            payload = json.dumps(payload_data)
             print(f"DEBUG - Payload: {payload}")
             
             # Configurar headers
@@ -101,50 +108,57 @@ class WhatsAppManager:
             }
             print(f"DEBUG - Headers: {headers}")
             
-            # Enviar requisição exatamente como no exemplo
+            # Enviar requisição
             print(f"DEBUG - Enviando requisição para: {url}")
-            response = requests.request("POST", url, headers=headers, data=payload, timeout=10)
-            print(f"DEBUG - Status code: {response.status_code}")
-            print(f"DEBUG - Resposta: {response.text}")
-            
-            # Processar resposta
-            if response.status_code == 200 or response.status_code == 201:
-                try:
+            try:
+                response = requests.request("POST", url, headers=headers, data=payload, timeout=30)
+                print(f"DEBUG - Status code: {response.status_code}")
+                print(f"DEBUG - Resposta: {response.text}")
+                
+                # Verificar o status code
+                if response.status_code == 200:
                     return {
                         'success': True,
                         'status': 'sent',
-                        'response': response.json() if response.content else {}
+                        'response': response.json() if response.text else {}
                     }
-                except ValueError:
+                else:
+                    error_message = f"Erro {response.status_code}: "
+                    try:
+                        error_data = response.json()
+                        error_message += str(error_data)
+                    except:
+                        error_message += response.text if response.text else "Sem detalhes do erro"
+                    
+                    print(f"DEBUG - Erro: {error_message}")
                     return {
-                        'success': True,
-                        'status': 'sent',
-                        'response': {'raw_text': response.text}
+                        'success': False,
+                        'status': 'error',
+                        'error': error_message
                     }
-            else:
+            except requests.exceptions.Timeout:
+                print(f"DEBUG - Erro: Timeout ao conectar com a API")
                 return {
                     'success': False,
-                    'status': 'failed',
-                    'error': f"Erro HTTP {response.status_code}",
-                    'response': {'raw_text': response.text}
+                    'status': 'timeout',
+                    'error': 'Timeout ao conectar com a API. O servidor demorou muito para responder.'
                 }
-                
-        except requests.exceptions.Timeout:
-            print(f"DEBUG - Erro: Timeout ao conectar com a API")
-            return {
-                'success': False,
-                'status': 'error',
-                'error': "Timeout ao conectar com a API. O servidor demorou muito para responder."
-            }
-        except requests.exceptions.ConnectionError:
-            print(f"DEBUG - Erro: Erro de conexão com a API")
-            return {
-                'success': False,
-                'status': 'error',
-                'error': "Erro de conexão com a API. Verifique se a URL está correta e se o servidor está acessível."
-            }
+            except requests.exceptions.ConnectionError as e:
+                print(f"DEBUG - Erro de conexão: {str(e)}")
+                return {
+                    'success': False,
+                    'status': 'connection_error',
+                    'error': f'Erro de conexão com a API: {str(e)}'
+                }
+            except Exception as e:
+                print(f"DEBUG - Erro desconhecido: {str(e)}")
+                return {
+                    'success': False,
+                    'status': 'error',
+                    'error': str(e)
+                }
         except Exception as e:
-            print(f"DEBUG - Erro: {str(e)}")
+            print(f"DEBUG - Erro ao preparar requisição: {str(e)}")
             return {
                 'success': False,
                 'status': 'error',
