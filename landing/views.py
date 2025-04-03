@@ -8,6 +8,7 @@ from .forms import ContactForm, RegistrationForm, PostForm
 from django.db.models import Q
 from django.core.paginator import Paginator
 from people.models import Person, PersonContact, ProfessionalCategory
+from notifications.whatsapp import WhatsAppManager
 
 def get_site_settings():
     """Retorna as configurações do site ou cria um padrão se não existir"""
@@ -86,7 +87,7 @@ def contact(request):
         if form.is_valid():
             # Salvar mensagem no banco de dados
             try:
-                Message.objects.create(
+                message = Message.objects.create(
                     name=form.cleaned_data['name'],
                     email=form.cleaned_data['email'],
                     phone=form.cleaned_data['phone'],
@@ -95,6 +96,14 @@ def contact(request):
                 )
                 form_sent = True
                 form = ContactForm()  # Limpar o formulário
+                
+                # Enviar notificação WhatsApp para o gestor
+                try:
+                    whatsapp_manager = WhatsAppManager()
+                    whatsapp_manager.notify_new_contact(message)
+                except Exception as e:
+                    print(f"Erro ao enviar notificação WhatsApp: {e}")
+                    
             except Exception as e:
                 form_error = True
     else:
@@ -153,6 +162,14 @@ def register(request):
                 
                 form_sent = True
                 form = RegistrationForm()  # Limpar o formulário
+                
+                # Enviar notificação WhatsApp para o gestor
+                try:
+                    whatsapp_manager = WhatsAppManager()
+                    whatsapp_manager.notify_new_registration(person)
+                except Exception as e:
+                    print(f"Erro ao enviar notificação WhatsApp: {e}")
+                
             except Exception as e:
                 form_error = True
                 print(f"Erro ao salvar registro: {e}")

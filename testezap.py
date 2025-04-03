@@ -1,29 +1,160 @@
-import requests
-import json
+import os
+import django
+import sys
+from dotenv import load_dotenv
 
-def send_whatsapp_message(phone_number, message):
-    url = "http://149.28.249.146:3000/api/sendText"
-    
-    payload = {
-        "chatId": f"{phone_number}@c.us",
-        "text": message,
-        "session": "default"  # Adicionando o parâmetro de sessão
-    }
-    
-    headers = {
-        'Content-Type': 'application/json'
-    }
-    
-    try:
-        response = requests.post(url, headers=headers, data=json.dumps(payload), timeout=15)
-        return response.json()
-    except requests.exceptions.RequestException as e:
-        print(f"Erro na requisição: {e}")
-        return {"error": str(e)}
+# Carregar variáveis de ambiente
+load_dotenv(override=True)
 
-# Exemplo de uso
-numero = "558192328190" # "558199216560"
-mensagem = "Olá! Esta mensagem foi enviada do meu código Python. Não é mais Laravel!!!!"
+# Forçar a atualização das variáveis de ambiente no Django
+os.environ['DJANGO_SETTINGS_MODULE'] = 'eventos.settings'
+os.environ['WHATSAPP_API_URL'] = os.getenv('WHATSAPP_API_URL')
+os.environ['WHATSAPP_API_USER_ID'] = os.getenv('WHATSAPP_API_USER_ID')
+os.environ['WHATSAPP_API_TOKEN'] = os.getenv('WHATSAPP_API_TOKEN')
 
-result = send_whatsapp_message(numero, mensagem)
-print(result)
+# Configurar Django
+django.setup()
+
+from notifications.whatsapp import WhatsAppManager
+from people.models import Person, PersonContact
+from django.conf import settings
+
+def test_direct_api_message():
+    """
+    Testa o envio direto de mensagem usando a API personalizada.
+    Não requer um contato no banco de dados.
+    """
+    # Número de telefone para teste
+    default_number = os.getenv('TEST_WHATSAPP_NUMBER', '558199216560')
+    test_number = input(f"Digite o número de telefone para teste (ou pressione Enter para usar {default_number}): ").strip()
+    if not test_number:
+        test_number = default_number
+    
+    # Mensagem de teste
+    message = "Olá! Esta é uma mensagem de teste enviada pela API personalizada. 🚀"
+    
+    # Criar instância do gerenciador de WhatsApp diretamente com as variáveis de ambiente
+    whatsapp_manager = WhatsAppManager()
+    
+    # Forçar a atualização das configurações
+    whatsapp_manager.api_url = os.environ.get('WHATSAPP_API_URL')
+    whatsapp_manager.api_user_id = os.environ.get('WHATSAPP_API_USER_ID')
+    whatsapp_manager.api_token = os.environ.get('WHATSAPP_API_TOKEN')
+    
+    # Verificar se a API está configurada
+    if not whatsapp_manager.is_configured:
+        print("⚠️ Configurações da API incompletas. Verifique as variáveis de ambiente:")
+        print(f"  - WHATSAPP_API_URL: {'✓' if whatsapp_manager.api_url else '✗'} ({whatsapp_manager.api_url})")
+        print(f"  - WHATSAPP_API_USER_ID: {'✓' if whatsapp_manager.api_user_id else '✗'} ({whatsapp_manager.api_user_id})")
+        print(f"  - WHATSAPP_API_TOKEN: {'✓' if whatsapp_manager.api_token else '✗'}")
+        return
+    
+    print(f"📱 Enviando mensagem para {test_number}...")
+    print(f"API URL: {whatsapp_manager.api_url}")
+    result = whatsapp_manager.send_message(test_number, message)
+    
+    if result.get('success', False):
+        print("✅ Mensagem enviada com sucesso!")
+        print(f"  - Status: {result.get('status')}")
+        if 'response' in result:
+            print(f"  - Resposta: {result['response']}")
+    else:
+        print("❌ Erro ao enviar mensagem:")
+        print(f"  - {result.get('error')}")
+
+def test_contact_message():
+    """
+    Testa o envio de mensagem para um contato existente no banco de dados.
+    """
+    # Buscar um contato de WhatsApp no banco de dados
+    contact = PersonContact.objects.filter(type='whatsapp').first()
+    
+    if not contact:
+        print("❌ Nenhum contato de WhatsApp encontrado no banco de dados.")
+        return
+    
+    print(f"📱 Enviando mensagem para {contact.person.name} ({contact.value})...")
+    
+    # Mensagem de teste
+    message = f"Olá {contact.person.name}! Esta é uma mensagem de teste enviada pelo sistema. 🚀"
+    
+    # Criar instância do gerenciador de WhatsApp
+    whatsapp_manager = WhatsAppManager()
+    whatsapp_manager.api_url = os.environ.get('WHATSAPP_API_URL')
+    whatsapp_manager.api_user_id = os.environ.get('WHATSAPP_API_USER_ID')
+    whatsapp_manager.api_token = os.environ.get('WHATSAPP_API_TOKEN')
+    
+    # Enviar mensagem
+    whatsapp_message = whatsapp_manager.send_whatsapp_to_contact(contact, message)
+    
+    if whatsapp_message and whatsapp_message.status == "sent":
+        print("✅ Mensagem enviada com sucesso!")
+        print(f"  - ID: {whatsapp_message.id}")
+        print(f"  - Status: {whatsapp_message.status}")
+    else:
+        print("❌ Erro ao enviar mensagem:")
+        if whatsapp_message and whatsapp_message.response_data:
+            print(f"  - {whatsapp_message.response_data.get('error', 'Erro desconhecido')}")
+        else:
+            print("  - Erro desconhecido")
+
+def test_manager_notification():
+    """
+    Testa o envio de notificação para o gestor.
+    """
+    # Criar instância do gerenciador de WhatsApp
+    whatsapp_manager = WhatsAppManager()
+    whatsapp_manager.api_url = os.environ.get('WHATSAPP_API_URL')
+    whatsapp_manager.api_user_id = os.environ.get('WHATSAPP_API_USER_ID')
+    whatsapp_manager.api_token = os.environ.get('WHATSAPP_API_TOKEN')
+    
+    # Verificar se o gestor está configurado
+    manager_contact = whatsapp_manager.get_manager_contact()
+    
+    if not manager_contact:
+        print("❌ Contato do gestor não encontrado. Verifique as variáveis de ambiente:")
+        print(f"  - MANAGER_WHATSAPP: {'✓' if whatsapp_manager.manager_whatsapp else '✗'}")
+        print(f"  - MANAGER_ID: {'✓' if whatsapp_manager.manager_id else '✗'}")
+        return
+    
+    print(f"📱 Enviando notificação para o gestor ({manager_contact.person.name})...")
+    
+    # Simular uma pessoa recém-cadastrada
+    person = Person.objects.first()
+    
+    if not person:
+        print("❌ Nenhuma pessoa encontrada no banco de dados para simular notificação.")
+        return
+    
+    # Enviar notificação
+    result = whatsapp_manager.notify_new_registration(person)
+    
+    if result:
+        print("✅ Notificação enviada com sucesso!")
+    else:
+        print("❌ Erro ao enviar notificação.")
+
+if __name__ == "__main__":
+    print("=== TESTE DE ENVIO DE WHATSAPP COM API PERSONALIZADA ===")
+    print(f"API URL (do .env): {os.environ.get('WHATSAPP_API_URL')}")
+    print(f"User ID (do .env): {os.environ.get('WHATSAPP_API_USER_ID')}")
+    print(f"Endpoint: /messages")
+    print(f"Autenticação: Bearer Token")
+    print("")
+    
+    # Escolha qual teste executar
+    test_option = input("""
+Escolha uma opção de teste:
+1. Envio direto via API
+2. Envio para contato do banco de dados
+3. Notificação para o gestor
+Opção (1-3): """).strip()
+    
+    if test_option == '1':
+        test_direct_api_message()
+    elif test_option == '2':
+        test_contact_message()
+    elif test_option == '3':
+        test_manager_notification()
+    else:
+        print("❌ Opção inválida.")

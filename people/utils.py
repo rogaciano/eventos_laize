@@ -2,6 +2,7 @@ import requests
 import json
 from .models import WhatsAppMessage
 from django.conf import settings
+from notifications.whatsapp import WhatsAppManager
 
 def send_whatsapp_message(contact, message):
     """
@@ -14,6 +15,12 @@ def send_whatsapp_message(contact, message):
     Returns:
         WhatsAppMessage object
     """
+    # Usar a nova implementação do Twilio se as configurações estiverem presentes
+    whatsapp_manager = WhatsAppManager()
+    if whatsapp_manager.is_configured:
+        return whatsapp_manager.send_whatsapp_to_contact(contact, message)
+    
+    # Implementação antiga como fallback
     # Format phone number (remove any non-numeric characters)
     phone_number = ''.join(filter(str.isdigit, contact.value))
     

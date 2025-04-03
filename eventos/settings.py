@@ -78,6 +78,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'landing.context_processors.unread_messages_count',
                 'people.context_processors.whatsapp_settings',
+                'people.context_processors.pending_people_count',
             ],
         },
     },
@@ -176,4 +177,17 @@ ENABLE_WHATSAPP_VALUE = os.getenv('ENABLE_WHATSAPP', '0')
 print(f"ENABLE_WHATSAPP raw value: {ENABLE_WHATSAPP_VALUE}")
 ENABLE_WHATSAPP = ENABLE_WHATSAPP_VALUE.lower() in ('true', 't', '1', 'yes', 'y')
 print(f"ENABLE_WHATSAPP processed value: {ENABLE_WHATSAPP}")
-WHATSAPP_API_URL = os.getenv('WHATSAPP_API_URL', 'http://149.28.249.146:3000/api/sendText')
+WHATSAPP_API_URL = os.getenv('WHATSAPP_API_URL', 'https://webpicne.digisac.co/api/v1')
+WHATSAPP_API_USER_ID = os.getenv('WHATSAPP_API_USER_ID', None)
+WHATSAPP_API_TOKEN = os.getenv('WHATSAPP_API_TOKEN', None)
+
+# Configurações do WhatsApp para notificações do gestor
+MANAGER_WHATSAPP = os.getenv('MANAGER_WHATSAPP', None)
+MANAGER_ID = os.getenv('MANAGER_ID', None)
+NOTIFY_ON_REGISTRATION = os.getenv('NOTIFY_ON_REGISTRATION', '1').lower() in ('true', 't', '1', 'yes', 'y')
+NOTIFY_ON_CONTACT = os.getenv('NOTIFY_ON_CONTACT', '1').lower() in ('true', 't', '1', 'yes', 'y')
+
+# Configurações do Twilio para WhatsApp
+TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', None)
+TWILIO_AUTH_TOKEN = os.getenv('TWILIO_AUTH_TOKEN', None)
+TWILIO_WHATSAPP_NUMBER = os.getenv('TWILIO_WHATSAPP_NUMBER', None)

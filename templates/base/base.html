@@ -100,7 +100,12 @@
                     <div class="hidden md:ml-6 md:flex md:items-center md:space-x-4">
                         <a href="{% url 'dashboard:dashboard' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Dashboard</a>
                         <a href="{% url 'events:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Eventos</a>
-                        <a href="{% url 'people:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Pessoas</a>
+                        <a href="{% url 'people:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800 flex items-center">
+                            <span>Pessoas</span>
+                            {% if pending_people_count > 0 %}
+                            <span class="ml-1 bg-yellow-600 text-white text-xs font-bold px-2 py-1 rounded-full">{{ pending_people_count }}</span>
+                            {% endif %}
+                        </a>
                         <a href="{% url 'clients:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Clientes</a>
                         <a href="{% url 'occurrences:list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Ocorrências</a>
                         <a href="{% url 'landing:post_list' %}" class="px-3 py-2 rounded-md text-sm font-medium hover:bg-gray-800">Blog</a>
@@ -209,7 +214,12 @@
                 <a href="{% url 'landing:home' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Agência Atitude</a>
                 <a href="{% url 'dashboard:dashboard' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Dashboard</a>
                 <a href="{% url 'events:list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Eventos</a>
-                <a href="{% url 'people:list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Pessoas</a>
+                <a href="{% url 'people:list' %}" @click="mobileMenuOpen = false" class="flex justify-between px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">
+                    <span>Pessoas</span>
+                    {% if pending_people_count > 0 %}
+                    <span class="bg-yellow-600 text-white text-xs font-bold px-2 py-1 rounded-full">{{ pending_people_count }}</span>
+                    {% endif %}
+                </a>
                 <a href="{% url 'clients:list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Clientes</a>
                 <a href="{% url 'occurrences:list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Ocorrências</a>
                 <a href="{% url 'landing:post_list' %}" @click="mobileMenuOpen = false" class="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-gray-800">Blog</a>
