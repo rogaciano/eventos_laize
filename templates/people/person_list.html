@@ -13,6 +13,14 @@
         <a href="{% url 'people:professional_category_list' %}" class="hidden md:inline-flex bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-md shadow-sm">
             <i class="fas fa-tags mr-2"></i>Categorias Profissionais
         </a>
+        <a href="{% url 'people:casting_catalog_list' %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-book mr-2"></i>Catálogos
+        </a>
+        {% if request.GET %}
+        <a href="{% url 'people:create_catalog_from_filter' %}?{{ request.GET.urlencode }}" class="bg-amber-600 hover:bg-amber-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-clipboard-list mr-2"></i>Criar Catálogo com Filtro
+        </a>
+        {% endif %}
         <a href="{% url 'people:report_pdf' %}?{{ request.GET.urlencode }}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm">
             <i class="fas fa-file-pdf mr-2"></i>Gerar Relatório PDF
         </a>

@@ -1,0 +1,87 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Link Público Gerado - {{ catalog.name }}{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8">
+    <div class="bg-white rounded-lg shadow-md p-6 max-w-3xl mx-auto">
+        <h1 class="text-2xl font-bold text-gray-800 mb-6">Link Público Gerado</h1>
+        
+        <div class="bg-green-50 border-l-4 border-green-500 p-4 mb-6">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <i class="fas fa-check-circle text-green-500"></i>
+                </div>
+                <div class="ml-3">
+                    <p class="text-green-700">
+                        O link público para o catálogo <strong>{{ catalog.name }}</strong> foi gerado com sucesso.
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-2">Informações do link:</h2>
+            <p><strong>Catálogo:</strong> {{ catalog.name }}</p>
+            <p><strong>Descrição:</strong> {{ catalog.description|linebreaksbr }}</p>
+            <p><strong>Pessoas incluídas:</strong> {{ catalog.included_people.count }}</p>
+        </div>
+        
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-2">Link para compartilhamento:</h2>
+            <div class="flex items-center">
+                <input type="text" id="public-link" value="{{ full_url }}" readonly class="w-full p-2 border border-gray-300 rounded-md bg-gray-50" onclick="this.select();">
+                <button onclick="copyLink()" class="ml-2 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                    <i class="fas fa-copy mr-1"></i> Copiar
+                </button>
+            </div>
+            <p class="text-sm text-gray-600 mt-2">
+                <i class="fas fa-info-circle mr-1"></i> Clique no link para selecioná-lo e copie para compartilhar.
+            </p>
+        </div>
+        
+        <div class="mb-6">
+            <h2 class="text-lg font-semibold mb-2">Instruções:</h2>
+            <ul class="list-disc pl-5 space-y-2 text-gray-700">
+                <li>Este link permite que qualquer pessoa visualize o catálogo <strong>sem necessidade de login</strong>.</li>
+                <li>Compartilhe este link apenas com pessoas de confiança.</li>
+                <li>O link contém uma assinatura digital que garante sua autenticidade.</li>
+                <li>Você pode gerar um novo link a qualquer momento para substituir o anterior.</li>
+            </ul>
+        </div>
+        
+        <div class="flex justify-between">
+            <a href="{% url 'people:casting_catalog_detail' catalog.id %}" class="bg-gray-500 hover:bg-gray-600 text-white px-4 py-2 rounded-md">
+                <i class="fas fa-arrow-left mr-2"></i>Voltar ao Catálogo
+            </a>
+            <a href="{{ public_url }}" target="_blank" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md">
+                <i class="fas fa-external-link-alt mr-2"></i>Visualizar Link Público
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function copyLink() {
+    var copyText = document.getElementById("public-link");
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); /* For mobile devices */
+    document.execCommand("copy");
+    
+    // Feedback visual
+    var button = event.currentTarget;
+    var originalText = button.innerHTML;
+    button.innerHTML = '<i class="fas fa-check mr-1"></i> Copiado!';
+    button.classList.remove('bg-blue-600', 'hover:bg-blue-700');
+    button.classList.add('bg-green-600', 'hover:bg-green-700');
+    
+    setTimeout(function() {
+        button.innerHTML = originalText;
+        button.classList.remove('bg-green-600', 'hover:bg-green-700');
+        button.classList.add('bg-blue-600', 'hover:bg-blue-700');
+    }, 2000);
+}
+</script>
+{% endblock %}

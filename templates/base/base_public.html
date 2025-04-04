@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Agência Atitude{% endblock %}</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+            background-color: #111827;
+            color: #f3f4f6;
+        }
+        .hero-section {
+            background-image: linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1511578314322-379afb476865?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1470&q=80');
+            background-size: cover;
+            background-position: center;
+        }
+        
+        .content-container {
+            background-color: #f9fafb;
+            color: #111827;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+    
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="min-h-screen flex flex-col bg-gray-900 text-white">
+    <!-- Header/Navbar -->
+    <header class="bg-black shadow-md">
+        <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
+            <a href="/" class="text-2xl font-bold text-white flex items-center">
+                <img src="/static/img/brand/logo-atitude-white.png" alt="Agência Atitude" class="h-8 mr-2">
+                Agência Atitude
+            </a>
+            
+            <div class="hidden md:flex space-x-6">
+                <a href="/" class="text-gray-300 hover:text-white transition duration-300">Home</a>
+                <a href="tel:+551199999999" class="text-gray-300 hover:text-white transition duration-300">
+                    <i class="fas fa-phone-alt mr-1"></i> (11) 99999-9999
+                </a>
+                <a href="https://wa.me/5511999999999" target="_blank" class="text-gray-300 hover:text-white transition duration-300">
+                    <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                </a>
+            </div>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-grow py-8">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-black text-white py-10">
+        <div class="container mx-auto px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                <!-- About Section -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Agência Atitude</h3>
+                    <p class="text-gray-300 mb-4">Soluções em casting e produção de eventos para as melhores marcas e empresas do Brasil.</p>
+                    <div class="flex space-x-4 mb-4">
+                        <a href="https://facebook.com/agenciaatitude" target="_blank" class="text-white hover:text-gray-400">
+                            <i class="fab fa-facebook-f"></i>
+                        </a>
+                        <a href="https://instagram.com/agenciaatitude" target="_blank" class="text-white hover:text-gray-400">
+                            <i class="fab fa-instagram"></i>
+                        </a>
+                        <a href="https://wa.me/5511999999999" target="_blank" class="text-white hover:text-gray-400">
+                            <i class="fab fa-whatsapp"></i>
+                        </a>
+                    </div>
+                </div>
+                
+                <!-- Contact Section -->
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Contato</h3>
+                    <ul class="space-y-3 text-gray-300">
+                        <li class="flex items-start">
+                            <i class="fas fa-map-marker-alt mt-1 mr-3 text-gray-400"></i>
+                            <span>Av. Paulista, 1000 - Bela Vista<br>São Paulo, SP - CEP 01310-100</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-envelope mt-1 mr-3 text-gray-400"></i>
+                            <span>contato@agenciaatitude.com.br</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="fas fa-phone-alt mt-1 mr-3 text-gray-400"></i>
+                            <span>(11) 99999-9999</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="far fa-clock mt-1 mr-3 text-gray-400"></i>
+                            <span>Segunda a Sexta: 9h às 18h</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-400">
+                <p>&copy; {% now "Y" %} Agência Atitude. Todos os direitos reservados.</p>
+            </div>
+        </div>
+    </footer>
+    
+    {% block scripts %}{% endblock %}
+</body>
+</html>

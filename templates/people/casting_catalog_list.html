@@ -1,0 +1,123 @@
+{% extends 'base/base.html' %}
+
+{% block title %}Catálogos de Casting - Agência Atitude{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-white">Catálogos de Casting</h1>
+    <div class="flex flex-wrap gap-2">
+        <a href="{% url 'people:list' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-filter mr-2"></i>Criar Novo Catálogo
+        </a>
+    </div>
+</div>
+
+<!-- Listagem de catálogos -->
+<div class="bg-white rounded-lg shadow overflow-hidden">
+    {% if catalogs %}
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 p-4">
+            {% for catalog in catalogs %}
+                <div class="bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md transition-shadow duration-200">
+                    <div class="p-4 border-b border-gray-200">
+                        <div class="flex justify-between items-start">
+                            <h2 class="text-lg font-semibold text-gray-900 truncate">{{ catalog.name }}</h2>
+                            {% if catalog.is_active %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                    <i class="fas fa-check-circle mr-1"></i> Ativo
+                                </span>
+                            {% else %}
+                                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                    <i class="fas fa-times-circle mr-1"></i> Inativo
+                                </span>
+                            {% endif %}
+                        </div>
+                        <p class="text-sm text-gray-500 mt-1">
+                            <i class="far fa-calendar-alt mr-1"></i> {{ catalog.date_created|date:"d/m/Y H:i" }}
+                        </p>
+                        {% if catalog.company %}
+                            <p class="text-sm text-gray-700 mt-1">
+                                <i class="far fa-building mr-1"></i> {{ catalog.company }}
+                            </p>
+                        {% endif %}
+                    </div>
+                    <div class="p-4">
+                        <p class="text-sm text-gray-700 line-clamp-3">{{ catalog.description }}</p>
+                    </div>
+                    <div class="bg-gray-50 px-4 py-3 flex justify-between items-center">
+                        <span class="text-sm text-gray-600">
+                            {% with person_count=catalog.get_filtered_people.count %}
+                                {{ person_count }} pessoa{{ person_count|pluralize }}
+                            {% endwith %}
+                        </span>
+                        <div class="flex space-x-2">
+                            <a href="{% url 'people:casting_catalog_detail' catalog.id %}" class="text-blue-600 hover:text-blue-800">
+                                <i class="fas fa-eye"></i>
+                            </a>
+                            <a href="{% url 'people:casting_catalog_edit' catalog.id %}" class="text-yellow-600 hover:text-yellow-800">
+                                <i class="fas fa-edit"></i>
+                            </a>
+                            <a href="{% url 'people:casting_catalog_delete' catalog.id %}" class="text-red-600 hover:text-red-800">
+                                <i class="fas fa-trash"></i>
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="p-8 text-center">
+            <div class="flex flex-col items-center">
+                <i class="fas fa-search text-gray-300 text-5xl mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhum catálogo encontrado</h3>
+                <p class="text-gray-500 mb-4">Você ainda não criou nenhum catálogo de casting.</p>
+                <a href="{% url 'people:list' %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-filter mr-2"></i>Criar Primeiro Catálogo
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+
+<!-- Paginação -->
+{% if is_paginated %}
+<div class="flex justify-center mt-6">
+    <nav class="inline-flex rounded-md shadow">
+        {% if page_obj.has_previous %}
+            <a href="?page=1" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50">
+                <i class="fas fa-angle-double-left"></i>
+            </a>
+            <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border-t border-b border-gray-300 hover:bg-gray-50">
+                <i class="fas fa-angle-left"></i>
+            </a>
+        {% else %}
+            <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-l-md cursor-not-allowed">
+                <i class="fas fa-angle-double-left"></i>
+            </span>
+            <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border-t border-b border-gray-300 cursor-not-allowed">
+                <i class="fas fa-angle-left"></i>
+            </span>
+        {% endif %}
+        
+        <span class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border-t border-b border-gray-300">
+            {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+        </span>
+        
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border-t border-b border-gray-300 hover:bg-gray-50">
+                <i class="fas fa-angle-right"></i>
+            </a>
+            <a href="?page={{ page_obj.paginator.num_pages }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50">
+                <i class="fas fa-angle-double-right"></i>
+            </a>
+        {% else %}
+            <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border-t border-b border-gray-300 cursor-not-allowed">
+                <i class="fas fa-angle-right"></i>
+            </span>
+            <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-r-md cursor-not-allowed">
+                <i class="fas fa-angle-double-right"></i>
+            </span>
+        {% endif %}
+    </nav>
+</div>
+{% endif %}
+{% endblock %}

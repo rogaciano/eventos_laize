@@ -5,6 +5,9 @@ from datetime import date
 
 # Create your models here.
 
+# Remove the import of CastingCatalog to break the circular dependency
+# from .models_casting import CastingCatalog
+
 class CorOlhos(models.Model):
     nome = models.CharField(max_length=50, unique=True)
     

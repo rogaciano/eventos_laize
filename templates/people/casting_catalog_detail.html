@@ -1,0 +1,480 @@
+{% extends 'base/base.html' %}
+
+{% block title %}{{ catalog.name }} - Catálogo de Casting - Agência Atitude{% endblock %}
+
+{% block extra_head %}
+<style>
+    .person-card {
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .person-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="flex justify-between items-center mb-6">
+    <h1 class="text-2xl font-bold text-white">{{ catalog.name }}</h1>
+    <div class="flex flex-wrap gap-2">
+        <a href="{% url 'people:generate_public_link' catalog.id %}" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-share-alt mr-2"></i>Compartilhar
+        </a>
+        <a href="{% url 'people:casting_catalog_edit' catalog.id %}" class="bg-yellow-600 hover:bg-yellow-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-edit mr-2"></i>Editar
+        </a>
+        <a href="{% url 'people:casting_catalog_list' %}" class="bg-gray-600 hover:bg-gray-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-arrow-left mr-2"></i>Voltar
+        </a>
+    </div>
+</div>
+
+<!-- Informações do Catálogo -->
+<div class="bg-white p-6 rounded-lg shadow mb-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div>
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Informações do Catálogo</h2>
+            
+            <div class="space-y-3">
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Nome</h3>
+                    <p class="text-base text-gray-900">{{ catalog.name }}</p>
+                </div>
+                
+                {% if catalog.company %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Empresa/Cliente</h3>
+                    <p class="text-base text-gray-900">{{ catalog.company }}</p>
+                </div>
+                {% endif %}
+                
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Data de Criação</h3>
+                    <p class="text-base text-gray-900">{{ catalog.date_created|date:"d/m/Y H:i" }}</p>
+                </div>
+                
+                <div class="mt-3">
+                    <h3 class="text-sm font-medium text-gray-500">Status</h3>
+                    <div class="mt-1">
+                        {% if catalog.is_active %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                <i class="fas fa-check-circle mr-1"></i> Ativo
+                            </span>
+                            <p class="text-sm text-gray-500 mt-1">Os links públicos para este catálogo estão funcionando.</p>
+                        {% else %}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                                <i class="fas fa-times-circle mr-1"></i> Inativo
+                            </span>
+                            <p class="text-sm text-gray-500 mt-1">Os links públicos para este catálogo mostrarão uma mensagem de expiração.</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Descrição</h3>
+                    <p class="text-base text-gray-900">{{ catalog.description }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div>
+            <h2 class="text-xl font-semibold text-gray-900 mb-4">Critérios de Filtro</h2>
+            
+            <div class="space-y-4">
+                {% if catalog.search_query %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Busca por Nome</h3>
+                    <p class="text-base text-gray-900">{{ catalog.search_query }}</p>
+                </div>
+                {% endif %}
+                
+                {% if catalog.status_choices %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Situação</h3>
+                    <p class="text-base text-gray-900">
+                        {% for status in catalog.status_choices.split %}
+                            {% if status == 'ativo' %}Ativo{% endif %}
+                            {% if status == 'inativo' %}Inativo{% endif %}
+                            {% if status == 'pendente' %}Pendente{% endif %}
+                            {% if status == 'bloqueado' %}Bloqueado{% endif %}
+                            {% if status == 'em_avaliacao' %}Em Avaliação{% endif %}
+                            {% if status == 'licenca_temporaria' %}Licença Temporária{% endif %}
+                            {% if status == 'arquivado' %}Arquivado{% endif %}
+                            {% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+                {% endif %}
+                
+                {% if catalog.min_height or catalog.max_height %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Altura</h3>
+                    <p class="text-base text-gray-900">
+                        {% if catalog.min_height and catalog.max_height %}
+                            Entre {{ catalog.min_height }}m e {{ catalog.max_height }}m
+                        {% elif catalog.min_height %}
+                            A partir de {{ catalog.min_height }}m
+                        {% elif catalog.max_height %}
+                            Até {{ catalog.max_height }}m
+                        {% endif %}
+                    </p>
+                </div>
+                {% endif %}
+                
+                {% if catalog.min_weight or catalog.max_weight %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Peso</h3>
+                    <p class="text-base text-gray-900">
+                        {% if catalog.min_weight and catalog.max_weight %}
+                            Entre {{ catalog.min_weight }}kg e {{ catalog.max_weight }}kg
+                        {% elif catalog.min_weight %}
+                            A partir de {{ catalog.min_weight }}kg
+                        {% elif catalog.max_weight %}
+                            Até {{ catalog.max_weight }}kg
+                        {% endif %}
+                    </p>
+                </div>
+                {% endif %}
+                
+                {% if catalog.min_age or catalog.max_age %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Idade</h3>
+                    <p class="text-base text-gray-900">
+                        {% if catalog.min_age and catalog.max_age %}
+                            Entre {{ catalog.min_age }} e {{ catalog.max_age }} anos
+                        {% elif catalog.min_age %}
+                            A partir de {{ catalog.min_age }} anos
+                        {% elif catalog.max_age %}
+                            Até {{ catalog.max_age }} anos
+                        {% endif %}
+                    </p>
+                </div>
+                {% endif %}
+                
+                {% if catalog.manequim %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Manequim</h3>
+                    <p class="text-base text-gray-900">{{ catalog.manequim }}</p>
+                </div>
+                {% endif %}
+                
+                {% if catalog.eye_colors.exists %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Cor dos Olhos</h3>
+                    <p class="text-base text-gray-900">
+                        {% for cor in catalog.eye_colors.all %}
+                            {{ cor.nome }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+                {% endif %}
+                
+                {% if catalog.hair_colors.exists %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Cor do Cabelo</h3>
+                    <p class="text-base text-gray-900">
+                        {% for cor in catalog.hair_colors.all %}
+                            {{ cor.nome }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+                {% endif %}
+                
+                {% if catalog.skin_colors.exists %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Cor da Pele</h3>
+                    <p class="text-base text-gray-900">
+                        {% for cor in catalog.skin_colors.all %}
+                            {{ cor.nome }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+                {% endif %}
+                
+                {% if catalog.genders.exists %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Gênero</h3>
+                    <p class="text-base text-gray-900">
+                        {% for gen in catalog.genders.all %}
+                            {{ gen.nome }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+                {% endif %}
+                
+                {% if catalog.cities %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Cidade</h3>
+                    <p class="text-base text-gray-900">{{ catalog.cities }}</p>
+                </div>
+                {% endif %}
+                
+                {% if catalog.states %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Estado</h3>
+                    <p class="text-base text-gray-900">{{ catalog.states }}</p>
+                </div>
+                {% endif %}
+                
+                {% if catalog.professional_categories.exists %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Categorias Profissionais</h3>
+                    <p class="text-base text-gray-900">
+                        {% for cat in catalog.professional_categories.all %}
+                            {{ cat.name }}{% if not forloop.last %}, {% endif %}
+                        {% endfor %}
+                    </p>
+                </div>
+                {% endif %}
+                
+                {% if catalog.min_efficiency or catalog.min_punctuality or catalog.min_proactivity or catalog.min_appearance or catalog.min_communication %}
+                <div>
+                    <h3 class="text-sm font-medium text-gray-500">Avaliações Mínimas</h3>
+                    <p class="text-base text-gray-900">
+                        {% if catalog.min_efficiency %}Eficiência: {{ catalog.min_efficiency }}{% endif %}
+                        {% if catalog.min_punctuality %}{% if catalog.min_efficiency %} • {% endif %}Pontualidade: {{ catalog.min_punctuality }}{% endif %}
+                        {% if catalog.min_proactivity %}{% if catalog.min_efficiency or catalog.min_punctuality %} • {% endif %}Proatividade: {{ catalog.min_proactivity }}{% endif %}
+                        {% if catalog.min_appearance %}{% if catalog.min_efficiency or catalog.min_punctuality or catalog.min_proactivity %} • {% endif %}Aparência: {{ catalog.min_appearance }}{% endif %}
+                        {% if catalog.min_communication %}{% if catalog.min_efficiency or catalog.min_punctuality or catalog.min_proactivity or catalog.min_appearance %} • {% endif %}Comunicação: {{ catalog.min_communication }}{% endif %}
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Pessoas no Catálogo -->
+<div class="bg-white p-6 rounded-lg shadow">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-semibold text-gray-900">Pessoas no Catálogo</h2>
+        <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
+            {{ persons|length }} pessoa{{ persons|length|pluralize }}
+        </span>
+    </div>
+    
+    {% if persons %}
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+            {% for person in persons %}
+                <div class="person-card bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md">
+                    <a href="{% url 'people:detail' person.id %}">
+                        <div class="h-48 bg-gray-200 overflow-hidden">
+                            {% if person.photo %}
+                                <img src="{{ person.photo.url }}" alt="{{ person.name }}" class="w-full h-full object-cover">
+                            {% else %}
+                                <div class="w-full h-full flex items-center justify-center bg-gray-300">
+                                    <i class="fas fa-user text-gray-500 text-5xl"></i>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </a>
+                    
+                    <div class="p-4">
+                        <a href="{% url 'people:detail' person.id %}">
+                            <h3 class="text-lg font-semibold text-gray-900 mb-1 truncate">{{ person.name }}</h3>
+                        </a>
+                        
+                        <div class="text-sm text-gray-600 mb-3">
+                            {% if person.professional_categories.exists %}
+                                <div class="mb-1 truncate">
+                                    <i class="fas fa-briefcase text-gray-400 mr-1"></i>
+                                    {% for cat in person.professional_categories.all %}
+                                        {{ cat.name }}{% if not forloop.last %}, {% endif %}
+                                    {% endfor %}
+                                </div>
+                            {% endif %}
+                            
+                            {% if person.city %}
+                                <div class="truncate">
+                                    <i class="fas fa-map-marker-alt text-gray-400 mr-1"></i>
+                                    {{ person.city }}{% if person.state %}/{{ person.state }}{% endif %}
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="flex flex-wrap gap-1 mb-3">
+                            <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium 
+                                {% if person.status == 'ativo' %}bg-green-100 text-green-800{% endif %}
+                                {% if person.status == 'inativo' %}bg-gray-100 text-gray-800{% endif %}
+                                {% if person.status == 'pendente' %}bg-yellow-100 text-yellow-800{% endif %}
+                                {% if person.status == 'bloqueado' %}bg-red-100 text-red-800{% endif %}
+                                {% if person.status == 'em_avaliacao' %}bg-blue-100 text-blue-800{% endif %}
+                                {% if person.status == 'licenca_temporaria' %}bg-purple-100 text-purple-800{% endif %}
+                                {% if person.status == 'arquivado' %}bg-gray-100 text-gray-500{% endif %}
+                            ">
+                                {% if person.status == 'ativo' %}Ativo{% endif %}
+                                {% if person.status == 'inativo' %}Inativo{% endif %}
+                                {% if person.status == 'pendente' %}Pendente{% endif %}
+                                {% if person.status == 'bloqueado' %}Bloqueado{% endif %}
+                                {% if person.status == 'em_avaliacao' %}Em Avaliação{% endif %}
+                                {% if person.status == 'licenca_temporaria' %}Licença Temporária{% endif %}
+                                {% if person.status == 'arquivado' %}Arquivado{% endif %}
+                            </span>
+                        </div>
+                        
+                        <div class="flex justify-between items-center">
+                            <a href="{% url 'people:detail' person.id %}" class="text-blue-600 hover:text-blue-800 text-sm font-medium">
+                                Ver perfil
+                            </a>
+                            
+                            <div class="flex space-x-1">
+                                {% if person in catalog.included_people.all %}
+                                    <button 
+                                        onclick="removePerson({{ catalog.id }}, {{ person.id }}, this)" 
+                                        class="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50" 
+                                        title="Remover do catálogo">
+                                        <i class="fas fa-minus-circle"></i>
+                                    </button>
+                                {% elif person in catalog.get_filtered_people %}
+                                    <button 
+                                        onclick="addPerson({{ catalog.id }}, {{ person.id }}, this)" 
+                                        class="text-green-600 hover:text-green-800 p-1 rounded-full hover:bg-green-50" 
+                                        title="Adicionar ao catálogo">
+                                        <i class="fas fa-plus-circle"></i>
+                                    </button>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+        
+        <div class="flex justify-center mt-6">
+            <nav class="inline-flex rounded-md shadow">
+                {% if page_obj.has_previous %}
+                    <a href="?page=1" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-l-md hover:bg-gray-50">
+                        <i class="fas fa-angle-double-left"></i>
+                    </a>
+                    <a href="?page={{ page_obj.previous_page_number }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border-t border-b border-gray-300 hover:bg-gray-50">
+                        <i class="fas fa-angle-left"></i>
+                    </a>
+                {% else %}
+                    <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-l-md cursor-not-allowed">
+                        <i class="fas fa-angle-double-left"></i>
+                    </span>
+                    <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border-t border-b border-gray-300 cursor-not-allowed">
+                        <i class="fas fa-angle-left"></i>
+                    </span>
+                {% endif %}
+                
+                <span class="px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border-t border-b border-gray-300">
+                    {{ page_obj.number }} de {{ page_obj.paginator.num_pages }}
+                </span>
+                
+                {% if page_obj.has_next %}
+                    <a href="?page={{ page_obj.next_page_number }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border-t border-b border-gray-300 hover:bg-gray-50">
+                        <i class="fas fa-angle-right"></i>
+                    </a>
+                    <a href="?page={{ page_obj.paginator.num_pages }}" class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-r-md hover:bg-gray-50">
+                        <i class="fas fa-angle-double-right"></i>
+                    </a>
+                {% else %}
+                    <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border-t border-b border-gray-300 cursor-not-allowed">
+                        <i class="fas fa-angle-right"></i>
+                    </span>
+                    <span class="px-4 py-2 text-sm font-medium text-gray-400 bg-gray-100 border border-gray-300 rounded-r-md cursor-not-allowed">
+                        <i class="fas fa-angle-double-right"></i>
+                    </span>
+                {% endif %}
+            </nav>
+        </div>
+    {% else %}
+        <div class="p-8 text-center">
+            <div class="flex flex-col items-center">
+                <i class="fas fa-search text-gray-300 text-5xl mb-4"></i>
+                <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhuma pessoa encontrada</h3>
+                <p class="text-gray-500 mb-4">Nenhuma pessoa atende aos critérios de filtro deste catálogo.</p>
+                <a href="{% url 'people:casting_catalog_edit' catalog.id %}" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md shadow-sm">
+                    <i class="fas fa-edit mr-2"></i>Editar Critérios
+                </a>
+            </div>
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function removePerson(catalogId, personId, button) {
+        if (confirm('Tem certeza que deseja remover esta pessoa do catálogo?')) {
+            // Enviar requisição AJAX para remover a pessoa
+            fetch(`/sistema/people/casting-catalogs/${catalogId}/remove-person/${personId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    // Atualizar o botão para "Adicionar"
+                    const buttonContainer = button.parentElement;
+                    buttonContainer.innerHTML = `
+                        <button 
+                            onclick="addPerson(${catalogId}, ${personId}, this)" 
+                            class="text-green-600 hover:text-green-800 p-1 rounded-full hover:bg-green-50" 
+                            title="Adicionar ao catálogo">
+                            <i class="fas fa-plus-circle"></i>
+                        </button>
+                    `;
+                    
+                    // Mostrar mensagem de sucesso
+                    alert('Pessoa removida do catálogo com sucesso!');
+                    
+                    // Atualizar contador
+                    const counter = document.querySelector('.bg-blue-100.text-blue-800');
+                    const count = parseInt(counter.textContent.split(' ')[0]) - 1;
+                    counter.textContent = `${count} pessoa${count !== 1 ? 's' : ''}`;
+                }
+            })
+            .catch(error => {
+                console.error('Erro:', error);
+                alert('Ocorreu um erro ao remover a pessoa do catálogo.');
+            });
+        }
+    }
+    
+    function addPerson(catalogId, personId, button) {
+        // Enviar requisição AJAX para adicionar a pessoa
+        fetch(`/sistema/people/casting-catalogs/${catalogId}/add-person/${personId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({})
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                // Atualizar o botão para "Remover"
+                const buttonContainer = button.parentElement;
+                buttonContainer.innerHTML = `
+                    <button 
+                        onclick="removePerson(${catalogId}, ${personId}, this)" 
+                        class="text-red-600 hover:text-red-800 p-1 rounded-full hover:bg-red-50" 
+                        title="Remover do catálogo">
+                        <i class="fas fa-minus-circle"></i>
+                    </button>
+                `;
+                
+                // Mostrar mensagem de sucesso
+                alert('Pessoa adicionada ao catálogo com sucesso!');
+                
+                // Atualizar contador
+                const counter = document.querySelector('.bg-blue-100.text-blue-800');
+                const count = parseInt(counter.textContent.split(' ')[0]) + 1;
+                counter.textContent = `${count} pessoa${count !== 1 ? 's' : ''}`;
+            }
+        })
+        .catch(error => {
+            console.error('Erro:', error);
+            alert('Ocorreu um erro ao adicionar a pessoa ao catálogo.');
+        });
+    }
+</script>
+{% endblock %}

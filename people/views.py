@@ -15,17 +15,18 @@ import logging
 
 logger = logging.getLogger(__name__)
 
-def person_list(request):
+def person_list(request, return_queryset=False):
     # Verificar se estamos retornando de uma página de detalhes
-    if request.GET.get('from_detail') == 'true' and 'filter_params' in request.session:
+    if not return_queryset and request.GET.get('from_detail') == 'true' and 'filter_params' in request.session:
         # Recuperar os parâmetros de filtro da sessão
         filter_params = request.session.get('filter_params', {})
         # Redirecionar para a mesma página com os parâmetros de filtro
         return redirect(f"{reverse('people:list')}?{filter_params}")
     
-    # Salvar todos os parâmetros de filtro na sessão
-    filter_params = request.GET.urlencode()
-    request.session['filter_params'] = filter_params
+    # Salvar todos os parâmetros de filtro na sessão (apenas se não for chamada para retornar queryset)
+    if not return_queryset:
+        filter_params = request.GET.urlencode()
+        request.session['filter_params'] = filter_params
     
     search_query = request.GET.get('search', '')
     cor_olhos_id = request.GET.get('cor_olhos', '')
@@ -173,6 +174,9 @@ def person_list(request):
             persons = persons.filter(communication__gte=communication_min)
         except (ValueError, TypeError):
             pass
+    
+    if return_queryset:
+        return {'persons': persons}
     
     # Obter listas para os dropdowns de filtro
     cores_olhos = CorOlhos.objects.all()
