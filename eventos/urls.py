@@ -30,6 +30,9 @@ urlpatterns = [
     # Landing page
     path('', include('landing.urls')),
     
+    # URL pública para catálogos (fora do namespace sistema/)
+    path('public/catalog/<int:catalog_id>/<str:signature>/', include('people.urls_public')),
+    
     # Sistema de gestão (área restrita)
     path('sistema/', include([
         path('', RedirectView.as_view(pattern_name='dashboard:dashboard'), name='sistema_home'),
