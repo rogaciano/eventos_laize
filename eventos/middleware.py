@@ -32,6 +32,7 @@ class LoginRequiredMiddleware:
             '/reset/',
             '/landing/',  # Todas as URLs que começam com /landing/
             '/novidades/', # Para acessar a página de blog
+            '/public/catalog/',
         ]
 
     def __call__(self, request):
