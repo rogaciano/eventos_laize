@@ -145,8 +145,8 @@
 <div class="container mx-auto px-4 py-8">
     <div class="bg-white rounded-lg shadow-md p-6 mb-8">
         <div class="flex items-center mb-6">
-            {% if person.photo %}
-                <img src="{{ person.photo.url }}" alt="{{ person.name }}" class="w-20 h-20 rounded-full object-cover mr-4">
+            {% if person.get_display_photo %}
+                <img src="{{ person.get_display_photo.url }}" alt="{{ person.name }}" class="w-20 h-20 rounded-full object-cover mr-4">
             {% else %}
                 <div class="w-20 h-20 rounded-full bg-gray-200 flex items-center justify-center mr-4">
                     <i class="fas fa-user text-gray-400 text-3xl"></i>

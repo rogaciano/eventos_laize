@@ -169,6 +169,26 @@ class Person(models.Model):
         idade = hoje.year - self.data_nascimento.year - ((hoje.month, hoje.day) < (self.data_nascimento.month, self.data_nascimento.day))
         return idade
     
+    def get_display_photo(self):
+        """
+        Retorna a foto de perfil se existir, ou a foto principal da galeria se não existir foto de perfil.
+        Se não houver nenhuma foto disponível, retorna None.
+        """
+        if self.photo:
+            return self.photo
+        
+        # Tenta obter a foto principal da galeria
+        primary_photo = self.gallery.filter(is_primary=True).first()
+        if primary_photo:
+            return primary_photo.image
+            
+        # Se não houver foto principal, pega a primeira foto da galeria
+        first_photo = self.gallery.first()
+        if first_photo:
+            return first_photo.image
+            
+        return None
+    
     class Meta:
         verbose_name = 'Pessoa'
         verbose_name_plural = 'Pessoas'

@@ -291,7 +291,6 @@
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefone</th>
                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Avaliação</th>
                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Comentários</th>
-                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Selecionado</th>
                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
             </tr>
         </thead>
@@ -300,8 +299,8 @@
             <tr class="hover:bg-gray-50 {% if person.id in selected_person_ids %}selected-person-row{% endif %}" data-person-id="{{ person.id }}">
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
-                        {% if person.photo %}
-                        <img class="h-10 w-10 rounded-full object-cover mr-3" src="{{ person.photo.url }}" alt="{{ person.name }}">
+                        {% if person.get_display_photo %}
+                        <img class="h-10 w-10 rounded-full object-cover mr-3" src="{{ person.get_display_photo.url }}" alt="{{ person.name }}">
                         {% else %}
                         <div class="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center mr-3">
                             <span class="text-gray-500">{{ person.name|slice:":1" }}</span>
@@ -386,19 +385,7 @@
                         <i class="fas fa-comment comment-icon text-gray-400"></i>
                     </div>
                 </td>
-                <td class="px-6 py-4 text-center whitespace-nowrap">
-                    {% if person.id in selected_person_ids %}
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                            <svg class="h-4 w-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
-                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                            </svg>
-                            Selecionado
-                        </span>
-                    {% else %}
-                        <span class="text-gray-400">-</span>
-                    {% endif %}
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                <td class="px-6 py-4 text-right whitespace-nowrap">
                     <a href="{% url 'people:detail' person.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3">
                         <i class="fas fa-eye"></i>
                     </a>
@@ -420,7 +407,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="8" class="px-6 py-10 text-center text-gray-500">
+                <td colspan="7" class="px-6 py-10 text-center text-gray-500">
                     <div class="flex flex-col items-center">
                         <i class="fas fa-users text-gray-300 text-5xl mb-4"></i>
                         <p class="text-lg">Nenhuma pessoa cadastrada</p>
@@ -439,8 +426,8 @@
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="p-4 border-b border-gray-200">
             <div class="flex items-center">
-                {% if person.photo %}
-                <img class="h-14 w-14 rounded-full object-cover mr-3" src="{{ person.photo.url }}" alt="{{ person.name }}">
+                {% if person.get_display_photo %}
+                <img class="h-14 w-14 rounded-full object-cover mr-3" src="{{ person.get_display_photo.url }}" alt="{{ person.name }}">
                 {% else %}
                 <div class="h-14 w-14 rounded-full bg-gray-200 flex items-center justify-center mr-3">
                     <span class="text-gray-500 text-xl font-medium">{{ person.name|slice:":1" }}</span>

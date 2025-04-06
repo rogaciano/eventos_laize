@@ -6,10 +6,18 @@
 <style>
     .person-card {
         transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
     }
     .person-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    }
+    .selected-badge {
+        position: absolute;
+        top: 0;
+        right: 0;
+        margin: 8px;
+        z-index: 10;
     }
 </style>
 {% endblock %}
@@ -247,21 +255,52 @@
 
 <!-- Pessoas no Catálogo -->
 <div class="bg-white p-6 rounded-lg shadow">
-    <div class="flex justify-between items-center mb-4">
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-4 gap-4">
         <h2 class="text-xl font-semibold text-gray-900">Pessoas no Catálogo</h2>
-        <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
-            {{ persons|length }} pessoa{{ persons|length|pluralize }}
-        </span>
+        
+        <div class="flex flex-col md:flex-row gap-3 items-start md:items-center">
+            <!-- Contadores -->
+            <div class="flex gap-2">
+                <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full flex items-center">
+                    <i class="fas fa-users mr-1"></i> {{ total_persons_count }} pessoa{{ total_persons_count|pluralize }}
+                </span>
+                {% if selected_persons_count > 0 %}
+                <span class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full flex items-center">
+                    <i class="fas fa-check-circle mr-1"></i> {{ selected_persons_count }} selecionada{{ selected_persons_count|pluralize }}
+                </span>
+                {% endif %}
+            </div>
+            
+            <!-- Botão de filtro -->
+            <div class="flex">
+                {% if show_selected_only %}
+                    <a href="{% url 'people:casting_catalog_detail' catalog.id %}" class="bg-gray-100 hover:bg-gray-200 text-gray-800 px-3 py-1 rounded-md text-sm flex items-center">
+                        <i class="fas fa-filter mr-1"></i> Mostrar Todos
+                    </a>
+                {% else %}
+                    <a href="{% url 'people:casting_catalog_detail' catalog.id %}?selected_only=1" class="bg-green-100 hover:bg-green-200 text-green-800 px-3 py-1 rounded-md text-sm flex items-center">
+                        <i class="fas fa-filter mr-1"></i> Mostrar Selecionados
+                    </a>
+                {% endif %}
+            </div>
+        </div>
     </div>
     
     {% if persons %}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {% for person in persons %}
                 <div class="person-card bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md">
+                    {% if person.id in selected_person_ids %}
+                    <div class="selected-badge">
+                        <span class="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-500 text-white">
+                            <i class="fas fa-check mr-1"></i> SELECIONADO
+                        </span>
+                    </div>
+                    {% endif %}
                     <a href="{% url 'people:detail' person.id %}">
                         <div class="h-48 bg-gray-200 overflow-hidden">
-                            {% if person.photo %}
-                                <img src="{{ person.photo.url }}" alt="{{ person.name }}" class="w-full h-full object-cover">
+                            {% if person.get_display_photo %}
+                                <img src="{{ person.get_display_photo.url }}" alt="{{ person.name }}" class="w-full h-full object-cover">
                             {% else %}
                                 <div class="w-full h-full flex items-center justify-center bg-gray-300">
                                     <i class="fas fa-user text-gray-500 text-5xl"></i>

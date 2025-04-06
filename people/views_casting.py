@@ -8,7 +8,7 @@ from django.views.decorators.http import require_POST
 import json
 from datetime import datetime
 
-from .models import Person, CorOlhos, CorCabelo, CorPele, Genero, ProfessionalCategory
+from .models import Person, CorOlhos, CorCabelo, CorPele, Genero, ProfessionalCategory, PersonSelection
 from .models_casting import CastingCatalog
 from .forms import PersonFilterForm
 
@@ -18,6 +18,10 @@ def casting_catalog_list(request):
     Lista todos os catálogos de casting
     """
     catalogs = CastingCatalog.objects.all()
+    
+    # Adicionar contagem de pessoas selecionadas para cada catálogo
+    for catalog in catalogs:
+        catalog.selected_count = PersonSelection.objects.filter(catalog=catalog).count()
     
     # Paginação
     paginator = Paginator(catalogs, 10)
@@ -42,6 +46,20 @@ def casting_catalog_detail(request, pk):
     # Obter pessoas filtradas
     persons = catalog.get_filtered_people()
     
+    # Obter IDs de pessoas selecionadas neste catálogo
+    selected_person_ids = list(PersonSelection.objects.filter(catalog=catalog).values_list('person_id', flat=True))
+    
+    # Filtrar apenas pessoas selecionadas se o parâmetro estiver presente
+    show_selected_only = request.GET.get('selected_only') == '1'
+    if show_selected_only:
+        persons = persons.filter(id__in=selected_person_ids)
+    
+    # Contagem total de pessoas no catálogo
+    total_persons_count = persons.count()
+    
+    # Contagem de pessoas selecionadas
+    selected_persons_count = len(selected_person_ids)
+    
     # Paginação
     paginator = Paginator(persons, 20)
     page_number = request.GET.get('page')
@@ -52,6 +70,10 @@ def casting_catalog_detail(request, pk):
         'persons': page_obj.object_list,
         'page_obj': page_obj,
         'is_paginated': page_obj.has_other_pages(),
+        'selected_person_ids': selected_person_ids,
+        'total_persons_count': total_persons_count,
+        'selected_persons_count': selected_persons_count,
+        'show_selected_only': show_selected_only,
     }
     
     return render(request, 'people/casting_catalog_detail.html', context)

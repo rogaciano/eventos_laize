@@ -97,18 +97,12 @@
             <div class="flex flex-col md:flex-row md:items-start">
                 <!-- Foto -->
                 <div class="flex justify-center md:justify-start mb-6 md:mb-0 md:mr-6 md:flex-shrink-0">
-                    {% if person.photo %}
-                        <img class="h-48 w-48 rounded-md object-cover shadow-md" src="{{ person.photo.url }}" alt="{{ person.name }}">
+                    {% if person.get_display_photo %}
+                        <img class="h-48 w-48 rounded-md object-cover shadow-md" src="{{ person.get_display_photo.url }}" alt="{{ person.name }}">
                     {% else %}
-                        {% with primary_photo=person.gallery.all|dictsort:"order"|first %}
-                            {% if primary_photo %}
-                                <img class="h-48 w-48 rounded-md object-cover shadow-md" src="{{ primary_photo.image.url }}" alt="{{ person.name }}">
-                            {% else %}
-                                <div class="h-48 w-48 rounded-md bg-gray-200 flex items-center justify-center shadow-md">
-                                    <i class="fas fa-user text-gray-400 text-6xl"></i>
-                                </div>
-                            {% endif %}
-                        {% endwith %}
+                        <div class="h-48 w-48 rounded-md bg-gray-200 flex items-center justify-center shadow-md">
+                            <i class="fas fa-user text-gray-400 text-6xl"></i>
+                        </div>
                     {% endif %}
                     
                     {% if person.rating %}

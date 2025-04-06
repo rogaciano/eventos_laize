@@ -44,11 +44,18 @@
                         <p class="text-sm text-gray-700 line-clamp-3">{{ catalog.description }}</p>
                     </div>
                     <div class="bg-gray-50 px-4 py-3 flex justify-between items-center">
-                        <span class="text-sm text-gray-600">
-                            {% with person_count=catalog.get_filtered_people.count %}
-                                {{ person_count }} pessoa{{ person_count|pluralize }}
-                            {% endwith %}
-                        </span>
+                        <div class="flex flex-col">
+                            <span class="text-sm text-gray-600">
+                                {% with person_count=catalog.get_filtered_people.count %}
+                                    {{ person_count }} pessoa{{ person_count|pluralize }}
+                                {% endwith %}
+                            </span>
+                            {% if catalog.selected_count > 0 %}
+                            <span class="text-sm text-green-600 flex items-center">
+                                <i class="fas fa-check-circle mr-1"></i> {{ catalog.selected_count }} selecionada{{ catalog.selected_count|pluralize }}
+                            </span>
+                            {% endif %}
+                        </div>
                         <div class="flex space-x-2">
                             <a href="{% url 'people:casting_catalog_detail' catalog.id %}" class="text-blue-600 hover:text-blue-800">
                                 <i class="fas fa-eye"></i>
