@@ -61,7 +61,7 @@ def generate_public_link(request, catalog_id):
     signature = signature.split(':')[1]
     
     # Gerar URL pública
-    public_url = reverse('people:public_catalog_view', kwargs={
+    public_url = reverse('public_catalog_view', kwargs={
         'catalog_id': catalog_id,
         'signature': signature
     })

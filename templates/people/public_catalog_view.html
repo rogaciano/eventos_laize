@@ -11,6 +11,16 @@
         transform: translateY(-5px);
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
+    .selection-counter {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 1000;
+        display: none;
+    }
+    .person-selected {
+        border: 3px solid #4f46e5;
+    }
 </style>
 {% endblock %}
 
@@ -66,7 +76,7 @@
         {% if persons %}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {% for person in persons %}
-                <div class="person-card bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md">
+                <div class="person-card bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md" data-person-id="{{ person.id }}" data-person-name="{{ person.name }}">
                     <div class="h-48 bg-gray-200 overflow-hidden">
                         {% if person.photo %}
                             <img src="{{ person.photo.url }}" alt="{{ person.name }}" class="w-full h-full object-cover">
@@ -133,6 +143,12 @@
                                 </div>
                             {% endif %}
                         </div>
+                        
+                        <div class="mt-3 flex justify-center">
+                            <button class="select-btn w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+                                <i class="fas fa-check mr-1"></i> Selecionar
+                            </button>
+                        </div>
                     </div>
                 </div>
             {% endfor %}
@@ -148,4 +164,208 @@
         {% endif %}
     </div>
 </div>
+
+<!-- Contador de Seleção -->
+<div class="selection-counter bg-indigo-600 text-white rounded-lg shadow-lg p-4">
+    <div class="text-center mb-2">
+        <span id="selection-count" class="text-2xl font-bold">0</span> pessoa(s) selecionada(s)
+    </div>
+    <div class="flex space-x-2">
+        <button id="share-selections" class="bg-white text-indigo-600 hover:bg-gray-100 font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+            <i class="fas fa-share-alt mr-1"></i> Compartilhar
+        </button>
+        <button id="clear-selections" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+            <i class="fas fa-trash-alt mr-1"></i> Limpar
+        </button>
+    </div>
+</div>
+
+<!-- Modal de Compartilhamento -->
+<div id="share-modal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl p-6 w-full max-w-md">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-gray-900">Compartilhar Seleções</h3>
+            <button id="close-modal" class="text-gray-400 hover:text-gray-500">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="mb-4">
+            <p class="text-gray-600 mb-2">Envie sua seleção por:</p>
+            <div class="flex space-x-2">
+                <button id="share-whatsapp" class="flex-1 bg-green-500 hover:bg-green-600 text-white font-medium py-3 px-4 rounded-md transition duration-150 ease-in-out">
+                    <i class="fab fa-whatsapp mr-1"></i> WhatsApp
+                </button>
+                <button id="share-email" class="flex-1 bg-blue-500 hover:bg-blue-600 text-white font-medium py-3 px-4 rounded-md transition duration-150 ease-in-out">
+                    <i class="fas fa-envelope mr-1"></i> E-mail
+                </button>
+            </div>
+        </div>
+        
+        <div id="email-form" class="hidden">
+            <div class="mb-4">
+                <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Seu E-mail</label>
+                <input type="email" id="email" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="seu@email.com">
+            </div>
+            <div class="mb-4">
+                <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Mensagem (opcional)</label>
+                <textarea id="message" rows="3" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Escreva uma mensagem..."></textarea>
+            </div>
+            <button id="send-email" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+                Enviar
+            </button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Elementos
+        const personCards = document.querySelectorAll('.person-card');
+        const selectionCounter = document.querySelector('.selection-counter');
+        const selectionCountDisplay = document.getElementById('selection-count');
+        const shareSelectionsBtn = document.getElementById('share-selections');
+        const clearSelectionsBtn = document.getElementById('clear-selections');
+        const shareModal = document.getElementById('share-modal');
+        const closeModalBtn = document.getElementById('close-modal');
+        const shareWhatsappBtn = document.getElementById('share-whatsapp');
+        const shareEmailBtn = document.getElementById('share-email');
+        const emailForm = document.getElementById('email-form');
+        const sendEmailBtn = document.getElementById('send-email');
+        
+        // Carregar seleções salvas
+        let selectedPersons = JSON.parse(localStorage.getItem('selectedPersons_{{ catalog.id }}') || '[]');
+        updateSelectionUI();
+        
+        // Adicionar eventos aos cards de pessoas
+        personCards.forEach(card => {
+            const personId = card.dataset.personId;
+            const selectBtn = card.querySelector('.select-btn');
+            
+            // Marcar cards já selecionados
+            if (selectedPersons.some(p => p.id === personId)) {
+                card.classList.add('person-selected');
+                selectBtn.textContent = 'Selecionado';
+                selectBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                selectBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+            }
+            
+            selectBtn.addEventListener('click', function() {
+                togglePersonSelection(card, personId, card.dataset.personName);
+            });
+        });
+        
+        // Botões de compartilhamento e limpar
+        shareSelectionsBtn.addEventListener('click', function() {
+            if (selectedPersons.length > 0) {
+                shareModal.classList.remove('hidden');
+            } else {
+                alert('Selecione pelo menos uma pessoa para compartilhar.');
+            }
+        });
+        
+        clearSelectionsBtn.addEventListener('click', function() {
+            if (confirm('Tem certeza que deseja limpar todas as seleções?')) {
+                selectedPersons = [];
+                localStorage.removeItem('selectedPersons_{{ catalog.id }}');
+                updateSelectionUI();
+                
+                // Resetar UI dos cards
+                personCards.forEach(card => {
+                    const selectBtn = card.querySelector('.select-btn');
+                    card.classList.remove('person-selected');
+                    selectBtn.textContent = 'Selecionar';
+                    selectBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                    selectBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+                });
+            }
+        });
+        
+        // Modal de compartilhamento
+        closeModalBtn.addEventListener('click', function() {
+            shareModal.classList.add('hidden');
+            emailForm.classList.add('hidden');
+        });
+        
+        shareWhatsappBtn.addEventListener('click', function() {
+            const text = formatSelectionText();
+            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
+            window.open(whatsappUrl, '_blank');
+        });
+        
+        shareEmailBtn.addEventListener('click', function() {
+            emailForm.classList.remove('hidden');
+        });
+        
+        sendEmailBtn.addEventListener('click', function() {
+            const email = document.getElementById('email').value;
+            const message = document.getElementById('message').value;
+            
+            if (!email) {
+                alert('Por favor, informe seu e-mail.');
+                return;
+            }
+            
+            // Aqui você pode implementar o envio por e-mail
+            // Por enquanto, vamos apenas mostrar uma mensagem
+            alert('Função de envio por e-mail será implementada em breve!');
+            
+            // Fechar modal após envio
+            shareModal.classList.add('hidden');
+            emailForm.classList.add('hidden');
+        });
+        
+        // Funções auxiliares
+        function togglePersonSelection(card, personId, personName) {
+            const selectBtn = card.querySelector('.select-btn');
+            const isSelected = selectedPersons.some(p => p.id === personId);
+            
+            if (isSelected) {
+                // Remover da seleção
+                selectedPersons = selectedPersons.filter(p => p.id !== personId);
+                card.classList.remove('person-selected');
+                selectBtn.textContent = 'Selecionar';
+                selectBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
+                selectBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+            } else {
+                // Adicionar à seleção
+                selectedPersons.push({ id: personId, name: personName });
+                card.classList.add('person-selected');
+                selectBtn.textContent = 'Selecionado';
+                selectBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
+                selectBtn.classList.add('bg-green-500', 'hover:bg-green-600');
+            }
+            
+            // Salvar no localStorage e atualizar UI
+            localStorage.setItem('selectedPersons_{{ catalog.id }}', JSON.stringify(selectedPersons));
+            updateSelectionUI();
+        }
+        
+        function updateSelectionUI() {
+            selectionCountDisplay.textContent = selectedPersons.length;
+            
+            if (selectedPersons.length > 0) {
+                selectionCounter.style.display = 'block';
+            } else {
+                selectionCounter.style.display = 'none';
+            }
+        }
+        
+        function formatSelectionText() {
+            let text = `*Seleções do Catálogo: {{ catalog.name }}*\n\n`;
+            
+            selectedPersons.forEach((person, index) => {
+                text += `${index + 1}. ${person.name}\n`;
+            });
+            
+            text += `\nTotal: ${selectedPersons.length} pessoa(s)\n`;
+            text += `\nSeleção feita através do catálogo de casting da Agência Atitude.`;
+            
+            return text;
+        }
+    });
+</script>
 {% endblock %}
