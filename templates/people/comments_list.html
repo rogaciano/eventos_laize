@@ -1,0 +1,174 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Comentários e Perguntas{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">
+            {% if person_id %}
+                Comentários e Perguntas para {{ comments.first.person.name|default:"Pessoa" }}
+            {% else %}
+                Todos os Comentários e Perguntas
+            {% endif %}
+        </h1>
+        
+        <div>
+            {% if person_id %}
+                <a href="{% url 'people:person_detail' person_id %}" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Voltar ao Perfil
+                </a>
+            {% else %}
+                <a href="{% url 'people:views_report' %}" class="btn btn-outline-primary">
+                    <i class="fas fa-chart-bar"></i> Relatório de Visualizações
+                </a>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="card-title mb-0">Filtros</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-6">
+                    <label for="type" class="form-label">Tipo</label>
+                    <select name="type" id="type" class="form-select">
+                        <option value="">Todos</option>
+                        <option value="comment" {% if filters.type == 'comment' %}selected{% endif %}>Comentários</option>
+                        <option value="question" {% if filters.type == 'question' %}selected{% endif %}>Perguntas</option>
+                    </select>
+                </div>
+                
+                <div class="col-md-6">
+                    <label for="status" class="form-label">Status</label>
+                    <select name="status" id="status" class="form-select" {% if filters.type != 'question' %}disabled{% endif %}>
+                        <option value="">Todos</option>
+                        <option value="answered" {% if filters.status == 'answered' %}selected{% endif %}>Respondidas</option>
+                        <option value="unanswered" {% if filters.status == 'unanswered' %}selected{% endif %}>Não Respondidas</option>
+                    </select>
+                </div>
+                
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                    <a href="{% if person_id %}{% url 'people:comments_list' person_id %}{% else %}{% url 'people:all_comments_list' %}{% endif %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Limpar Filtros
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Lista de Comentários -->
+    {% if comments %}
+        <div class="row">
+            {% for comment in comments %}
+                <div class="col-md-6 mb-4">
+                    <div class="card h-100 {% if comment.is_question and not comment.is_answered %}border-warning{% endif %}">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <div>
+                                <span class="badge {% if comment.is_question %}bg-warning{% else %}bg-info{% endif %} me-2">
+                                    {% if comment.is_question %}Pergunta{% else %}Comentário{% endif %}
+                                </span>
+                                <small class="text-muted">{{ comment.created_at|date:"d/m/Y H:i" }}</small>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="dropdownMenuButton{{ comment.id }}" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-ellipsis-v"></i>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="dropdownMenuButton{{ comment.id }}">
+                                    {% if comment.is_question and not comment.is_answered %}
+                                        <li>
+                                            <a class="dropdown-item" href="{% url 'people:comment_answer' comment.id %}">
+                                                <i class="fas fa-reply text-primary"></i> Responder
+                                            </a>
+                                        </li>
+                                    {% endif %}
+                                    <li>
+                                        <a class="dropdown-item" href="{% url 'people:comment_delete' comment.id %}">
+                                            <i class="fas fa-trash text-danger"></i> Excluir
+                                        </a>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <h5 class="card-title">
+                                {% if not person_id %}
+                                    <a href="{% url 'people:person_detail' comment.person.id %}">
+                                        {{ comment.person.name }}
+                                    </a>
+                                {% endif %}
+                                {% if comment.catalog %}
+                                    <span class="badge bg-secondary">{{ comment.catalog.name }}</span>
+                                {% endif %}
+                            </h5>
+                            
+                            <p class="card-text">{{ comment.comment_text }}</p>
+                            
+                            {% if comment.is_question %}
+                                {% if comment.is_answered %}
+                                    <div class="mt-3 p-3 bg-light rounded">
+                                        <h6 class="mb-2">Resposta:</h6>
+                                        <p class="mb-1">{{ comment.answer_text }}</p>
+                                        <small class="text-muted">
+                                            Respondido por {{ comment.answered_by.get_full_name|default:comment.answered_by.username }} 
+                                            em {{ comment.answered_at|date:"d/m/Y H:i" }}
+                                        </small>
+                                    </div>
+                                {% else %}
+                                    <div class="mt-3">
+                                        <a href="{% url 'people:comment_answer' comment.id %}" class="btn btn-warning btn-sm">
+                                            <i class="fas fa-reply"></i> Responder
+                                        </a>
+                                    </div>
+                                {% endif %}
+                            {% endif %}
+                        </div>
+                        <div class="card-footer bg-transparent">
+                            <small class="text-muted">
+                                {% if comment.user %}
+                                    Por: {{ comment.user.get_full_name|default:comment.user.username }}
+                                {% else %}
+                                    Por: Anônimo
+                                {% endif %}
+                                {% if comment.ip_address %}
+                                    | IP: {{ comment.ip_address }}
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i> Nenhum comentário ou pergunta encontrado com os filtros selecionados.
+        </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Habilitar/desabilitar o filtro de status com base no tipo selecionado
+        const typeSelect = document.getElementById('type');
+        const statusSelect = document.getElementById('status');
+        
+        typeSelect.addEventListener('change', function() {
+            if (this.value === 'question') {
+                statusSelect.disabled = false;
+            } else {
+                statusSelect.disabled = true;
+                statusSelect.value = '';
+            }
+        });
+    });
+</script>
+{% endblock %}

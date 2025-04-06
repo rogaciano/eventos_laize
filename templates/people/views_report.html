@@ -1,0 +1,326 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Relatório de Visualizações{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+<style>
+    .chart-container {
+        position: relative;
+        height: 300px;
+        width: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">Relatório de Visualizações de Perfis</h1>
+        
+        <div>
+            <a href="{% url 'people:all_comments_list' %}" class="btn btn-outline-primary">
+                <i class="fas fa-comments"></i> Comentários e Perguntas
+            </a>
+        </div>
+    </div>
+    
+    <!-- Filtros -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="card-title mb-0">Filtros</h5>
+        </div>
+        <div class="card-body">
+            <form method="get" class="row g-3">
+                <div class="col-md-3">
+                    <label for="start_date" class="form-label">Data Inicial</label>
+                    <input type="text" class="form-control datepicker" id="start_date" name="start_date" value="{{ filters.start_date|date:'Y-m-d' }}">
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="end_date" class="form-label">Data Final</label>
+                    <input type="text" class="form-control datepicker" id="end_date" name="end_date" value="{{ filters.end_date|date:'Y-m-d' }}">
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="catalog_id" class="form-label">Catálogo</label>
+                    <select name="catalog_id" id="catalog_id" class="form-select">
+                        <option value="">Todos</option>
+                        {% for catalog in catalogs %}
+                            <option value="{{ catalog.id }}" {% if filters.catalog_id == catalog.id %}selected{% endif %}>
+                                {{ catalog.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-md-3">
+                    <label for="person_id" class="form-label">Pessoa</label>
+                    <select name="person_id" id="person_id" class="form-select">
+                        <option value="">Todas</option>
+                        {% for person in persons %}
+                            <option value="{{ person.id }}" {% if filters.person_id == person.id %}selected{% endif %}>
+                                {{ person.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+                
+                <div class="col-12">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-filter"></i> Filtrar
+                    </button>
+                    <a href="{% url 'people:views_report' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-times"></i> Limpar Filtros
+                    </a>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <!-- Resumo -->
+    <div class="row mb-4">
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-primary">Total de Visualizações</h5>
+                    <p class="display-4">{{ total_views }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-success">Visualizadores Únicos</h5>
+                    <p class="display-4">{{ unique_viewers }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-md-4">
+            <div class="card h-100">
+                <div class="card-body text-center">
+                    <h5 class="card-title text-info">Média por Visualizador</h5>
+                    <p class="display-4">
+                        {% if unique_viewers > 0 %}
+                            {{ total_views|floatformat:1 }}
+                        {% else %}
+                            0
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Gráfico -->
+    <div class="card mb-4">
+        <div class="card-header bg-light">
+            <h5 class="card-title mb-0">Visualizações por Data</h5>
+        </div>
+        <div class="card-body">
+            <div class="chart-container">
+                <canvas id="viewsChart"></canvas>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <!-- Top Pessoas -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Pessoas Mais Visualizadas</h5>
+                </div>
+                <div class="card-body">
+                    {% if top_persons %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nome</th>
+                                        <th class="text-end">Visualizações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for person in top_persons %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>
+                                                <a href="{% url 'people:person_detail' person.person__id %}">
+                                                    {{ person.person__name }}
+                                                </a>
+                                            </td>
+                                            <td class="text-end">{{ person.view_count }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Nenhuma visualização encontrada com os filtros selecionados.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <!-- Top Catálogos -->
+        <div class="col-md-6 mb-4">
+            <div class="card h-100">
+                <div class="card-header bg-light">
+                    <h5 class="card-title mb-0">Catálogos Mais Visualizados</h5>
+                </div>
+                <div class="card-body">
+                    {% if top_catalogs %}
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Nome</th>
+                                        <th class="text-end">Visualizações</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for catalog in top_catalogs %}
+                                        <tr>
+                                            <td>{{ forloop.counter }}</td>
+                                            <td>{{ catalog.catalog__name }}</td>
+                                            <td class="text-end">{{ catalog.view_count }}</td>
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle"></i> Nenhuma visualização de catálogo encontrada com os filtros selecionados.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Lista Detalhada -->
+    <div class="card">
+        <div class="card-header bg-light">
+            <h5 class="card-title mb-0">Visualizações Detalhadas</h5>
+        </div>
+        <div class="card-body">
+            {% if views %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Data/Hora</th>
+                                <th>Pessoa</th>
+                                <th>Catálogo</th>
+                                <th>Visualizador</th>
+                                <th>IP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for view in views %}
+                                <tr>
+                                    <td>{{ view.timestamp|date:"d/m/Y H:i" }}</td>
+                                    <td>
+                                        <a href="{% url 'people:person_detail' view.person.id %}">
+                                            {{ view.person.name }}
+                                        </a>
+                                    </td>
+                                    <td>
+                                        {% if view.catalog %}
+                                            {{ view.catalog.name }}
+                                        {% else %}
+                                            <span class="text-muted">Visualização direta</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if view.user %}
+                                            {{ view.user.get_full_name|default:view.user.username }}
+                                        {% else %}
+                                            <span class="text-muted">Anônimo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ view.ip_address }}</td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="fas fa-info-circle"></i> Nenhuma visualização encontrada com os filtros selecionados.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Inicializar datepickers
+        flatpickr(".datepicker", {
+            dateFormat: "Y-m-d",
+            allowInput: true
+        });
+        
+        // Preparar dados para o gráfico
+        const chartLabels = JSON.parse('{{ chart_labels|escapejs }}');
+        const chartData = JSON.parse('{{ chart_data|escapejs }}');
+        
+        // Inicializar gráfico
+        const ctx = document.getElementById('viewsChart').getContext('2d');
+        const viewsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Visualizações',
+                    data: chartData,
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 2,
+                    tension: 0.1,
+                    fill: true
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            precision: 0
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        display: false
+                    },
+                    tooltip: {
+                        callbacks: {
+                            title: function(tooltipItems) {
+                                const date = new Date(tooltipItems[0].label);
+                                return date.toLocaleDateString('pt-BR', { timeZone: 'UTC' });
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    });
+</script>
+{% endblock %}

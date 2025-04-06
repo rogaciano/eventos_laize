@@ -290,12 +290,14 @@
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Situação</th>
                 <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Telefone</th>
                 <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Avaliação</th>
+                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Comentários</th>
+                <th scope="col" class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Selecionado</th>
                 <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Ações</th>
             </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200">
-            {% for person in persons %}
-            <tr class="hover:bg-gray-50">
+            {% for person in page_obj %}
+            <tr class="hover:bg-gray-50 {% if person.id in selected_person_ids %}selected-person-row{% endif %}" data-person-id="{{ person.id }}">
                 <td class="px-6 py-4 whitespace-nowrap">
                     <div class="flex items-center">
                         {% if person.photo %}
@@ -379,6 +381,23 @@
                         {% endif %}
                     </div>
                 </td>
+                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 text-center">
+                    <div class="flex justify-center">
+                        <i class="fas fa-comment comment-icon text-gray-400"></i>
+                    </div>
+                </td>
+                <td class="px-6 py-4 text-center whitespace-nowrap">
+                    {% if person.id in selected_person_ids %}
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <svg class="h-4 w-4 mr-1 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                            </svg>
+                            Selecionado
+                        </span>
+                    {% else %}
+                        <span class="text-gray-400">-</span>
+                    {% endif %}
+                </td>
                 <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <a href="{% url 'people:detail' person.id %}" class="text-indigo-600 hover:text-indigo-900 mr-3">
                         <i class="fas fa-eye"></i>
@@ -401,7 +420,7 @@
             </tr>
             {% empty %}
             <tr>
-                <td colspan="6" class="px-6 py-10 text-center text-gray-500">
+                <td colspan="8" class="px-6 py-10 text-center text-gray-500">
                     <div class="flex flex-col items-center">
                         <i class="fas fa-users text-gray-300 text-5xl mb-4"></i>
                         <p class="text-lg">Nenhuma pessoa cadastrada</p>
@@ -416,7 +435,7 @@
 
 <!-- Versão para mobile (cards) -->
 <div class="md:hidden space-y-4">
-    {% for person in persons %}
+    {% for person in page_obj %}
     <div class="bg-white rounded-lg shadow overflow-hidden">
         <div class="p-4 border-b border-gray-200">
             <div class="flex items-center">
@@ -549,14 +568,73 @@
 {% endif %}
 {% endblock %}
 
+<style>
+    .selected-person-row {
+        background-color: rgba(16, 185, 129, 0.1) !important; /* Verde muito claro */
+        border-left: 4px solid #10B981 !important; /* Borda verde à esquerda */
+    }
+</style>
+
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const toggleButton = document.getElementById('toggle-advanced-filters');
+        // Alternar filtros avançados
+        const toggleAdvancedFiltersButton = document.getElementById('toggle-advanced-filters');
         const advancedFilters = document.getElementById('advanced-filters');
         
-        toggleButton.addEventListener('click', function() {
-            advancedFilters.classList.toggle('hidden');
+        if (toggleAdvancedFiltersButton) {
+            toggleAdvancedFiltersButton.addEventListener('click', function() {
+                advancedFilters.classList.toggle('hidden');
+            });
+        }
+        
+        // Verificar pessoas selecionadas no localStorage
+        if (localStorage.getItem('selectedPeople')) {
+            try {
+                const selectedPeople = JSON.parse(localStorage.getItem('selectedPeople'));
+                
+                // Atualizar ícones de seleção
+                document.querySelectorAll('[data-person-id]').forEach(element => {
+                    const personId = element.dataset.personId;
+                    const isSelected = selectedPeople.some(p => p.id === personId);
+                    
+                    // Encontrar o ícone de seleção para esta pessoa
+                    const selectionIcon = element.querySelector('.selection-icon');
+                    if (selectionIcon && isSelected) {
+                        selectionIcon.classList.remove('text-gray-400');
+                        selectionIcon.classList.add('text-green-600');
+                    }
+                });
+            } catch (e) {
+                console.error('Erro ao carregar pessoas selecionadas:', e);
+            }
+        }
+        
+        // Carregar contagem de comentários para cada pessoa
+        document.querySelectorAll('[data-person-id]').forEach(element => {
+            const personId = element.dataset.personId;
+            const commentIcon = element.querySelector('.comment-icon');
+            
+            if (commentIcon) {
+                // Fazer uma requisição AJAX para obter a contagem de comentários
+                fetch(`/sistema/people/person/${personId}/comments/count/`)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.count > 0) {
+                            commentIcon.classList.remove('text-gray-400');
+                            commentIcon.classList.add('text-amber-600');
+                            
+                            // Adicionar contador de comentários
+                            const badge = document.createElement('span');
+                            badge.className = 'ml-1 inline-flex items-center justify-center px-2 py-1 text-xs font-bold leading-none text-amber-100 bg-amber-600 rounded-full';
+                            badge.textContent = data.count;
+                            commentIcon.parentNode.appendChild(badge);
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Erro ao carregar comentários:', error);
+                    });
+            }
         });
     });
 </script>

@@ -31,7 +31,10 @@ urlpatterns = [
     path('', include('landing.urls')),
     
     # URL pública para catálogos (fora do namespace sistema/)
-    path('public/catalog/<int:catalog_id>/<str:signature>/', include('people.urls_public')),
+    path('people/public/', include('people.urls_public')),
+    
+    # URL pública para catálogos (dentro do namespace sistema/)
+    path('sistema/people/public/', include('people.urls_public')),
     
     # Sistema de gestão (área restrita)
     path('sistema/', include([

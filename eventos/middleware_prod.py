@@ -31,6 +31,7 @@ class LoginRequiredMiddleware:
             '/blog/post/',  # Para detalhes de posts do blog
             '/novidades/',  # Para acessar a página de blog
             '/landing/',    # Todas as URLs que começam com /landing/
+            '/sistema/people/public/',  # Todas as URLs públicas do módulo people
         ]
 
     def __call__(self, request):

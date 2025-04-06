@@ -368,6 +368,125 @@
     </div>
 </div>
 
+<!-- Estatísticas de Visualização -->
+<div class="mt-8">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-900">Estatísticas de Visualização</h2>
+        <a href="{% url 'people:comments_list' person.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-comments mr-2"></i>Ver Comentários
+        </a>
+    </div>
+    
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+                    <div class="text-center">
+                        <h3 class="text-lg font-medium text-gray-900">Total de Visualizações</h3>
+                        <p class="text-3xl font-bold text-indigo-600 mt-2">{{ total_views|default:"0" }}</p>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+                    <div class="text-center">
+                        <h3 class="text-lg font-medium text-gray-900">Visualizadores Únicos</h3>
+                        <p class="text-3xl font-bold text-green-600 mt-2">{{ unique_views|default:"0" }}</p>
+                    </div>
+                </div>
+                
+                <div class="bg-white p-4 rounded-lg shadow border border-gray-200">
+                    <div class="text-center">
+                        <h3 class="text-lg font-medium text-gray-900">Taxa de Conversão</h3>
+                        <p class="text-3xl font-bold text-blue-600 mt-2">
+                            {% if total_views > 0 %}
+                                {{ unique_views|floatformat:1 }}%
+                            {% else %}
+                                0%
+                            {% endif %}
+                        </p>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-4 text-center">
+                <a href="{% url 'people:views_report' %}?person_id={{ person.id }}" class="text-indigo-600 hover:text-indigo-900">
+                    <i class="fas fa-chart-bar mr-1"></i>Ver relatório completo
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Comentários e Perguntas -->
+<div class="mt-8">
+    <div class="flex justify-between items-center mb-4">
+        <h2 class="text-xl font-bold text-gray-900">Comentários e Perguntas</h2>
+        <a href="{% url 'people:comments_list' person.id %}" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md shadow-sm">
+            <i class="fas fa-list mr-2"></i>Ver Todos os Comentários
+        </a>
+    </div>
+    
+    <div class="bg-white shadow overflow-hidden sm:rounded-lg">
+        <div class="px-4 py-5 sm:px-6">
+            {% if person_comments %}
+                <div class="space-y-4">
+                    {% for comment in person_comments %}
+                        <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-200">
+                            <div class="flex justify-between items-start">
+                                <div>
+                                    <span class="inline-block bg-{{ comment.is_question|yesno:'amber,blue' }}-100 text-{{ comment.is_question|yesno:'amber,blue' }}-800 text-xs font-medium px-2 py-1 rounded-full mb-2">
+                                        {{ comment.is_question|yesno:'Pergunta,Comentário' }}
+                                    </span>
+                                    <p class="text-gray-800">{{ comment.comment_text }}</p>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-xs text-gray-500">{{ comment.created_at|date:"d/m/Y H:i" }}</span>
+                                    {% if comment.catalog %}
+                                        <div class="text-xs text-gray-500">Catálogo: {{ comment.catalog.name }}</div>
+                                    {% endif %}
+                                    {% if comment.user %}
+                                        <div class="text-xs text-gray-500">Por: {{ comment.user.username }}</div>
+                                    {% else %}
+                                        <div class="text-xs text-gray-500">Anônimo</div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            
+                            {% if comment.is_answered %}
+                                <div class="mt-3 pt-3 border-t border-gray-100">
+                                    <p class="text-sm font-medium text-gray-700">Resposta:</p>
+                                    <p class="text-gray-800">{{ comment.answer_text }}</p>
+                                    <div class="text-right">
+                                        <span class="text-xs text-gray-500">{{ comment.answered_at|date:"d/m/Y H:i" }}</span>
+                                    </div>
+                                </div>
+                            {% elif comment.is_question %}
+                                <div class="mt-3 pt-3 border-t border-gray-100">
+                                    <a href="{% url 'people:comment_answer' comment.id %}" class="text-indigo-600 hover:text-indigo-900">
+                                        <i class="fas fa-reply mr-1"></i>Responder
+                                    </a>
+                                </div>
+                            {% endif %}
+                            
+                            <div class="mt-2 text-right">
+                                <a href="{% url 'people:comment_delete' comment.id %}" class="text-red-600 hover:text-red-900 text-sm">
+                                    <i class="fas fa-trash-alt mr-1"></i>Excluir
+                                </a>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="text-center py-8">
+                    <i class="fas fa-comments text-gray-300 text-5xl mb-4"></i>
+                    <h3 class="text-lg font-medium text-gray-900 mb-2">Nenhum comentário ou pergunta</h3>
+                    <p class="text-gray-600">Este perfil ainda não recebeu comentários ou perguntas.</p>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
 <!-- Contatos -->
 <div class="mt-8">
     <div class="flex justify-between items-center mb-4">

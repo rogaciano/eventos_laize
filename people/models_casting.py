@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils import timezone
-from .models import CorOlhos, CorCabelo, CorPele, Genero, ProfessionalCategory
 import uuid
 
 class CastingCatalog(models.Model):
@@ -23,11 +22,11 @@ class CastingCatalog(models.Model):
     manequim = models.CharField(max_length=50, blank=True, null=True, verbose_name="Manequim")
     
     # Relacionamentos para filtros
-    eye_colors = models.ManyToManyField(CorOlhos, blank=True, verbose_name="Cores de Olhos")
-    hair_colors = models.ManyToManyField(CorCabelo, blank=True, verbose_name="Cores de Cabelo")
-    skin_colors = models.ManyToManyField(CorPele, blank=True, verbose_name="Cores de Pele")
-    genders = models.ManyToManyField(Genero, blank=True, verbose_name="Gêneros")
-    professional_categories = models.ManyToManyField(ProfessionalCategory, blank=True, verbose_name="Categorias Profissionais")
+    eye_colors = models.ManyToManyField('people.CorOlhos', blank=True, verbose_name="Cores de Olhos")
+    hair_colors = models.ManyToManyField('people.CorCabelo', blank=True, verbose_name="Cores de Cabelo")
+    skin_colors = models.ManyToManyField('people.CorPele', blank=True, verbose_name="Cores de Pele")
+    genders = models.ManyToManyField('people.Genero', blank=True, verbose_name="Gêneros")
+    professional_categories = models.ManyToManyField('people.ProfessionalCategory', blank=True, verbose_name="Categorias Profissionais")
     
     # Filtro de avaliações
     min_efficiency = models.IntegerField(blank=True, null=True, verbose_name="Eficiência Mínima")

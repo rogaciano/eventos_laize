@@ -21,10 +21,140 @@
     .person-selected {
         border: 3px solid #4f46e5;
     }
+    .ring-2 {
+        box-shadow: 0 0 0 2px #34C759;
+    }
+    .ring-green-500 {
+        box-shadow: 0 0 0 2px #34C759;
+    }
+    .selection-badge {
+        position: absolute;
+        top: 2px;
+        right: 2px;
+        background-color: #34C759;
+        color: #fff;
+        border-radius: 50%;
+        padding: 2px;
+        box-shadow: 0 0 0 2px #34C759;
+        z-index: 10;
+    }
+    
+    /* Estilos para o toast */
+    .toast-container {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        z-index: 9999;
+        max-width: 300px;
+    }
+    
+    .toast {
+        padding: 12px 16px;
+        border-radius: 4px;
+        margin-bottom: 10px;
+        color: white;
+        font-size: 14px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        animation: fadeIn 0.3s ease;
+    }
+    
+    .toast-success {
+        background-color: #10B981;
+    }
+    
+    .toast-error {
+        background-color: #EF4444;
+    }
+    
+    .toast-info {
+        background-color: #3B82F6;
+    }
+    
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .fadeOut {
+        animation: fadeOut 0.3s ease forwards;
+    }
+    
+    @keyframes fadeOut {
+        from { opacity: 1; transform: translateY(0); }
+        to { opacity: 0; transform: translateY(-10px); }
+    }
+    
+    /* Estilos para o modal */
+    .modal {
+        position: fixed;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background-color: rgba(0, 0, 0, 0.5);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        z-index: 9999;
+    }
+    
+    .modal-content {
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+        width: 500px;
+    }
+    
+    .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+    }
+    
+    .modal-header h2 {
+        font-size: 24px;
+        font-weight: bold;
+        margin: 0;
+    }
+    
+    .modal-header button {
+        background-color: transparent;
+        border: none;
+        font-size: 24px;
+        cursor: pointer;
+    }
+    
+    .modal-body {
+        margin-bottom: 20px;
+    }
+    
+    .modal-footer {
+        display: flex;
+        justify-content: flex-end;
+        align-items: center;
+    }
+    
+    .modal-footer button {
+        background-color: #4CAF50;
+        color: #fff;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    
+    .modal-footer button:hover {
+        background-color: #3e8e41;
+    }
 </style>
 {% endblock %}
 
 {% block content %}
+<!-- Container para os toasts -->
+<div class="toast-container"></div>
+
 <!-- Hero Section -->
 <section class="hero-section text-white py-16">
     <div class="container mx-auto px-4 text-center">
@@ -32,6 +162,9 @@
         <p class="text-xl md:text-2xl mb-6 max-w-3xl mx-auto">Catálogo de Casting</p>
     </div>
 </section>
+
+<!-- Toast Container -->
+<div class="toast-container"></div>
 
 <div class="container mx-auto px-4">
     <div class="content-container p-6 mb-6">
@@ -62,6 +195,9 @@
                     <span class="bg-blue-100 text-blue-800 text-sm font-medium px-3 py-1 rounded-full">
                         {{ persons|length }} pessoa{{ persons|length|pluralize }}
                     </span>
+                    <span id="selected-counter" class="bg-green-100 text-green-800 text-sm font-medium px-3 py-1 rounded-full ml-2">
+                        <span id="selected-count">0</span> selecionada{{ selected_person_ids|length|pluralize }}
+                    </span>
                 </div>
             </div>
         </div>
@@ -71,13 +207,29 @@
     <div class="content-container p-6">
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-semibold text-gray-900">Pessoas no Catálogo</h2>
+            <div id="selected-counter" class="text-sm text-gray-600">
+                <span id="selected-count">0</span> pessoa(s) selecionada(s) de {{ persons|length }}
+            </div>
+        </div>
+        
+        <!-- Container para pessoas selecionadas -->
+        <div id="selected-people-container" class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200 {% if not selected_person_ids %}hidden{% endif %}">
+            <h3 class="text-lg font-medium text-gray-900 mb-2">Pessoas Selecionadas</h3>
+            <ul id="selected-people-list" class="divide-y divide-gray-200">
+                <!-- Lista de pessoas selecionadas será preenchida pelo JavaScript -->
+            </ul>
         </div>
         
         {% if persons %}
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {% for person in persons %}
-                <div class="person-card bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md" data-person-id="{{ person.id }}" data-person-name="{{ person.name }}">
-                    <div class="h-48 bg-gray-200 overflow-hidden">
+                <div class="person-card bg-white border border-gray-200 rounded-lg shadow-sm overflow-hidden hover:shadow-md {% if person.id in selected_person_ids %}ring-2 ring-green-500 person-selected{% endif %}" data-person-id="{{ person.id }}" data-person-name="{{ person.name }}" data-person-photo="{% if person.photo %}{{ person.photo.url }}{% else %}''{% endif %}">
+                    <div class="h-48 bg-gray-200 overflow-hidden relative">
+                        {% if person.id in selected_person_ids %}
+                        <div class="selection-badge absolute top-2 right-2 bg-green-500 text-white rounded-full p-1 shadow-md z-10">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        {% endif %}
                         {% if person.photo %}
                             <img src="{{ person.photo.url }}" alt="{{ person.name }}" class="w-full h-full object-cover">
                         {% else %}
@@ -145,10 +297,30 @@
                         </div>
                         
                         <div class="mt-3 flex justify-center">
-                            <button class="select-btn w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
-                                <i class="fas fa-check mr-1"></i> Selecionar
+                            <button class="select-person w-full bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out" data-person-id="{{ person.id }}" data-person-name="{{ person.name }}" data-person-photo="{% if person.photo %}{{ person.photo.url }}{% else %}''{% endif %}">
+                                {% if person.id in selected_person_ids %}
+                                <i class="fas fa-check mr-1"></i> Selecionado
+                                {% else %}
+                                Selecionar
+                                {% endif %}
                             </button>
                         </div>
+                        
+                        <div class="mt-3">
+                            <button class="view-person-details w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 px-4 rounded-md shadow-sm text-sm" 
+                                    data-person-id="{{ person.id }}" data-catalog-id="{{ catalog.id }}">
+                                <i class="fas fa-comment mr-2"></i>Ver Detalhes e Comentários
+                            </button>
+                        </div>
+                        
+                        {% if person.gallery.all.count > 0 %}
+                        <div class="mt-2">
+                            <a href="{% url 'people:public_person_gallery' catalog.id person.id signature %}" 
+                               class="block w-full bg-purple-600 hover:bg-purple-700 text-white py-2 px-4 rounded-md shadow-sm text-sm text-center">
+                                <i class="fas fa-images mr-2"></i>Ver Galeria de Fotos ({{ person.gallery.all.count }})
+                            </a>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             {% endfor %}
@@ -166,18 +338,8 @@
 </div>
 
 <!-- Contador de Seleção -->
-<div class="selection-counter bg-indigo-600 text-white rounded-lg shadow-lg p-4">
-    <div class="text-center mb-2">
-        <span id="selection-count" class="text-2xl font-bold">0</span> pessoa(s) selecionada(s)
-    </div>
-    <div class="flex space-x-2">
-        <button id="share-selections" class="bg-white text-indigo-600 hover:bg-gray-100 font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
-            <i class="fas fa-share-alt mr-1"></i> Compartilhar
-        </button>
-        <button id="clear-selections" class="bg-red-500 hover:bg-red-600 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
-            <i class="fas fa-trash-alt mr-1"></i> Limpar
-        </button>
-    </div>
+<div class="selected-counter">
+    <span id="selected-count">0</span> pessoas selecionadas
 </div>
 
 <!-- Modal de Compartilhamento -->
@@ -205,167 +367,725 @@
         <div id="email-form" class="hidden">
             <div class="mb-4">
                 <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Seu E-mail</label>
-                <input type="email" id="email" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="seu@email.com">
+                <input type="email" id="email" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500" placeholder="seu@email.com">
             </div>
             <div class="mb-4">
                 <label for="message" class="block text-sm font-medium text-gray-700 mb-1">Mensagem (opcional)</label>
-                <textarea id="message" rows="3" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent" placeholder="Escreva uma mensagem..."></textarea>
+                <textarea id="message" rows="3" class="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-800"></textarea>
             </div>
-            <button id="send-email" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md transition duration-150 ease-in-out">
+            <button id="send-email" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md shadow-sm">
                 Enviar
             </button>
         </div>
     </div>
 </div>
 
+<!-- Modal de Detalhes da Pessoa -->
+<div id="person-details-modal" class="hidden fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-lg shadow-xl w-full max-w-4xl max-h-screen overflow-y-auto">
+        <div class="sticky top-0 bg-gray-100 px-6 py-4 border-b border-gray-200 flex justify-between items-center">
+            <h2 class="text-xl font-bold text-gray-900" id="modal-person-name"></h2>
+            <button type="button" class="close-modal text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-xl"></i>
+            </button>
+        </div>
+        
+        <div class="p-6" id="person-details-content">
+            <div class="flex justify-center">
+                <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+            </div>
+        </div>
+        
+        <!-- Seção de Comentários e Perguntas -->
+        <div class="border-t border-gray-200 p-6" id="person-comments-section">
+            <h3 class="text-lg font-semibold text-gray-900 mb-4">Comentários e Perguntas</h3>
+            
+            <div id="comments-list" class="mb-6">
+                <!-- Os comentários serão carregados aqui -->
+                <p class="text-gray-500 italic">Carregando comentários...</p>
+            </div>
+            
+            <form id="comment-form" class="bg-gray-50 p-4 rounded-lg" method="post" action="javascript:void(0);">
+                {% csrf_token %}
+                <input type="hidden" id="comment-person-id" name="person_id" value="">
+                <input type="hidden" id="comment-catalog-id" name="catalog_id" value="{{ catalog.id }}">
+                <div class="mb-4">
+                    <label for="comment_text" class="block text-sm font-medium text-gray-700 mb-1">Deixe seu comentário ou pergunta</label>
+                    <textarea id="comment_text" name="comment_text" rows="3" class="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 text-gray-800"></textarea>
+                </div>
+                <div class="flex items-center mb-4">
+                    <input type="checkbox" id="is_question" name="is_question" class="h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded">
+                    <label for="is_question" class="ml-2 block text-sm text-gray-700">Isto é uma pergunta?</label>
+                </div>
+                <div class="flex justify-end">
+                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium py-2 px-4 rounded-md shadow-sm">
+                        Enviar
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<!-- Seção de comentários -->
+<div id="person-comments" class="mt-6">
+    <h3 class="text-lg font-medium text-gray-900 mb-3">Comentários e Perguntas</h3>
+    <div id="comments-container" class="space-y-4 text-gray-800">
+        <!-- Os comentários serão carregados aqui via JavaScript -->
+    </div>
+</div>
+
 {% endblock %}
 
+<!-- JavaScript -->
 {% block extra_js %}
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Elementos
-        const personCards = document.querySelectorAll('.person-card');
-        const selectionCounter = document.querySelector('.selection-counter');
-        const selectionCountDisplay = document.getElementById('selection-count');
-        const shareSelectionsBtn = document.getElementById('share-selections');
-        const clearSelectionsBtn = document.getElementById('clear-selections');
-        const shareModal = document.getElementById('share-modal');
-        const closeModalBtn = document.getElementById('close-modal');
-        const shareWhatsappBtn = document.getElementById('share-whatsapp');
-        const shareEmailBtn = document.getElementById('share-email');
-        const emailForm = document.getElementById('email-form');
-        const sendEmailBtn = document.getElementById('send-email');
+        // Elementos do DOM
+        const personDetailsModal = document.getElementById('person-details-modal');
+        const personDetailsContent = document.getElementById('person-details-content');
+        const modalPersonName = document.getElementById('modal-person-name');
+        const commentForm = document.getElementById('comment-form');
+        const commentPersonIdInput = document.getElementById('comment-person-id');
+        const selectionCount = document.getElementById('selected-count');
+        const selectedPeopleList = document.getElementById('selected-people-list');
+        const selectedPeopleContainer = document.getElementById('selected-people-container');
         
-        // Carregar seleções salvas
-        let selectedPersons = JSON.parse(localStorage.getItem('selectedPersons_{{ catalog.id }}') || '[]');
-        updateSelectionUI();
+        // Variáveis para seleção
+        let selectedPersons = [];
+        const catalogId = parseInt("{{ catalog.id }}"); // ID do catálogo atual
         
-        // Adicionar eventos aos cards de pessoas
-        personCards.forEach(card => {
-            const personId = card.dataset.personId;
-            const selectBtn = card.querySelector('.select-btn');
-            
-            // Marcar cards já selecionados
-            if (selectedPersons.some(p => p.id === personId)) {
-                card.classList.add('person-selected');
-                selectBtn.textContent = 'Selecionado';
-                selectBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
-                selectBtn.classList.add('bg-green-500', 'hover:bg-green-600');
-            }
-            
-            selectBtn.addEventListener('click', function() {
-                togglePersonSelection(card, personId, card.dataset.personName);
+        // Lista de IDs de pessoas selecionadas do servidor
+        const serverSelectedPersonIds = JSON.parse('{{ selected_person_ids|safe }}');
+        console.log("IDs de pessoas selecionadas do servidor:", serverSelectedPersonIds);
+        
+        // Inicializar pessoas selecionadas a partir dos IDs recebidos do servidor
+        if (serverSelectedPersonIds && serverSelectedPersonIds.length > 0) {
+            // Para cada pessoa selecionada, adicionar à lista de selecionados
+            document.querySelectorAll('.person-card').forEach(card => {
+                const personId = parseInt(card.getAttribute('data-person-id'));
+                if (serverSelectedPersonIds.includes(personId)) {
+                    const personName = card.getAttribute('data-person-name');
+                    const personPhoto = card.getAttribute('data-person-photo');
+                    
+                    // Adicionar à lista de selecionados se não estiver lá
+                    if (!selectedPersons.some(p => p.id === personId)) {
+                        selectedPersons.push({
+                            id: personId,
+                            name: personName,
+                            photo: personPhoto
+                        });
+                    }
+                }
             });
-        });
-        
-        // Botões de compartilhamento e limpar
-        shareSelectionsBtn.addEventListener('click', function() {
-            if (selectedPersons.length > 0) {
-                shareModal.classList.remove('hidden');
-            } else {
-                alert('Selecione pelo menos uma pessoa para compartilhar.');
-            }
-        });
-        
-        clearSelectionsBtn.addEventListener('click', function() {
-            if (confirm('Tem certeza que deseja limpar todas as seleções?')) {
-                selectedPersons = [];
-                localStorage.removeItem('selectedPersons_{{ catalog.id }}');
-                updateSelectionUI();
+            
+            console.log("Pessoas selecionadas inicializadas do servidor:", selectedPersons);
+            
+            // Atualizar localStorage
+            localStorage.setItem('selectedPeople', JSON.stringify(selectedPersons));
+        }
+        // Se não houver seleções do servidor, tentar carregar do localStorage
+        else if (localStorage.getItem('selectedPeople')) {
+            try {
+                selectedPersons = JSON.parse(localStorage.getItem('selectedPeople'));
                 
-                // Resetar UI dos cards
-                personCards.forEach(card => {
-                    const selectBtn = card.querySelector('.select-btn');
-                    card.classList.remove('person-selected');
-                    selectBtn.textContent = 'Selecionar';
-                    selectBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
-                    selectBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
+                // Filtrar para manter apenas pessoas que estão neste catálogo
+                const personIdsInCatalog = Array.from(document.querySelectorAll('.person-card')).map(card => 
+                    parseInt(card.getAttribute('data-person-id'))
+                );
+                
+                selectedPersons = selectedPersons.filter(person => personIdsInCatalog.includes(person.id));
+                
+                // Atualizar localStorage com a lista filtrada
+                localStorage.setItem('selectedPeople', JSON.stringify(selectedPersons));
+                
+                console.log("Pessoas selecionadas carregadas do localStorage:", selectedPersons);
+            } catch (e) {
+                console.error("Erro ao carregar pessoas selecionadas do localStorage:", e);
+                localStorage.removeItem('selectedPeople');
+                selectedPersons = [];
+            }
+        }
+        
+        // Atualizar UI com pessoas selecionadas
+        updateSelectedPeopleUI();
+        
+        // Adicionar evento de clique para os cards de pessoas (para seleção)
+        document.querySelectorAll('.person-card').forEach(card => {
+            card.addEventListener('click', function() {
+                const personId = parseInt(this.dataset.personId);
+                const personName = this.dataset.personName;
+                const personPhoto = this.dataset.personPhoto;
+                
+                togglePersonSelection(personId, personName, personPhoto);
+            });
+        });
+        
+        // Adicionar evento de clique para os botões de seleção
+        document.querySelectorAll('.select-person').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation(); // Evitar que o card seja selecionado
+                const personId = parseInt(this.dataset.personId);
+                const personName = this.dataset.personName;
+                const personPhoto = this.dataset.personPhoto;
+                
+                togglePersonSelection(personId, personName, personPhoto);
+            });
+        });
+        
+        // Adicionar evento de clique para os botões de visualizar detalhes
+        document.querySelectorAll('.view-person-details').forEach(button => {
+            button.addEventListener('click', function(e) {
+                e.stopPropagation(); // Evitar que o card seja selecionado
+                const personId = parseInt(this.dataset.personId);
+                const catalogId = parseInt(this.dataset.catalogId);
+                openPersonDetailsModal(personId, catalogId);
+            });
+        });
+        
+        // Fechar modal
+        document.querySelectorAll('.close-modal').forEach(button => {
+            button.addEventListener('click', function() {
+                personDetailsModal.classList.add('hidden');
+            });
+        });
+        
+        // Fechar modal ao clicar fora
+        personDetailsModal.addEventListener('click', function(e) {
+            if (e.target === this) {
+                this.classList.add('hidden');
+            }
+        });
+        
+        // Processar formulário de comentário
+        if (commentForm) {
+            commentForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const personId = parseInt(commentPersonIdInput.value);
+                const catalogId = parseInt(document.getElementById('comment-catalog-id').value);
+                const commentText = document.getElementById('comment_text').value;
+                const isQuestion = document.getElementById('is_question').checked;
+                
+                if (!commentText.trim()) {
+                    alert('Por favor, escreva um comentário ou pergunta.');
+                    return;
+                }
+                
+                console.log("Enviando comentário:", {
+                    personId,
+                    catalogId,
+                    commentText,
+                    isQuestion
                 });
-            }
-        });
-        
-        // Modal de compartilhamento
-        closeModalBtn.addEventListener('click', function() {
-            shareModal.classList.add('hidden');
-            emailForm.classList.add('hidden');
-        });
-        
-        shareWhatsappBtn.addEventListener('click', function() {
-            const text = formatSelectionText();
-            const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(text)}`;
-            window.open(whatsappUrl, '_blank');
-        });
-        
-        shareEmailBtn.addEventListener('click', function() {
-            emailForm.classList.remove('hidden');
-        });
-        
-        sendEmailBtn.addEventListener('click', function() {
-            const email = document.getElementById('email').value;
-            const message = document.getElementById('message').value;
-            
-            if (!email) {
-                alert('Por favor, informe seu e-mail.');
-                return;
-            }
-            
-            // Aqui você pode implementar o envio por e-mail
-            // Por enquanto, vamos apenas mostrar uma mensagem
-            alert('Função de envio por e-mail será implementada em breve!');
-            
-            // Fechar modal após envio
-            shareModal.classList.add('hidden');
-            emailForm.classList.add('hidden');
-        });
-        
-        // Funções auxiliares
-        function togglePersonSelection(card, personId, personName) {
-            const selectBtn = card.querySelector('.select-btn');
-            const isSelected = selectedPersons.some(p => p.id === personId);
-            
-            if (isSelected) {
-                // Remover da seleção
-                selectedPersons = selectedPersons.filter(p => p.id !== personId);
-                card.classList.remove('person-selected');
-                selectBtn.textContent = 'Selecionar';
-                selectBtn.classList.remove('bg-green-500', 'hover:bg-green-600');
-                selectBtn.classList.add('bg-indigo-600', 'hover:bg-indigo-700');
-            } else {
-                // Adicionar à seleção
-                selectedPersons.push({ id: personId, name: personName });
-                card.classList.add('person-selected');
-                selectBtn.textContent = 'Selecionado';
-                selectBtn.classList.remove('bg-indigo-600', 'hover:bg-indigo-700');
-                selectBtn.classList.add('bg-green-500', 'hover:bg-green-600');
-            }
-            
-            // Salvar no localStorage e atualizar UI
-            localStorage.setItem('selectedPersons_{{ catalog.id }}', JSON.stringify(selectedPersons));
-            updateSelectionUI();
+                
+                // Preparar dados do formulário
+                const formData = new FormData();
+                formData.append('person_id', personId);
+                formData.append('catalog_id', catalogId);
+                formData.append('comment_text', commentText);
+                formData.append('is_question', isQuestion ? 'on' : '');
+                formData.append('csrfmiddlewaretoken', getCookie('csrftoken'));
+                
+                // Enviar via AJAX
+                fetch(window.location.href, {
+                    method: 'POST',
+                    body: formData,
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest'
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    console.log("Resposta do servidor:", data);
+                    if (data.success) {
+                        // Limpar formulário
+                        document.getElementById('comment_text').value = '';
+                        document.getElementById('is_question').checked = false;
+                        
+                        // Recarregar comentários
+                        loadPersonComments(personId, catalogId);
+                        
+                        // Mostrar mensagem de sucesso (apenas uma vez)
+                        alert('Seu comentário foi enviado com sucesso!');
+                        
+                        // Fechar o modal após um pequeno delay
+                        setTimeout(() => {
+                            personDetailsModal.classList.add('hidden');
+                        }, 1000);
+                    } else {
+                        alert(data.error || 'Ocorreu um erro ao enviar seu comentário. Tente novamente.');
+                    }
+                })
+                .catch(error => {
+                    console.error('Erro ao enviar comentário:', error);
+                    alert('Ocorreu um erro ao enviar seu comentário. Tente novamente.');
+                });
+            });
         }
         
-        function updateSelectionUI() {
-            selectionCountDisplay.textContent = selectedPersons.length;
+        // Função para abrir o modal de detalhes da pessoa
+        function openPersonDetailsModal(personId, catalogId) {
+            // Limpar conteúdo anterior
+            personDetailsContent.innerHTML = '<div class="flex justify-center"><div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div></div>';
             
-            if (selectedPersons.length > 0) {
-                selectionCounter.style.display = 'block';
-            } else {
-                selectionCounter.style.display = 'none';
-            }
-        }
-        
-        function formatSelectionText() {
-            let text = `*Seleções do Catálogo: {{ catalog.name }}*\n\n`;
+            // Mostrar modal
+            personDetailsModal.classList.remove('hidden');
             
-            selectedPersons.forEach((person, index) => {
-                text += `${index + 1}. ${person.name}\n`;
+            // Registrar visualização via AJAX
+            fetch(`/sistema/people/public/catalog/${catalogId}/person/${personId}/view/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({})
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Visualização registrada:', data);
+            })
+            .catch(error => {
+                console.error('Erro ao registrar visualização:', error);
             });
             
-            text += `\nTotal: ${selectedPersons.length} pessoa(s)\n`;
-            text += `\nSeleção feita através do catálogo de casting da Agência Atitude.`;
+            // Carregar detalhes da pessoa via AJAX
+            // Aqui você implementaria a chamada para obter os detalhes da pessoa
+            // Por enquanto, vamos simular com um timeout
+            setTimeout(() => {
+                // Atualizar o ID da pessoa no formulário de comentário
+                commentPersonIdInput.value = personId;
+                
+                // Carregar comentários existentes
+                loadPersonComments(personId, catalogId);
+                
+                // Simular carregamento dos detalhes da pessoa
+                // Na implementação real, isso viria de uma chamada AJAX
+                const person = findPersonById(personId);
+                if (person) {
+                    modalPersonName.textContent = person.name;
+                    
+                    // Construir HTML com os detalhes da pessoa
+                    let detailsHtml = `
+                        <div class="flex flex-col md:flex-row">
+                            <div class="md:w-1/3 mb-6 md:mb-0 md:pr-6">
+                                <div class="bg-gray-200 h-64 rounded-lg overflow-hidden">
+                                    ${person.photo ? 
+                                        `<img src="${person.photo}" alt="${person.name}" class="w-full h-full object-cover">` : 
+                                        `<div class="w-full h-full flex items-center justify-center bg-gray-300">
+                                            <i class="fas fa-user text-gray-500 text-5xl"></i>
+                                        </div>`
+                                    }
+                                </div>
+                                
+                                <div class="mt-4">
+                                    <div class="text-sm text-gray-600 mb-2">
+                                        ${person.categories ? person.categories.map(cat => 
+                                            `<span class="inline-block bg-gray-100 rounded-full px-2 py-1 text-xs font-semibold text-gray-700 mr-1 mb-1">
+                                                ${cat}
+                                            </span>`
+                                        ).join('') : ''}
+                                    </div>
+                                </div>
+                                
+                                <div class="mt-4 text-sm text-gray-500">
+                                    <p><strong>Visualizações:</strong> ${data.total_views || '0'} (${data.unique_views || '0'} únicas)</p>
+                                </div>
+                            </div>
+                            
+                            <div class="md:w-2/3">
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Informações Pessoais</h3>
+                                <div class="bg-gray-50 p-4 rounded-lg mb-4">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        ${person.age ? `<div><span class="font-medium">Idade:</span> ${person.age} anos</div>` : ''}
+                                        ${person.gender ? `<div><span class="font-medium">Gênero:</span> ${person.gender}</div>` : ''}
+                                        ${person.height ? `<div><span class="font-medium">Altura:</span> ${person.height}m</div>` : ''}
+                                        ${person.weight ? `<div><span class="font-medium">Peso:</span> ${person.weight}kg</div>` : ''}
+                                        ${person.manequim ? `<div><span class="font-medium">Manequim:</span> ${person.manequim}</div>` : ''}
+                                        ${person.eye_color ? `<div><span class="font-medium">Cor dos olhos:</span> ${person.eye_color}</div>` : ''}
+                                        ${person.hair_color ? `<div><span class="font-medium">Cor do cabelo:</span> ${person.hair_color}</div>` : ''}
+                                        ${person.skin_color ? `<div><span class="font-medium">Cor da pele:</span> ${person.skin_color}</div>` : ''}
+                                    </div>
+                                </div>
+                                
+                                <h3 class="text-lg font-semibold text-gray-900 mb-2">Avaliações</h3>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                        ${renderRating('Eficiência', person.efficiency)}
+                                        ${renderRating('Pontualidade', person.punctuality)}
+                                        ${renderRating('Proatividade', person.proactivity)}
+                                        ${renderRating('Aparência', person.appearance)}
+                                        ${renderRating('Comunicação', person.communication)}
+                                    </div>
+                                    <div class="mt-4 pt-4 border-t border-gray-200">
+                                        <div class="flex items-center">
+                                            <span class="font-medium mr-2">Média Geral:</span>
+                                            ${renderStars(person.average_rating)}
+                                            <span class="ml-2">${person.average_rating ? person.average_rating.toFixed(1) : 'N/A'}</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    personDetailsContent.innerHTML = detailsHtml;
+                } else {
+                    personDetailsContent.innerHTML = '<p class="text-red-500">Erro ao carregar detalhes da pessoa.</p>';
+                }
+            }, 500);
+        }
+        
+        // Função para carregar comentários de uma pessoa
+        function loadPersonComments(personId, catalogId) {
+            const commentsContainer = document.getElementById('comments-list');
+            commentsContainer.innerHTML = '<p class="text-gray-600">Carregando comentários...</p>';
             
-            return text;
+            console.log(`Carregando comentários para pessoa ${personId} no catálogo ${catalogId}`);
+            
+            fetch(`/sistema/people/public/catalog/${catalogId}/person/${personId}/comments/`)
+                .then(response => {
+                    console.log("Resposta recebida:", response);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log("Dados recebidos:", data);
+                    
+                    if (data.success && data.comments && data.comments.length > 0) {
+                        commentsContainer.innerHTML = '';
+                        data.comments.forEach(comment => {
+                            const commentEl = document.createElement('div');
+                            commentEl.className = 'bg-white p-4 rounded-lg shadow-sm border border-gray-200 mb-3';
+                            commentEl.innerHTML = `
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="inline-block bg-${comment.is_question ? 'amber' : 'blue'}-100 text-${comment.is_question ? 'amber' : 'blue'}-800 text-xs font-medium px-2 py-1 rounded-full mb-2">
+                                            ${comment.is_question ? 'Pergunta' : 'Comentário'}
+                                        </span>
+                                        <p class="text-gray-800">${comment.comment_text}</p>
+                                    </div>
+                                    <span class="text-xs text-gray-500">${comment.created_at}</span>
+                                </div>
+                                ${comment.is_answered ? `
+                                    <div class="mt-3 pt-3 border-t border-gray-100">
+                                        <p class="text-sm font-medium text-gray-700">Resposta:</p>
+                                        <p class="text-gray-800">${comment.answer_text}</p>
+                                        <span class="text-xs text-gray-500">${comment.answered_at}</span>
+                                    </div>
+                                ` : ''}
+                            `;
+                            commentsContainer.appendChild(commentEl);
+                        });
+                    } else {
+                        commentsContainer.innerHTML = '<p class="text-gray-600">Nenhum comentário encontrado.</p>';
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro ao carregar comentários:", error);
+                    commentsContainer.innerHTML = '<p class="text-red-500">Erro ao carregar comentários. Tente novamente.</p>';
+                });
+        }
+        
+        // Funções para seleção de pessoas
+        function togglePersonSelection(personId, personName, personPhoto) {
+            console.log(`Alternando seleção para pessoa ${personId}: ${personName}`);
+            
+            // Verificar se a pessoa já está selecionada
+            const index = selectedPersons.findIndex(p => p.id == personId);
+            
+            // Enviar requisição AJAX para o servidor
+            fetch(`/sistema/people/public/catalog/${catalogId}/person/${personId}/select/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: JSON.stringify({
+                    selected: index === -1 // Se não estiver na lista, estamos selecionando
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`Erro na requisição: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Resposta do servidor:', data);
+                
+                if (data.success) {
+                    // Se a pessoa já estava selecionada, remover da lista
+                    if (index !== -1) {
+                        selectedPersons.splice(index, 1);
+                        console.log(`Pessoa ${personId} removida da seleção`);
+                    } 
+                    // Caso contrário, adicionar à lista
+                    else {
+                        selectedPersons.push({
+                            id: personId,
+                            name: personName,
+                            photo: personPhoto
+                        });
+                        console.log(`Pessoa ${personId} adicionada à seleção`);
+                    }
+                    
+                    // Atualizar a interface
+                    updatePersonCardsSelection();
+                    
+                    // Atualizar o contador
+                    updateSelectedCounter();
+                    
+                    // Atualizar a lista de pessoas selecionadas
+                    updateSelectedPeopleUI();
+                    
+                    // Atualizar localStorage
+                    localStorage.setItem('selectedPeople', JSON.stringify(selectedPersons));
+                    
+                    // Mostrar toast de confirmação
+                    showToast(index !== -1 ? 
+                        `${personName} removido(a) da seleção` : 
+                        `${personName} adicionado(a) à seleção`, 
+                        index !== -1 ? 'info' : 'success');
+                } else {
+                    console.error('Erro ao processar a seleção:', data.error || 'Erro desconhecido');
+                    showToast('Erro ao processar a seleção', 'error');
+                }
+            })
+            .catch(error => {
+                console.error('Erro ao selecionar pessoa:', error);
+                showToast('Erro ao processar a seleção', 'error');
+            });
+        }
+        
+        // Função para mostrar toast de notificação
+        function showToast(message, type = 'info') {
+            const toastContainer = document.querySelector('.toast-container');
+            if (!toastContainer) return;
+            
+            const toast = document.createElement('div');
+            toast.className = `toast ${type} flex items-center p-4 mb-3 rounded-lg shadow-md`;
+            
+            // Definir cores com base no tipo
+            let bgColor, textColor, icon;
+            switch(type) {
+                case 'success':
+                    bgColor = 'bg-green-100';
+                    textColor = 'text-green-800';
+                    icon = '<i class="fas fa-check-circle mr-2"></i>';
+                    break;
+                case 'error':
+                    bgColor = 'bg-red-100';
+                    textColor = 'text-red-800';
+                    icon = '<i class="fas fa-exclamation-circle mr-2"></i>';
+                    break;
+                default:
+                    bgColor = 'bg-blue-100';
+                    textColor = 'text-blue-800';
+                    icon = '<i class="fas fa-info-circle mr-2"></i>';
+            }
+            
+            toast.classList.add(bgColor, textColor);
+            toast.innerHTML = `
+                ${icon}
+                <span>${message}</span>
+                <button class="ml-auto text-gray-600 hover:text-gray-800">
+                    <i class="fas fa-times"></i>
+                </button>
+            `;
+            
+            toastContainer.appendChild(toast);
+            
+            // Adicionar evento para fechar o toast
+            toast.querySelector('button').addEventListener('click', () => {
+                toast.remove();
+            });
+            
+            // Remover automaticamente após 3 segundos
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'transition-opacity', 'duration-300');
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        // Função para atualizar a UI com pessoas selecionadas
+        function updateSelectedPeopleUI() {
+            // Atualizar o contador de selecionados
+            updateSelectedCounter();
+            
+            // Atualizar visualmente os cards das pessoas selecionadas
+            updatePersonCardsSelection();
+            
+            const selectedPeopleContainer = document.getElementById('selected-people-container');
+            const selectedPeopleList = document.getElementById('selected-people-list');
+            
+            if (selectedPeopleContainer && selectedPeopleList) {
+                if (selectedPersons.length > 0) {
+                    selectedPeopleContainer.classList.remove('hidden');
+                    selectedPeopleList.innerHTML = '';
+                    
+                    selectedPersons.forEach(person => {
+                        const li = document.createElement('li');
+                        li.className = 'flex justify-between items-center p-2 hover:bg-gray-50';
+                        li.innerHTML = `
+                            <span>${person.name}</span>
+                            <button class="remove-selected text-red-600 hover:text-red-800" data-person-id="${person.id}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        `;
+                        selectedPeopleList.appendChild(li);
+                    });
+                } else {
+                    selectedPeopleContainer.classList.add('hidden');
+                }
+            }
+        }
+        
+        // Função para atualizar visualmente os cards das pessoas selecionadas
+        function updatePersonCardsSelection() {
+            console.log("Atualizando seleção visual dos cards");
+            console.log("Pessoas selecionadas:", selectedPersons);
+            
+            // Remover a classe de seleção de todos os cards e botões
+            document.querySelectorAll('.person-card').forEach(card => {
+                card.classList.remove('ring-2', 'ring-green-500', 'person-selected');
+                
+                // Remover o badge de seleção se existir
+                const selectionBadge = card.querySelector('.selection-badge');
+                if (selectionBadge) {
+                    selectionBadge.remove();
+                }
+                
+                const selectButton = card.querySelector('.select-person');
+                if (selectButton) {
+                    // Restaurar o botão para o estado não selecionado
+                    selectButton.classList.remove('bg-green-700');
+                    selectButton.classList.add('bg-green-600');
+                    selectButton.innerHTML = 'Selecionar';
+                }
+            });
+            
+            // Adicionar a classe de seleção aos cards das pessoas selecionadas
+            selectedPersons.forEach(person => {
+                const personCard = document.querySelector(`.person-card[data-person-id="${person.id}"]`);
+                if (personCard) {
+                    console.log("Aplicando seleção ao card:", person.id, person.name);
+                    personCard.classList.add('ring-2', 'ring-green-500', 'person-selected');
+                    
+                    // Adicionar badge de seleção
+                    const photoContainer = personCard.querySelector('.h-48');
+                    if (photoContainer && !photoContainer.querySelector('.selection-badge')) {
+                        const badge = document.createElement('div');
+                        badge.className = 'selection-badge absolute top-2 right-2 bg-green-500 text-white rounded-full p-1 shadow-md z-10';
+                        badge.innerHTML = '<i class="fas fa-check"></i>';
+                        photoContainer.style.position = 'relative';
+                        photoContainer.appendChild(badge);
+                    }
+                    
+                    const selectButton = personCard.querySelector('.select-person');
+                    if (selectButton) {
+                        selectButton.classList.remove('bg-green-600');
+                        selectButton.classList.add('bg-green-700');
+                        selectButton.innerHTML = '<i class="fas fa-check mr-1"></i> Selecionado';
+                    }
+                }
+            });
+        }
+        
+        // Função para atualizar o contador de selecionados
+        function updateSelectedCounter() {
+            const selectionCount = document.getElementById('selected-count');
+            if (selectionCount) {
+                selectionCount.textContent = selectedPersons.length;
+            }
+        }
+        
+        // Função para formatar o texto de seleção
+        function formatSelectionText() {
+            if (selectedPersons.length === 1) {
+                return "pessoa selecionada";
+            } else {
+                return "pessoas selecionadas";
+            }
+        }
+        
+        // Função para encontrar uma pessoa pelo ID
+        function findPersonById(personId) {
+            // Na implementação real, isso viria de uma chamada AJAX
+            // Por enquanto, vamos simular com dados do DOM
+            const card = document.querySelector(`.person-card[data-person-id="${personId}"]`);
+            if (!card) return null;
+            
+            const name = card.dataset.personName;
+            const photoEl = card.querySelector('img');
+            const photo = photoEl ? photoEl.src : null;
+            
+            // Simular outros dados
+            return {
+                id: personId,
+                name: name,
+                photo: photo,
+                categories: ['Modelo', 'Promotor'],
+                age: 28,
+                gender: 'Masculino',
+                height: 1.80,
+                weight: 75,
+                manequim: 'M',
+                eye_color: 'Castanho',
+                hair_color: 'Preto',
+                skin_color: 'Parda',
+                efficiency: 4,
+                punctuality: 5,
+                proactivity: 4,
+                appearance: 5,
+                communication: 4,
+                average_rating: 4.4
+            };
+        }
+        
+        // Função para obter o cookie CSRF
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        // Funções existentes
+        function renderStars(rating) {
+            if (!rating) return '<span class="text-gray-400">Não avaliado</span>';
+            
+            let stars = '';
+            for (let i = 1; i <= 5; i++) {
+                if (i <= rating) {
+                    stars += '<i class="fas fa-star text-yellow-400"></i>';
+                } else if (i - 0.5 <= rating) {
+                    stars += '<i class="fas fa-star-half-alt text-yellow-400"></i>';
+                } else {
+                    stars += '<i class="far fa-star text-yellow-400"></i>';
+                }
+            }
+            return stars;
+        }
+        
+        function renderRating(label, value) {
+            return `
+                <div>
+                    <div class="flex items-center">
+                        <span class="font-medium mr-2">${label}:</span>
+                        ${renderStars(value)}
+                    </div>
+                </div>
+            `;
         }
     });
 </script>
+
 {% endblock %}

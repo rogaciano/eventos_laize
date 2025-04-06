@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Responder Pergunta{% endblock %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header bg-light">
+                    <h1 class="h4 mb-0">Responder Pergunta</h1>
+                </div>
+                
+                <div class="card-body">
+                    <div class="mb-4">
+                        <h5 class="card-title">
+                            {{ comment.person.name }}
+                            {% if comment.catalog %}
+                                <span class="badge bg-secondary">{{ comment.catalog.name }}</span>
+                            {% endif %}
+                        </h5>
+                        
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span class="badge bg-warning me-2">Pergunta</span>
+                            <small class="text-muted">{{ comment.created_at|date:"d/m/Y H:i" }}</small>
+                        </div>
+                        
+                        <div class="p-3 bg-light rounded mb-4">
+                            <p class="mb-0">{{ comment.comment_text }}</p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <small class="text-muted">
+                                {% if comment.user %}
+                                    Por: {{ comment.user.get_full_name|default:comment.user.username }}
+                                {% else %}
+                                    Por: Anônimo
+                                {% endif %}
+                                {% if comment.ip_address %}
+                                    | IP: {{ comment.ip_address }}
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                    
+                    <form method="post">
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="answer_text" class="form-label">Sua Resposta</label>
+                            <textarea class="form-control" id="answer_text" name="answer_text" rows="5" required></textarea>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% if comment.person %}{% url 'people:comments_list' comment.person.id %}{% else %}{% url 'people:all_comments_list' %}{% endif %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Voltar
+                            </a>
+                            
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fas fa-paper-plane"></i> Enviar Resposta
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

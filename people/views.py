@@ -1,17 +1,22 @@
 from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.http import JsonResponse, HttpResponse
-from django.db.models import Q, Count
+from django.db.models import Count, Avg, F, Q
+from django.db.models.functions import TruncDate
+from django.utils import timezone
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_exempt
-from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero, WhatsAppMessage, ProfessionalCategory, PersonGallery
-from .forms import PersonForm, PersonContactForm, ProfessionalCategoryForm, PersonGalleryForm
-import os
-from datetime import date, datetime
-from io import BytesIO
-from .utils import send_whatsapp_message
+from datetime import datetime, timedelta, date
 import json
+import os
 import logging
+
+from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero, WhatsAppMessage, ProfessionalCategory, PersonGallery, PersonView, PersonComment
+from .models_casting import CastingCatalog
+from events.models import Event
+from .forms import PersonForm, PersonContactForm, ProfessionalCategoryForm, PersonGalleryForm
+from .utils import send_whatsapp_message
 
 logger = logging.getLogger(__name__)
 
@@ -175,6 +180,33 @@ def person_list(request, return_queryset=False):
         except (ValueError, TypeError):
             pass
     
+    # Obter o catálogo ativo (se houver)
+    active_catalog = None
+    catalog_id = request.GET.get('catalog')
+    if catalog_id:
+        try:
+            active_catalog = CastingCatalog.objects.get(pk=catalog_id)
+        except CastingCatalog.DoesNotExist:
+            pass
+    
+    # Se houver um catálogo ativo, obter as pessoas selecionadas
+    selected_person_ids = []
+    if active_catalog:
+        session_key = request.session.session_key
+        selected_person_ids = list(PersonSelection.objects.filter(
+            catalog=active_catalog,
+            session_key=session_key
+        ).values_list('person_id', flat=True))
+        
+        # Criar uma lista ordenada com selecionados primeiro
+        if selected_person_ids:
+            # Criar uma lista de pessoas selecionadas
+            selected_persons = list(persons.filter(id__in=selected_person_ids))
+            # Criar uma lista de pessoas não selecionadas
+            unselected_persons = list(persons.exclude(id__in=selected_person_ids))
+            # Combinar as duas listas
+            persons = selected_persons + unselected_persons
+    
     if return_queryset:
         return {'persons': persons}
     
@@ -237,6 +269,43 @@ def person_detail(request, person_id):
     # Get all events that this person participated in
     events = person.events.all().order_by('-start_datetime')
     
+    # Registrar a visualização do perfil
+    ip_address = request.META.get('REMOTE_ADDR', '')
+    session_key = request.session.session_key
+    
+    # Criar registro de visualização
+    PersonView.objects.create(
+        person=person,
+        user=request.user if request.user.is_authenticated else None,
+        ip_address=ip_address,
+        session_key=session_key
+    )
+    
+    # Obter estatísticas de visualização
+    total_views = PersonView.objects.filter(person=person).count()
+    unique_views = PersonView.objects.filter(person=person).values('session_key').distinct().count()
+    last_view = PersonView.objects.filter(person=person).exclude(
+        session_key=session_key
+    ).order_by('-timestamp').first()
+    
+    # Processar comentários/perguntas
+    if request.method == 'POST' and 'comment_text' in request.POST:
+        comment_text = request.POST.get('comment_text', '').strip()
+        is_question = request.POST.get('is_question', '') == 'on'
+        
+        if comment_text:
+            PersonComment.objects.create(
+                person=person,
+                user=request.user if request.user.is_authenticated else None,
+                comment_text=comment_text,
+                is_question=is_question
+            )
+            messages.success(request, 'Seu comentário foi enviado com sucesso!')
+            return redirect('people:detail', person_id=person_id)
+    
+    # Obter comentários existentes
+    person_comments = PersonComment.objects.filter(person=person).order_by('-created_at')
+    
     # Debug para verificar o valor da variável ENABLE_WHATSAPP
     print(f"ENABLE_WHATSAPP in view: {settings.ENABLE_WHATSAPP}")
     
@@ -245,7 +314,11 @@ def person_detail(request, person_id):
         'contacts': contacts,
         'events': events,
         'back_url': back_url,
-        'ENABLE_WHATSAPP': settings.ENABLE_WHATSAPP
+        'ENABLE_WHATSAPP': settings.ENABLE_WHATSAPP,
+        'total_views': total_views,
+        'unique_views': unique_views,
+        'last_view': last_view,
+        'person_comments': person_comments
     })
 
 def person_create(request):
@@ -1109,3 +1182,158 @@ def person_gallery_delete(request, person_id, gallery_id):
         'source': source  # Adiciona a origem à context
     }
     return render(request, 'people/person_gallery_confirm_delete.html', context)
+
+# Views para gerenciar comentários e perguntas
+def person_comments_list(request, person_id=None):
+    """
+    View para listar todos os comentários e perguntas, com opção de filtrar por pessoa.
+    """
+    if person_id:
+        person = get_object_or_404(Person, pk=person_id)
+        comments = PersonComment.objects.filter(person=person).order_by('-created_at')
+        title = f"Comentários e Perguntas sobre {person.name}"
+    else:
+        person = None
+        comments = PersonComment.objects.all().order_by('-created_at')
+        title = "Todos os Comentários e Perguntas"
+    
+    # Filtros
+    filter_type = request.GET.get('type', '')
+    filter_answered = request.GET.get('answered', '')
+    
+    if filter_type == 'question':
+        comments = comments.filter(is_question=True)
+    elif filter_type == 'comment':
+        comments = comments.filter(is_question=False)
+    
+    if filter_answered == 'yes':
+        comments = comments.filter(is_answered=True)
+    elif filter_answered == 'no':
+        comments = comments.filter(is_answered=False)
+    
+    return render(request, 'people/person_comments_list.html', {
+        'comments': comments,
+        'person': person,
+        'title': title,
+        'filter_type': filter_type,
+        'filter_answered': filter_answered
+    })
+
+def person_comment_answer(request, comment_id):
+    """
+    View para responder a uma pergunta.
+    """
+    comment = get_object_or_404(PersonComment, pk=comment_id)
+    
+    if request.method == 'POST':
+        answer_text = request.POST.get('answer_text', '').strip()
+        
+        if answer_text:
+            comment.answer_text = answer_text
+            comment.is_answered = True
+            comment.answered_at = timezone.now()
+            comment.save()
+            
+            messages.success(request, 'Resposta enviada com sucesso!')
+            
+            # Redirecionar de volta para a lista de comentários da pessoa
+            if 'next' in request.POST:
+                return redirect(request.POST.get('next'))
+            return redirect('people:comments_list', person_id=comment.person.id)
+    
+    # URL para retornar após responder
+    next_url = request.GET.get('next', reverse('people:comments_list', kwargs={'person_id': comment.person.id}))
+    
+    return render(request, 'people/person_comment_answer.html', {
+        'comment': comment,
+        'next_url': next_url
+    })
+
+def person_comment_delete(request, comment_id):
+    """
+    View para excluir um comentário ou pergunta.
+    """
+    comment = get_object_or_404(PersonComment, pk=comment_id)
+    person_id = comment.person.id
+    
+    if request.method == 'POST':
+        comment.delete()
+        messages.success(request, 'Comentário excluído com sucesso!')
+        
+        # Redirecionar de volta para a lista de comentários da pessoa
+        if 'next' in request.POST:
+            return redirect(request.POST.get('next'))
+        return redirect('people:comments_list', person_id=person_id)
+    
+    # URL para retornar após excluir
+    next_url = request.GET.get('next', reverse('people:comments_list', kwargs={'person_id': person_id}))
+    
+    return render(request, 'people/person_comment_confirm_delete.html', {
+        'comment': comment,
+        'next_url': next_url
+    })
+
+def person_comments_count(request, person_id):
+    """
+    View para retornar a contagem de comentários de uma pessoa.
+    """
+    person = get_object_or_404(Person, pk=person_id)
+    count = PersonComment.objects.filter(person=person).count()
+    
+    return JsonResponse({
+        'count': count,
+        'person_id': person_id
+    })
+
+def person_views_report(request):
+    """
+    View para exibir relatório de visualizações de perfis.
+    """
+    # Obter estatísticas gerais
+    total_views = PersonView.objects.count()
+    unique_users = PersonView.objects.values('user').distinct().count()
+    unique_sessions = PersonView.objects.values('session_key').distinct().count()
+    
+    # Pessoas mais visualizadas
+    most_viewed = Person.objects.annotate(
+        view_count=Count('views')
+    ).order_by('-view_count')[:20]
+    
+    # Visualizações recentes
+    recent_views = PersonView.objects.select_related('person', 'user').order_by('-timestamp')[:50]
+    
+    # Filtros
+    date_from = request.GET.get('date_from', '')
+    date_to = request.GET.get('date_to', '')
+    person_filter = request.GET.get('person', '')
+    
+    filtered_views = PersonView.objects.all()
+    
+    if date_from:
+        try:
+            date_from = datetime.strptime(date_from, '%Y-%m-%d')
+            filtered_views = filtered_views.filter(timestamp__gte=date_from)
+        except ValueError:
+            pass
+    
+    if date_to:
+        try:
+            date_to = datetime.strptime(date_to, '%Y-%m-%d')
+            filtered_views = filtered_views.filter(timestamp__lte=date_to)
+        except ValueError:
+            pass
+    
+    if person_filter:
+        filtered_views = filtered_views.filter(person__name__icontains=person_filter)
+    
+    return render(request, 'people/views_report.html', {
+        'total_views': total_views,
+        'unique_users': unique_users,
+        'unique_sessions': unique_sessions,
+        'most_viewed': most_viewed,
+        'recent_views': recent_views,
+        'filtered_views': filtered_views,
+        'date_from': date_from,
+        'date_to': date_to,
+        'person_filter': person_filter
+    })

@@ -48,4 +48,17 @@ urlpatterns = [
     # URLs para acesso público a catálogos
     path('casting-catalogs/<int:catalog_id>/generate-link/', views_public.generate_public_link, name='generate_public_link'),
     path('public/catalog/<int:catalog_id>/<str:signature>/', views_public.public_catalog_view, name='public_catalog_view'),
+    path('public/catalog/<int:catalog_id>/person/<int:person_id>/view/', views_public.record_person_view, name='public_catalog_person_view'),
+    path('public/catalog/<int:catalog_id>/person/<int:person_id>/comments/', views_public.get_person_comments, name='public_catalog_person_comments'),
+    path('public/catalog/<int:catalog_id>/person/<int:person_id>/select/', views_public.toggle_person_selection, name='public_catalog_person_select'),
+    path('public/catalog/<int:catalog_id>/selected/', views_public.get_selected_people, name='public_catalog_selected_people'),
+    path('public/catalog/<int:catalog_id>/person/<int:person_id>/gallery/<str:signature>/', views_public.public_person_gallery, name='public_person_gallery'),
+    
+    # URLs para comentários e visualizações
+    path('comments/', views.person_comments_list, name='all_comments_list'),
+    path('person/<int:person_id>/comments/', views.person_comments_list, name='comments_list'),
+    path('person/<int:person_id>/comments/count/', views.person_comments_count, name='comments_count'),
+    path('comments/<int:comment_id>/answer/', views.person_comment_answer, name='comment_answer'),
+    path('comments/<int:comment_id>/delete/', views.person_comment_delete, name='comment_delete'),
+    path('views/report/', views.person_views_report, name='views_report'),
 ]
