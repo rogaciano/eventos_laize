@@ -208,7 +208,7 @@
         <div class="flex justify-between items-center mb-6">
             <h2 class="text-xl font-semibold text-gray-900">Pessoas no Catálogo</h2>
             <div id="selected-counter" class="text-sm text-gray-600">
-                <span id="selected-count">0</span> pessoa(s) selecionada(s) de {{ persons|length }}
+                <span id="selected-count">{{ selected_person_ids|length }}</span> pessoa(s) selecionada(s) de {{ persons|length }}
             </div>
         </div>
         
@@ -338,8 +338,8 @@
 </div>
 
 <!-- Contador de Seleção -->
-<div class="selected-counter">
-    <span id="selected-count">0</span> pessoas selecionadas
+<div class="selected-counter fixed bottom-4 right-4 bg-green-600 text-white py-2 px-4 rounded-full shadow-lg z-50 {% if not selected_person_ids %}hidden{% endif %}">
+    <span id="selected-count-floating">{{ selected_person_ids|length }}</span> pessoas selecionadas
 </div>
 
 <!-- Modal de Compartilhamento -->
@@ -507,7 +507,9 @@
             }
         }
         
-        // Atualizar UI com pessoas selecionadas
+        // Garantir que os contadores sejam atualizados corretamente na inicialização
+        updateSelectedCounter();
+        updatePersonCardsSelection();
         updateSelectedPeopleUI();
         
         // Adicionar evento de clique para os cards de pessoas (para seleção)
@@ -934,6 +936,17 @@
                         `;
                         selectedPeopleList.appendChild(li);
                     });
+                    
+                    // Adicionar event listeners para os botões de remoção
+                    document.querySelectorAll('.remove-selected').forEach(button => {
+                        button.addEventListener('click', function() {
+                            const personId = parseInt(this.dataset.personId);
+                            const person = selectedPersons.find(p => p.id === personId);
+                            if (person) {
+                                togglePersonSelection(personId, person.name, person.photo);
+                            }
+                        });
+                    });
                 } else {
                     selectedPeopleContainer.classList.add('hidden');
                 }
@@ -993,9 +1006,26 @@
         
         // Função para atualizar o contador de selecionados
         function updateSelectedCounter() {
+            // Atualizar o contador no topo da página
             const selectionCount = document.getElementById('selected-count');
             if (selectionCount) {
                 selectionCount.textContent = selectedPersons.length;
+            }
+            
+            // Atualizar o contador flutuante
+            const floatingCounter = document.querySelector('.selected-counter #selected-count-floating');
+            if (floatingCounter) {
+                floatingCounter.textContent = selectedPersons.length;
+            }
+            
+            // Mostrar ou esconder o contador flutuante baseado na quantidade
+            const floatingCounterContainer = document.querySelector('.selected-counter');
+            if (floatingCounterContainer) {
+                if (selectedPersons.length > 0) {
+                    floatingCounterContainer.classList.remove('hidden');
+                } else {
+                    floatingCounterContainer.classList.add('hidden');
+                }
             }
         }
         
