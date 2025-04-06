@@ -216,7 +216,18 @@
         <div id="selected-people-container" class="mb-6 bg-gray-50 p-4 rounded-lg border border-gray-200 {% if not selected_person_ids %}hidden{% endif %}">
             <h3 class="text-lg font-medium text-gray-900 mb-2">Pessoas Selecionadas</h3>
             <ul id="selected-people-list" class="divide-y divide-gray-200">
-                <!-- Lista de pessoas selecionadas será preenchida pelo JavaScript -->
+                {% for person_id in selected_person_ids %}
+                    {% for person in persons %}
+                        {% if person.id == person_id %}
+                        <li class="flex justify-between items-center p-2 hover:bg-gray-50">
+                            <span>{{ person.name }}</span>
+                            <button class="remove-selected text-red-600 hover:text-red-800" data-person-id="{{ person.id }}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
+                {% endfor %}
             </ul>
         </div>
         
@@ -231,7 +242,7 @@
                         </div>
                         {% endif %}
                         {% if person.photo %}
-                            <img src="{{ person.photo.url }}" alt="{{ person.name }}" class="w-full h-full object-cover">
+                            <img src="{{ person.photo.url }}" alt="{{ person.name }}" class="w-full h-full object-cover" loading="lazy" onerror="this.onerror=null; this.src='/static/images/default-user.png'; this.classList.add('fallback-image');">
                         {% else %}
                             <div class="w-full h-full flex items-center justify-center bg-gray-300">
                                 <i class="fas fa-user text-gray-500 text-5xl"></i>
