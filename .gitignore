@@ -1,55 +1,49 @@
-# Python
+# Banco de dados SQLite
+db.sqlite3
+db.sqlite3-journal
+
+# Python bytecode
 __pycache__/
 *.py[cod]
 *$py.class
-*.so
-.Python
-env/
-build/
-develop-eggs/
-dist/
-downloads/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-*.egg-info/
-.installed.cfg
-*.egg
-
-# Django
-*.log
-local_settings.py
-db.sqlite3
-db.sqlite3-journal
-media
 
 # Ambiente virtual
 venv/
+env/
 ENV/
 
-# IDE
-.idea/
-.vscode/
-*.swp
-*.swo
-
-# Arquivos do sistema
-.DS_Store
-Thumbs.db
-
-# Arquivos de configuração sensíveis
+# Arquivos de configuração local
 .env
-*.pem
-*.key
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
-# Arquivos de migração
-# migrations/
+# Arquivos de mídia e upload
+media/
 
 # Arquivos estáticos coletados
 staticfiles/
 
-settings_base.py
+# Arquivos de log
+*.log
+
+# Arquivos temporários
+*.tmp
+*.swp
+*~
+
+# Arquivos de IDE
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Arquivos de cache
+.cache/
+.pytest_cache/
+
+# Arquivos de distribuição
+dist/
+build/
+*.egg-info/
