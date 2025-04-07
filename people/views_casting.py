@@ -17,11 +17,26 @@ def casting_catalog_list(request):
     """
     Lista todos os catálogos de casting
     """
+    # Verificar permissão do usuário
+    if not request.user.is_staff and not request.user.is_superuser:
+        messages.error(request, "Você não tem permissão para acessar esta página.")
+        return redirect('dashboard:index')
+        
     catalogs = CastingCatalog.objects.all()
     
     # Adicionar contagem de pessoas selecionadas para cada catálogo
     for catalog in catalogs:
-        catalog.selected_count = PersonSelection.objects.filter(catalog=catalog).count()
+        # Obter IDs das pessoas que atendem aos filtros do catálogo
+        filtered_people_ids = catalog.get_filtered_people().values_list('id', flat=True)
+        
+        # Contar apenas seleções de pessoas que estão no catálogo filtrado
+        catalog.selected_count = PersonSelection.objects.filter(
+            catalog=catalog,
+            person_id__in=filtered_people_ids
+        ).count()
+        
+        # Adicionar contagem total de pessoas no catálogo
+        catalog.total_people_count = len(filtered_people_ids)
     
     # Paginação
     paginator = Paginator(catalogs, 10)
@@ -41,13 +56,24 @@ def casting_catalog_detail(request, pk):
     """
     Exibe os detalhes de um catálogo de casting e as pessoas que atendem aos critérios
     """
+    # Verificar permissão do usuário
+    if not request.user.is_staff and not request.user.is_superuser:
+        messages.error(request, "Você não tem permissão para acessar esta página.")
+        return redirect('dashboard:index')
+        
     catalog = get_object_or_404(CastingCatalog, pk=pk)
     
     # Obter pessoas filtradas
     persons = catalog.get_filtered_people()
     
-    # Obter IDs de pessoas selecionadas neste catálogo
-    selected_person_ids = list(PersonSelection.objects.filter(catalog=catalog).values_list('person_id', flat=True))
+    # Obter IDs de pessoas filtradas
+    filtered_person_ids = list(persons.values_list('id', flat=True))
+    
+    # Obter IDs de pessoas selecionadas neste catálogo (apenas as que estão no filtro)
+    selected_person_ids = list(PersonSelection.objects.filter(
+        catalog=catalog,
+        person_id__in=filtered_person_ids
+    ).values_list('person_id', flat=True))
     
     # Filtrar apenas pessoas selecionadas se o parâmetro estiver presente
     show_selected_only = request.GET.get('selected_only') == '1'
@@ -55,7 +81,7 @@ def casting_catalog_detail(request, pk):
         persons = persons.filter(id__in=selected_person_ids)
     
     # Contagem total de pessoas no catálogo
-    total_persons_count = persons.count()
+    total_persons_count = persons.count() if not show_selected_only else len(filtered_person_ids)
     
     # Contagem de pessoas selecionadas
     selected_persons_count = len(selected_person_ids)
