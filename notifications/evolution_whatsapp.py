@@ -1,8 +1,8 @@
 import requests
 import json
 import os
-from django.conf import settings
 import logging
+from notifications import settings as notification_settings
 
 logger = logging.getLogger(__name__)
 
@@ -16,33 +16,27 @@ class EvolutionWhatsAppService:
         Inicializa o serviço com as configurações da API.
         """
         # Configurações da API Evolution
-        self.api_key = getattr(settings, 'EVOLUTION_API_KEY', None)
-        self.instance_id = getattr(settings, 'EVOLUTION_INSTANCE_ID', None)
-        self.api_url = getattr(settings, 'EVOLUTION_API_URL', 'https://evo.n8newhatsapp.com.br')
+        self.api_key = notification_settings.EVOLUTION_API_KEY
+        self.instance_id = notification_settings.EVOLUTION_INSTANCE_ID
+        self.api_url = notification_settings.EVOLUTION_API_URL
         
         # Configurações do gestor
-        manager_whatsapp = getattr(settings, 'MANAGER_WHATSAPP', None)
-        # Limpar o número do gestor (remover comentários e espaços)
-        if manager_whatsapp:
-            # Extrair apenas os dígitos do número
-            self.manager_whatsapp = ''.join(filter(str.isdigit, str(manager_whatsapp)))
-        else:
-            self.manager_whatsapp = None
+        self.manager_whatsapp = notification_settings.MANAGER_WHATSAPP
         
         # Flags de notificação específicas do Evolution
-        self.enable_whatsapp = getattr(settings, 'EVOLUTION_ENABLE_WHATSAPP', False)
-        self.notify_on_registration = getattr(settings, 'EVOLUTION_NOTIFY_ON_REGISTRATION', False)
-        self.notify_on_contact = getattr(settings, 'EVOLUTION_NOTIFY_ON_CONTACT', False)
+        self.enable_whatsapp = notification_settings.EVOLUTION_ENABLE_WHATSAPP
+        self.notify_on_registration = notification_settings.EVOLUTION_NOTIFY_ON_REGISTRATION
+        self.notify_on_contact = notification_settings.EVOLUTION_NOTIFY_ON_CONTACT
         
         # Se não houver configurações específicas, usar as configurações gerais
-        if not hasattr(settings, 'EVOLUTION_NOTIFY_ON_REGISTRATION'):
-            self.notify_on_registration = getattr(settings, 'NOTIFY_ON_REGISTRATION', False)
+        if not hasattr(notification_settings, 'EVOLUTION_NOTIFY_ON_REGISTRATION'):
+            self.notify_on_registration = notification_settings.NOTIFY_ON_REGISTRATION
             
-        if not hasattr(settings, 'EVOLUTION_NOTIFY_ON_CONTACT'):
-            self.notify_on_contact = getattr(settings, 'NOTIFY_ON_CONTACT', False)
+        if not hasattr(notification_settings, 'EVOLUTION_NOTIFY_ON_CONTACT'):
+            self.notify_on_contact = notification_settings.NOTIFY_ON_CONTACT
             
-        if not hasattr(settings, 'EVOLUTION_ENABLE_WHATSAPP'):
-            self.enable_whatsapp = getattr(settings, 'ENABLE_WHATSAPP', False)
+        if not hasattr(notification_settings, 'EVOLUTION_ENABLE_WHATSAPP'):
+            self.enable_whatsapp = notification_settings.ENABLE_WHATSAPP
         
         # Logs para debug
         logger.debug(f"Evolution WhatsApp Service inicializado")
@@ -52,8 +46,7 @@ class EvolutionWhatsAppService:
         logger.debug(f"Enable WhatsApp: {self.enable_whatsapp}")
         logger.debug(f"Notify on Registration: {self.notify_on_registration}")
         logger.debug(f"Notify on Contact: {self.notify_on_contact}")
-        logger.debug(f"Manager WhatsApp (original): {manager_whatsapp}")
-        logger.debug(f"Manager WhatsApp (formatado): {self.manager_whatsapp}")
+        logger.debug(f"Manager WhatsApp: {self.manager_whatsapp}")
         
         # Logs para impressão durante o teste
         print(f"Evolution WhatsApp Service inicializado")
@@ -63,8 +56,7 @@ class EvolutionWhatsAppService:
         print(f"Enable WhatsApp: {self.enable_whatsapp}")
         print(f"Notify on Registration: {self.notify_on_registration}")
         print(f"Notify on Contact: {self.notify_on_contact}")
-        print(f"Manager WhatsApp (original): {manager_whatsapp}")
-        print(f"Manager WhatsApp (formatado): {self.manager_whatsapp}")
+        print(f"Manager WhatsApp: {self.manager_whatsapp}")
     
     @property
     def is_configured(self):

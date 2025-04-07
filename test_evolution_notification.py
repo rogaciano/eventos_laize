@@ -14,7 +14,7 @@ django.setup()
 from notifications.evolution_whatsapp import EvolutionWhatsAppService
 from landing.models import Message
 from django.utils import timezone
-from django.conf import settings
+from notifications import settings as notification_settings
 
 def test_contact_notification():
     """
@@ -35,14 +35,14 @@ def test_contact_notification():
     # Enviar notificação
     service = EvolutionWhatsAppService()
     
-    # Verificar configurações do Django
-    print("\n=== CONFIGURAÇÕES DO DJANGO ===")
-    print(f"EVOLUTION_API_KEY: {getattr(settings, 'EVOLUTION_API_KEY', 'Não definido')}")
-    print(f"EVOLUTION_INSTANCE_ID: {getattr(settings, 'EVOLUTION_INSTANCE_ID', 'Não definido')}")
-    print(f"EVOLUTION_API_URL: {getattr(settings, 'EVOLUTION_API_URL', 'Não definido')}")
-    print(f"EVOLUTION_ENABLE_WHATSAPP: {getattr(settings, 'EVOLUTION_ENABLE_WHATSAPP', 'Não definido')}")
-    print(f"EVOLUTION_NOTIFY_ON_CONTACT: {getattr(settings, 'EVOLUTION_NOTIFY_ON_CONTACT', 'Não definido')}")
-    print(f"MANAGER_WHATSAPP: {getattr(settings, 'MANAGER_WHATSAPP', 'Não definido')}")
+    # Verificar configurações do módulo de notificações
+    print("\n=== CONFIGURAÇÕES DO MÓDULO DE NOTIFICAÇÕES ===")
+    print(f"EVOLUTION_API_KEY: {notification_settings.EVOLUTION_API_KEY}")
+    print(f"EVOLUTION_INSTANCE_ID: {notification_settings.EVOLUTION_INSTANCE_ID}")
+    print(f"EVOLUTION_API_URL: {notification_settings.EVOLUTION_API_URL}")
+    print(f"EVOLUTION_ENABLE_WHATSAPP: {notification_settings.EVOLUTION_ENABLE_WHATSAPP}")
+    print(f"EVOLUTION_NOTIFY_ON_CONTACT: {notification_settings.EVOLUTION_NOTIFY_ON_CONTACT}")
+    print(f"MANAGER_WHATSAPP: {notification_settings.MANAGER_WHATSAPP}")
     
     # Verificar configurações do serviço
     print("\n=== CONFIGURAÇÕES DO SERVIÇO ===")

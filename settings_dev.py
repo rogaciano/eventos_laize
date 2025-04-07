@@ -38,11 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     # Custom apps
+    'dashboard',
     'events',
     'people',
     'clients',
-    'dashboard',
     'occurrences',
+    'notifications',
 ]
 
 MIDDLEWARE = [
