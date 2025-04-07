@@ -3,6 +3,7 @@ import json
 import os
 import logging
 from notifications import settings as notification_settings
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -255,17 +256,24 @@ class EvolutionWhatsAppService:
         email = email_contact.value if email_contact else "Não informado"
         phone = phone_contact.value if phone_contact else "Não informado"
         
+        # Obter categorias profissionais
+        categories = ", ".join([cat.nome for cat in person.professional_categories.all()]) if person.professional_categories.exists() else "Não informado"
+        
         # Construir a mensagem
         notification_text = (
             f"🔔 *NOVO CADASTRO RECEBIDO* 🔔\n\n"
             f"*Nome:* {person.name}\n"
-            f"*Email:* {email}\n"
             f"*Telefone:* {phone}\n"
-            f"*Idade:* {person.age if person.age else 'Não informada'}\n"
-            f"*Altura:* {person.height if person.height else 'Não informada'}\n"
-            f"*Origem:* {person.origem_cadastro}\n\n"
-            f"Acesse o sistema para mais detalhes."
+            f"*Categoria(s):* {categories}\n"
+            f"*Cidade:* {person.city if person.city else 'Não informada'}\n"
+            f"*Bairro:* {person.neighborhood if person.neighborhood else 'Não informado'}\n"
         )
+        
+        # Adicionar observações se existirem
+        if person.notes:
+            notification_text += f"\n*Observações:*\n{person.notes}\n"
+        
+        notification_text += f"\nRecebido em: {timezone.now().strftime('%d/%m/%Y %H:%M')}\n\nAcesse o sistema para mais detalhes."
         
         # Enviar a notificação
         return self.send_message(self.manager_whatsapp, notification_text)
