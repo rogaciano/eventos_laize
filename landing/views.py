@@ -9,6 +9,10 @@ from django.db.models import Q
 from django.core.paginator import Paginator
 from people.models import Person, PersonContact, ProfessionalCategory
 from notifications.whatsapp import WhatsAppManager
+from notifications.evolution_whatsapp import EvolutionWhatsAppService
+import logging
+
+logger = logging.getLogger(__name__)
 
 def get_site_settings():
     """Retorna as configurações do site ou cria um padrão se não existir"""
@@ -97,14 +101,22 @@ def contact(request):
                 form_sent = True
                 form = ContactForm()  # Limpar o formulário
                 
-                # Enviar notificação WhatsApp para o gestor
+                # Enviar notificação WhatsApp para o gestor usando o serviço existente
                 try:
                     whatsapp_manager = WhatsAppManager()
                     whatsapp_manager.notify_new_contact(message)
                 except Exception as e:
-                    print(f"Erro ao enviar notificação WhatsApp: {e}")
+                    logger.error(f"Erro ao enviar notificação WhatsApp (serviço antigo): {e}")
+                
+                # Enviar notificação WhatsApp para o gestor usando o novo serviço Evolution
+                try:
+                    evolution_service = EvolutionWhatsAppService()
+                    evolution_service.notify_new_contact(message)
+                except Exception as e:
+                    logger.error(f"Erro ao enviar notificação WhatsApp (Evolution): {e}")
                     
             except Exception as e:
+                logger.error(f"Erro ao salvar mensagem de contato: {e}")
                 form_error = True
     else:
         form = ContactForm()
@@ -164,16 +176,23 @@ def register(request):
                 form_sent = True
                 form = RegistrationForm()  # Limpar o formulário
                 
-                # Enviar notificação WhatsApp para o gestor
+                # Enviar notificação WhatsApp para o gestor usando o serviço existente
                 try:
                     whatsapp_manager = WhatsAppManager()
                     whatsapp_manager.notify_new_registration(person)
                 except Exception as e:
-                    print(f"Erro ao enviar notificação WhatsApp: {e}")
+                    logger.error(f"Erro ao enviar notificação WhatsApp (serviço antigo): {e}")
+                
+                # Enviar notificação WhatsApp para o gestor usando o novo serviço Evolution
+                try:
+                    evolution_service = EvolutionWhatsAppService()
+                    evolution_service.notify_new_registration(person)
+                except Exception as e:
+                    logger.error(f"Erro ao enviar notificação WhatsApp (Evolution): {e}")
                 
             except Exception as e:
                 form_error = True
-                print(f"Erro ao salvar registro: {e}")
+                logger.error(f"Erro ao salvar registro: {e}")
     else:
         form = RegistrationForm()
     

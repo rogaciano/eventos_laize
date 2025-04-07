@@ -181,11 +181,24 @@ WHATSAPP_API_URL = os.getenv('WHATSAPP_API_URL', 'https://webpicne.digisac.co/ap
 WHATSAPP_API_USER_ID = os.getenv('WHATSAPP_API_USER_ID', None)
 WHATSAPP_API_TOKEN = os.getenv('WHATSAPP_API_TOKEN', None)
 
-# Configurações do WhatsApp para notificações do gestor
+# Configurações do Evolution WhatsApp
+EVOLUTION_API_KEY = os.getenv('EVOLUTION_API_KEY', None)
+EVOLUTION_INSTANCE_ID = os.getenv('EVOLUTION_INSTANCE_ID', None)
+EVOLUTION_API_URL = os.getenv('EVOLUTION_API_URL', 'https://evo.n8newhatsapp.com.br')
+EVOLUTION_ENABLE_WHATSAPP_VALUE = os.getenv('EVOLUTION_ENABLE_WHATSAPP', '0')
+EVOLUTION_ENABLE_WHATSAPP = EVOLUTION_ENABLE_WHATSAPP_VALUE.lower() in ('true', 't', '1', 'yes', 'y')
+EVOLUTION_NOTIFY_ON_REGISTRATION_VALUE = os.getenv('EVOLUTION_NOTIFY_ON_REGISTRATION', '0')
+EVOLUTION_NOTIFY_ON_REGISTRATION = EVOLUTION_NOTIFY_ON_REGISTRATION_VALUE.lower() in ('true', 't', '1', 'yes', 'y')
+EVOLUTION_NOTIFY_ON_CONTACT_VALUE = os.getenv('EVOLUTION_NOTIFY_ON_CONTACT', '0')
+EVOLUTION_NOTIFY_ON_CONTACT = EVOLUTION_NOTIFY_ON_CONTACT_VALUE.lower() in ('true', 't', '1', 'yes', 'y')
+
+# Configurações do gestor para notificações
 MANAGER_WHATSAPP = os.getenv('MANAGER_WHATSAPP', None)
 MANAGER_ID = os.getenv('MANAGER_ID', None)
-NOTIFY_ON_REGISTRATION = os.getenv('NOTIFY_ON_REGISTRATION', '1').lower() in ('true', 't', '1', 'yes', 'y')
-NOTIFY_ON_CONTACT = os.getenv('NOTIFY_ON_CONTACT', '1').lower() in ('true', 't', '1', 'yes', 'y')
+NOTIFY_ON_REGISTRATION_VALUE = os.getenv('NOTIFY_ON_REGISTRATION', '0')
+NOTIFY_ON_REGISTRATION = NOTIFY_ON_REGISTRATION_VALUE.lower() in ('true', 't', '1', 'yes', 'y')
+NOTIFY_ON_CONTACT_VALUE = os.getenv('NOTIFY_ON_CONTACT', '0')
+NOTIFY_ON_CONTACT = NOTIFY_ON_CONTACT_VALUE.lower() in ('true', 't', '1', 'yes', 'y')
 
 # Configurações do Twilio para WhatsApp
 TWILIO_ACCOUNT_SID = os.getenv('TWILIO_ACCOUNT_SID', None)
