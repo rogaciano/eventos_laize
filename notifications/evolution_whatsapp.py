@@ -241,6 +241,7 @@ class EvolutionWhatsAppService:
         Returns:
             Resultado do envio da mensagem
         """
+        # Teste de alteração para verificar se o Git detecta
         if not self.enable_whatsapp or not self.notify_on_registration or not self.manager_whatsapp:
             logger.info("Notificação de cadastro desativada ou número do gestor não configurado")
             return {
