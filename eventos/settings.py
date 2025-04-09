@@ -77,6 +77,7 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'landing.context_processors.unread_messages_count',
+                'landing.context_processors.site_settings',
                 'people.context_processors.whatsapp_settings',
                 'people.context_processors.pending_people_count',
             ],

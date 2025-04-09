@@ -1,11 +1,11 @@
 {% extends 'base/base.html' %}
 
-{% block title %}Login | Sistema de Gerenciamento de Eventos - Agência Atitude{% endblock %}
+{% block title %}Login | Sistema de Gerenciamento de Eventos - {{ site_settings.site_name }}{% endblock %}
 
 {% block content %}
 <div class="flex min-h-full flex-col justify-center px-6 py-12 lg:px-8">
   <div class="sm:mx-auto sm:w-full sm:max-w-sm">
-    <img src="/static/img/brand/logo-atitude-white.png" alt="Agência Atitude" class="h-16 mx-auto">
+    <img src="/static/img/brand/logo-atitude-white.png" alt="{{ site_settings.site_name }}" class="h-16 mx-auto">
     <h2 class="mt-4 text-center text-2xl font-bold leading-9 tracking-tight text-white">Login</h2>
   </div>
 

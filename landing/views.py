@@ -101,13 +101,6 @@ def contact(request):
                 form_sent = True
                 form = ContactForm()  # Limpar o formulário
                 
-                # Enviar notificação WhatsApp para o gestor usando o serviço existente
-                try:
-                    whatsapp_manager = WhatsAppManager()
-                    whatsapp_manager.notify_new_contact(message)
-                except Exception as e:
-                    logger.error(f"Erro ao enviar notificação WhatsApp (serviço antigo): {e}")
-                
                 # Enviar notificação WhatsApp para o gestor usando o novo serviço Evolution
                 try:
                     evolution_service = EvolutionWhatsAppService()
@@ -175,13 +168,6 @@ def register(request):
                 
                 form_sent = True
                 form = RegistrationForm()  # Limpar o formulário
-                
-                # Enviar notificação WhatsApp para o gestor usando o serviço existente
-                try:
-                    whatsapp_manager = WhatsAppManager()
-                    whatsapp_manager.notify_new_registration(person)
-                except Exception as e:
-                    logger.error(f"Erro ao enviar notificação WhatsApp (serviço antigo): {e}")
                 
                 # Enviar notificação WhatsApp para o gestor usando o novo serviço Evolution
                 try:

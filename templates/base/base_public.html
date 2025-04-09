@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% block title %}Agência Atitude{% endblock %}</title>
+    <title>{% block title %}{{ site_settings.site_name }}{% endblock %}</title>
     
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -43,8 +43,8 @@
     <header class="bg-black shadow-md">
         <nav class="container mx-auto px-4 py-4 flex justify-between items-center">
             <a href="/" class="text-2xl font-bold text-white flex items-center">
-                <img src="/static/img/brand/logo-atitude-white.png" alt="Agência Atitude" class="h-8 mr-2">
-                Agência Atitude
+                <img src="/static/img/brand/logo-atitude-white.png" alt="{{ site_settings.site_name }}" class="h-8 mr-2">
+                {{ site_settings.site_name }}
             </a>
             
             <div class="hidden md:flex space-x-6">
@@ -70,7 +70,7 @@
             <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <!-- About Section -->
                 <div>
-                    <h3 class="text-xl font-semibold mb-4">Agência Atitude</h3>
+                    <h3 class="text-xl font-semibold mb-4">{{ site_settings.site_name }}</h3>
                     <p class="text-gray-300 mb-4">Transformamos Ideias em Eventos Memoráveis</p>
                     <div class="flex space-x-4 mb-4">
                         <a href="https://instagram.com/agenciaatitude" target="_blank" class="text-white hover:text-gray-400">
@@ -107,7 +107,7 @@
             </div>
             
             <div class="border-t border-gray-800 mt-8 pt-6 text-center text-gray-400">
-                <p>&copy; {% now "Y" %} Agência Atitude. Todos os direitos reservados.</p>
+                <p>&copy; {% now "Y" %} {{ site_settings.site_name }}. Todos os direitos reservados.</p>
             </div>
         </div>
     </footer>
