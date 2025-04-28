@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404, render, redirect
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
@@ -1268,7 +1269,7 @@ def person_comment_delete(request, comment_id):
     # URL para retornar após excluir
     next_url = request.GET.get('next', reverse('people:comments_list', kwargs={'person_id': person_id}))
     
-    return render(request, 'people/person_comment_confirm_delete.html', {
+    return render(request, 'people/comment_delete.html', {
         'comment': comment,
         'next_url': next_url
     })

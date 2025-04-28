@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero
+from .models import Person, PersonContact, CorOlhos, CorCabelo, CorPele, Genero, PersonComment
 
 # Register your models here.
 
@@ -56,3 +56,9 @@ class CorPeleAdmin(admin.ModelAdmin):
 class GeneroAdmin(admin.ModelAdmin):
     list_display = ('nome',)
     search_fields = ('nome',)
+
+@admin.register(PersonComment)
+class PersonCommentAdmin(admin.ModelAdmin):
+    list_display = ('person', 'user', 'comment_text', 'created_at', 'is_question', 'is_answered')
+    list_filter = ('is_question', 'is_answered', 'created_at')
+    search_fields = ('comment_text', 'person__name', 'user__username')
