@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base/base.html' %}
 {% load static %}
 
 {% block title %}Comentários e Perguntas{% endblock %}
@@ -16,7 +16,7 @@
         
         <div>
             {% if person_id %}
-                <a href="{% url 'people:person_detail' person_id %}" class="btn btn-outline-secondary">
+                <a href="{% url 'people:detail' person_id %}" class="btn btn-outline-secondary">
                     <i class="fas fa-arrow-left"></i> Voltar ao Perfil
                 </a>
             {% else %}
@@ -100,7 +100,7 @@
                         <div class="card-body">
                             <h5 class="card-title">
                                 {% if not person_id %}
-                                    <a href="{% url 'people:person_detail' comment.person.id %}">
+                                    <a href="{% url 'people:detail' comment.person.id %}">
                                         {{ comment.person.name }}
                                     </a>
                                 {% endif %}

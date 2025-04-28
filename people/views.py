@@ -1212,12 +1212,12 @@ def person_comments_list(request, person_id=None):
     elif filter_answered == 'no':
         comments = comments.filter(is_answered=False)
     
-    return render(request, 'people/person_comments_list.html', {
+    return render(request, 'people/comments_list.html', {
+        'person_id': person_id,
         'comments': comments,
         'person': person,
         'title': title,
-        'filter_type': filter_type,
-        'filter_answered': filter_answered
+        'filters': {'type': filter_type, 'status': filter_answered},
     })
 
 def person_comment_answer(request, comment_id):
