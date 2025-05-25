@@ -148,6 +148,96 @@
     .modal-footer button:hover {
         background-color: #3e8e41;
     }
+    
+    /* Estilos para o container da imagem */
+    .person-image-container {
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+        cursor: pointer;
+    }
+    
+    .person-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: filter 0.3s ease;
+    }
+    
+    .person-image-container:hover .person-image {
+        filter: brightness(1.1);
+    }
+    
+    /* Estilo para o overlay de zoom */
+    .zoom-indicator {
+        position: absolute;
+        bottom: 8px;
+        right: 8px;
+        background-color: rgba(0, 0, 0, 0.5);
+        color: white;
+        border-radius: 50%;
+        width: 28px;
+        height: 28px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 6;
+    }
+    
+    /* Estilos para o modal de imagem */
+    .image-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        overflow: auto;
+        background-color: rgba(0, 0, 0, 0.9);
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .image-modal-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        max-width: 90%;
+        max-height: 90%;
+    }
+    
+    .modal-image {
+        max-width: 100%;
+        max-height: 80vh;
+        object-fit: contain;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    }
+    
+    .image-modal-close {
+        position: absolute;
+        top: 15px;
+        right: 25px;
+        color: #f1f1f1;
+        font-size: 40px;
+        font-weight: bold;
+        transition: 0.3s;
+        cursor: pointer;
+    }
+    
+    .image-modal-close:hover,
+    .image-modal-close:focus {
+        color: #bbb;
+        text-decoration: none;
+    }
+    
+    .person-name-caption {
+        color: white;
+        font-size: 18px;
+        margin-top: 10px;
+        text-align: center;
+    }
 </style>
 {% endblock %}
 
@@ -242,7 +332,12 @@
                         </div>
                         {% endif %}
                         {% if person.get_display_photo %}
-                            <img src="{{ person.get_display_photo.url }}" alt="{{ person.name }}" class="w-full h-full object-cover" loading="lazy" onerror="this.onerror=null; this.src='/static/images/default-user.png'; this.classList.add('fallback-image');">
+                            <div class="person-image-container" onclick="openImageModal('{{ person.get_display_photo.url }}', '{{ person.name }}')">
+                                <img src="{{ person.get_display_photo.url }}" alt="{{ person.name }}" class="person-image" loading="lazy" onerror="this.onerror=null; this.src='/static/images/default-user.png'; this.classList.add('fallback-image');">
+                                <div class="zoom-indicator">
+                                    <i class="fas fa-search-plus"></i>
+                                </div>
+                            </div>
                         {% else %}
                             <div class="w-full h-full flex items-center justify-center bg-gray-300">
                                 <i class="fas fa-user text-gray-500 text-5xl"></i>
@@ -451,7 +546,40 @@
 <!-- JavaScript -->
 {% block extra_js %}
 <script>
+    // Função para abrir o modal de imagem
+    function openImageModal(imageUrl, personName) {
+        // Evitar a propagação do evento para não selecionar a pessoa ao clicar na imagem
+        event.stopPropagation();
+        
+        const modal = document.getElementById('image-modal');
+        const modalImg = document.getElementById('modal-full-image');
+        const captionText = document.getElementById('modal-person-caption');
+        
+        modal.style.display = 'flex';
+        modalImg.src = imageUrl;
+        captionText.innerText = personName;
+        
+        // Desabilitar o scroll da página quando o modal estiver aberto
+        document.body.style.overflow = 'hidden';
+    }
+    
+    // Função para fechar o modal de imagem
+    function closeImageModal() {
+        const modal = document.getElementById('image-modal');
+        modal.style.display = 'none';
+        
+        // Habilitar o scroll da página novamente
+        document.body.style.overflow = 'auto';
+    }
+    
     document.addEventListener('DOMContentLoaded', function() {
+        // Fechar o modal ao clicar fora da imagem
+        const modal = document.getElementById('image-modal');
+        modal.addEventListener('click', function(event) {
+            if (event.target === modal) {
+                closeImageModal();
+            }
+        });
         // Elementos do DOM
         const personDetailsModal = document.getElementById('person-details-modal');
         const personDetailsContent = document.getElementById('person-details-content');
@@ -1128,5 +1256,13 @@
         }
     });
 </script>
+
+<div id="image-modal" class="image-modal" onclick="closeImageModal()">
+    <span class="image-modal-close" onclick="closeImageModal()">&times;</span>
+    <div class="image-modal-content">
+        <img id="modal-full-image" class="modal-image">
+        <div id="modal-person-caption" class="person-name-caption"></div>
+    </div>
+</div>
 
 {% endblock %}
