@@ -1,6 +1,8 @@
+import os
 from django import forms
 from .models import Service, Testimonial, Post, SiteSettings, Message
 from people.models import Person, ProfessionalCategory, CorOlhos, CorCabelo, CorPele, Genero
+from django.conf import settings
 
 class ContactForm(forms.Form):
     name = forms.CharField(
@@ -38,9 +40,41 @@ class ContactForm(forms.Form):
             'rows': 5
         })
     )
+    recaptcha_token = forms.CharField(
+        required=True,  # Obrigatório quando RECAPTCHA_STRICT = True
+        widget=forms.HiddenInput()
+    )
 
 class RegistrationForm(forms.ModelForm):
     """Form for user registration on the landing page."""
+    
+    # Campo para o token do reCAPTCHA
+    recaptcha_token = forms.CharField(
+        required=True,  # Obrigatório quando RECAPTCHA_STRICT = True
+        widget=forms.HiddenInput()
+    )
+    
+    def clean_photo(self):
+        """Validar o campo de foto para garantir que seja uma imagem válida"""
+        photo = self.cleaned_data.get('photo')
+        
+        if photo:
+            # Verificar o tamanho do arquivo (máximo de 5MB)
+            if photo.size > 5 * 1024 * 1024:
+                raise forms.ValidationError(
+                    'O tamanho máximo permitido para a foto é de 5MB.'
+                )
+            
+            # Verificar a extensão do arquivo
+            valid_extensions = ['.jpg', '.jpeg', '.png', '.gif']
+            ext = os.path.splitext(photo.name)[1].lower()
+            if ext not in valid_extensions:
+                raise forms.ValidationError(
+                    'Por favor, envie uma imagem válida. '
+                    'Os formatos suportados são: JPG, JPEG, PNG e GIF.'
+                )
+                
+        return photo
     
     class Meta:
         model = Person

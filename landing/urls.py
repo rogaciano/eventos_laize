@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from .views_simple import simple_register
 
 app_name = 'landing'
 
@@ -10,7 +11,7 @@ urlpatterns = [
     path('novidades/', views.blog, name='blog'),
     path('novidades/<slug:slug>/', views.post_detail, name='post_detail'),
     path('contato/', views.contact, name='contact'),
-    path('cadastro/', views.register, name='register'),
+    path('cadastro/', simple_register, name='register'),  # Usando o formulário simplificado sem reCAPTCHA
     
     # URLs para gerenciamento de mensagens
     path('mensagens/', views.message_list, name='message_list'),
@@ -24,4 +25,7 @@ urlpatterns = [
     path('blog/<int:pk>/editar/', views.post_update, name='post_update'),
     path('blog/<int:pk>/excluir/', views.post_delete, name='post_delete'),
     path('blog/<int:pk>/preview/', views.post_detail_preview, name='post_detail_preview'),
+    
+    # URL para formulário de cadastro simplificado (sem reCAPTCHA)
+    path('cadastro-simples/', simple_register, name='simple_register'),
 ]

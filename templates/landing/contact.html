@@ -2,6 +2,30 @@
 
 {% block title %}Contato - {{ site_settings.site_name }}{% endblock %}
 
+{% block extra_head %}
+<!-- Google reCAPTCHA v3 -->
+<script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Obter o token do reCAPTCHA antes do envio do formulário
+        // sem interferir no fluxo normal de envio
+        grecaptcha.ready(function() {
+            // Obter token imediatamente quando a página carrega
+            grecaptcha.execute('{{ recaptcha_site_key }}', {action: 'contact_form'}).then(function(token) {
+                document.getElementById('id_recaptcha_token').value = token;
+            });
+            
+            // Atualizar o token a cada 90 segundos (os tokens expiram após 2 minutos)
+            setInterval(function() {
+                grecaptcha.execute('{{ recaptcha_site_key }}', {action: 'contact_form'}).then(function(token) {
+                    document.getElementById('id_recaptcha_token').value = token;
+                });
+            }, 90000);
+        });
+    });
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- Page Header -->
 <section class="bg-black text-white py-16">
@@ -27,12 +51,17 @@
                 
                 {% if form_error %}
                 <div class="bg-red-900 border-l-4 border-red-500 text-red-100 p-4 mb-6" role="alert">
+                    {% if recaptcha_error %}
+                    <p>Verificação de segurança falhou. Por favor, tente novamente.</p>
+                    {% else %}
                     <p>Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente.</p>
+                    {% endif %}
                 </div>
                 {% endif %}
                 
-                <form method="post" action="{% url 'landing:contact' %}">
+                <form method="post" action="{% url 'landing:contact' %}" id="contact-form">
                     {% csrf_token %}
+                    {{ form.recaptcha_token }}
                     
                     <div class="mb-4">
                         <label for="id_name" class="block text-gray-300 font-medium mb-2">Nome</label>

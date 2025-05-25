@@ -160,6 +160,15 @@ LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'sistema_home'
 LOGOUT_REDIRECT_URL = 'landing:home'
 
+# Google reCAPTCHA settings
+# Substitua pelas suas chaves reais
+RECAPTCHA_PUBLIC_KEY = '6LcW40grAAAAAFGVeMwhj-lE_Vx9JDaaR67omWD-'  # Substitua pela sua chave de site
+RECAPTCHA_PRIVATE_KEY = '6LcW40grAAAAACJxFmvLXz93dtWmz35V40k68nnD'  # Substitua pela sua chave secreta
+RECAPTCHA_REQUIRED_SCORE = 0.5  # Valor entre 0.0 e 1.0, quanto maior, mais rigoroso
+# Define se o reCAPTCHA deve ser estritamente aplicado
+# Em ambiente de desenvolvimento, pode ser definido como False para facilitar testes
+RECAPTCHA_STRICT = False if DEBUG else True
+
 # Email settings (for password reset)
 # For development, use console backend
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'

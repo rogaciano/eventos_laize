@@ -2,30 +2,6 @@
 
 {% block title %}{{ title }} - {{ site_settings.site_name }}{% endblock %}
 
-{% block extra_head %}
-<!-- Google reCAPTCHA v3 -->
-<script src="https://www.google.com/recaptcha/api.js?render={{ recaptcha_site_key }}"></script>
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        // Obter o token do reCAPTCHA antes do envio do formulário
-        // sem interferir no fluxo normal de envio
-        grecaptcha.ready(function() {
-            // Obter token imediatamente quando a página carrega
-            grecaptcha.execute('{{ recaptcha_site_key }}', {action: 'registration_form'}).then(function(token) {
-                document.getElementById('id_recaptcha_token').value = token;
-            });
-            
-            // Atualizar o token a cada 90 segundos (os tokens expiram após 2 minutos)
-            setInterval(function() {
-                grecaptcha.execute('{{ recaptcha_site_key }}', {action: 'registration_form'}).then(function(token) {
-                    document.getElementById('id_recaptcha_token').value = token;
-                });
-            }, 90000);
-        });
-    });
-</script>
-{% endblock %}
-
 {% block content %}
 <!-- Hero Section -->
 <section class="hero-section text-white py-20">
@@ -47,17 +23,12 @@
             {% elif form_error %}
                 <div class="bg-red-600 text-white p-4 rounded-lg mb-6">
                     <h3 class="text-xl font-bold mb-2">Erro ao Processar Cadastro</h3>
-                    {% if recaptcha_error %}
-                    <p>Verificação de segurança falhou. Por favor, tente novamente.</p>
-                    {% else %}
                     <p>Ocorreu um erro ao processar seu cadastro. Por favor, tente novamente ou entre em contato conosco.</p>
-                    {% endif %}
                 </div>
             {% endif %}
 
             <form method="post" enctype="multipart/form-data" class="space-y-6" id="registration-form">
                 {% csrf_token %}
-                {{ form.recaptcha_token }}
                 
                 <!-- Informações Pessoais -->
                 <div class="mb-8">
@@ -84,18 +55,18 @@
 
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
                         <div>
-                            <label for="{{ form.contact_email.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Email para Contato *</label>
-                            {{ form.contact_email }}
-                            {% if form.contact_email.errors %}
-                                <p class="text-red-500 text-xs mt-1">{{ form.contact_email.errors.0 }}</p>
+                            <label for="{{ form.data_nascimento.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Data de Nascimento</label>
+                            {{ form.data_nascimento }}
+                            {% if form.data_nascimento.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.data_nascimento.errors.0 }}</p>
                             {% endif %}
                         </div>
                         
                         <div>
-                            <label for="{{ form.contact_phone.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Telefone/WhatsApp *</label>
-                            {{ form.contact_phone }}
-                            {% if form.contact_phone.errors %}
-                                <p class="text-red-500 text-xs mt-1">{{ form.contact_phone.errors.0 }}</p>
+                            <label for="{{ form.document_id.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">CPF/RG</label>
+                            {{ form.document_id }}
+                            {% if form.document_id.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.document_id.errors.0 }}</p>
                             {% endif %}
                         </div>
                     </div>
@@ -108,19 +79,42 @@
                     <div>
                         <label for="{{ form.professional_categories.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Selecione suas categorias profissionais *</label>
                         {{ form.professional_categories }}
-                        <p class="text-gray-400 text-xs mt-1">Selecione uma ou mais categorias que você atua.</p>
+                        <p class="text-gray-400 text-xs mt-1">Selecione uma ou mais categorias que melhor representam sua atuação profissional.</p>
                         {% if form.professional_categories.errors %}
                             <p class="text-red-500 text-xs mt-1">{{ form.professional_categories.errors.0 }}</p>
                         {% endif %}
                     </div>
                 </div>
                 
-                <!-- Endereço Completo -->
+                <!-- Contato -->
                 <div class="mb-8">
-                    <h3 class="text-xl font-bold text-white mb-4 pb-2 border-b border-gray-700">Endereço Completo</h3>
+                    <h3 class="text-xl font-bold text-white mb-4 pb-2 border-b border-gray-700">Informações de Contato</h3>
                     
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <div class="md:col-span-2">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
+                            <label for="{{ form.contact_email.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Email</label>
+                            {{ form.contact_email }}
+                            {% if form.contact_email.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.contact_email.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <label for="{{ form.contact_phone.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Telefone/WhatsApp</label>
+                            {{ form.contact_phone }}
+                            {% if form.contact_phone.errors %}
+                                <p class="text-red-500 text-xs mt-1">{{ form.contact_phone.errors.0 }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Endereço -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-white mb-4 pb-2 border-b border-gray-700">Endereço</h3>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div>
                             <label for="{{ form.address.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Logradouro</label>
                             {{ form.address }}
                             {% if form.address.errors %}
@@ -165,7 +159,7 @@
                         </div>
                         
                         <div>
-                            <label for="{{ form.state.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Estado (UF)</label>
+                            <label for="{{ form.state.id_for_label }}" class="block text-sm font-medium text-gray-300 mb-1">Estado</label>
                             {{ form.state }}
                             {% if form.state.errors %}
                                 <p class="text-red-500 text-xs mt-1">{{ form.state.errors.0 }}</p>
@@ -257,6 +251,21 @@
                         <p class="text-gray-400 text-xs mt-1">Compartilhe informações adicionais, experiências, habilidades ou qualquer outra informação relevante.</p>
                         {% if form.notes.errors %}
                             <p class="text-red-500 text-xs mt-1">{{ form.notes.errors.0 }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                <!-- Verificação de Segurança -->
+                <div class="mb-8">
+                    <h3 class="text-xl font-bold text-white mb-4 pb-2 border-b border-gray-700">Verificação de Segurança</h3>
+                    
+                    <div>
+                        <label for="{{ form.math_captcha.id_for_label }}" class="block text-lg font-medium text-white mb-2">Quanto é <span class="font-bold">{{ math_question }}</span></label>
+                        {{ form.math_captcha }}
+                        <p class="text-gray-400 text-xs mt-1">Por favor, resolva esta operação matemática simples para confirmar que você é humano.</p>
+                        <p class="text-gray-300 text-sm mt-2">Esta verificação ajuda a proteger o site contra cadastros automatizados.</p>
+                        {% if form.math_captcha.errors %}
+                            <p class="text-red-500 text-xs mt-1">{{ form.math_captcha.errors.0 }}</p>
                         {% endif %}
                     </div>
                 </div>
