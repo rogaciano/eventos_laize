@@ -1,6 +1,7 @@
 from django.urls import path
 from . import views
 from .views_simple import simple_register
+from .views_contact import simple_contact
 
 app_name = 'landing'
 
@@ -10,7 +11,7 @@ urlpatterns = [
     path('servicos/', views.services, name='services'),
     path('novidades/', views.blog, name='blog'),
     path('novidades/<slug:slug>/', views.post_detail, name='post_detail'),
-    path('contato/', views.contact, name='contact'),
+    path('contato/', simple_contact, name='contact'),  # Usando o formulário com CAPTCHA matemático
     path('cadastro/', simple_register, name='register'),  # Usando o formulário simplificado sem reCAPTCHA
     
     # URLs para gerenciamento de mensagens
